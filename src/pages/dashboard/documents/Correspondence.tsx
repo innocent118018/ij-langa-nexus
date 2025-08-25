@@ -157,7 +157,7 @@ const Correspondence = () => {
       a.click();
       window.document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (error: any) => {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to download document",
