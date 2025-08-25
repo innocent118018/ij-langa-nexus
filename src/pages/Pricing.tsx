@@ -12,7 +12,7 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  price: number | null;
   image_url: string;
   category: string;
   stock_quantity: number;
@@ -26,7 +26,8 @@ const Pricing = () => {
         .from('products')
         .select('*')
         .eq('is_active', true)
-        .order('category', { ascending: true });
+        .order('category', { ascending: true })
+        .order('price', { ascending: true, nullsLast: true });
 
       if (error) throw error;
       return data as Product[];
@@ -41,10 +42,16 @@ const Pricing = () => {
     return acc;
   }, {} as Record<string, Product[]>);
 
+  const formatCategoryName = (category: string) => {
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p>Loading products...</p>
+        <p>Loading services...</p>
       </div>
     );
   }
@@ -62,24 +69,24 @@ const Pricing = () => {
         <section className="mb-16 text-center">
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <CardHeader>
-              <CardTitle className="text-2xl">Complete Product Catalog</CardTitle>
+              <CardTitle className="text-2xl">Complete Service Catalog</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-6">Browse our full range of business services and add them to your cart</p>
               <Link to="/products">
                 <Button variant="secondary" size="lg">
-                  Browse All Products
+                  Browse All Services
                 </Button>
               </Link>
             </CardContent>
           </Card>
         </section>
 
-        {/* Product Categories */}
-        {groupedProducts && Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+        {/* Featured Categories */}
+        {groupedProducts && Object.entries(groupedProducts).slice(0, 4).map(([category, categoryProducts]) => (
           <section key={category} className="mb-16">
-            <h2 className="text-2xl font-bold text-center mb-8 capitalize">
-              {category} Services
+            <h2 className="text-2xl font-bold text-center mb-8">
+              {formatCategoryName(category)}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categoryProducts.slice(0, 6).map((product) => (
@@ -90,7 +97,7 @@ const Pricing = () => {
               <div className="text-center mt-6">
                 <Link to="/products">
                   <Button variant="outline">
-                    View All {category} Services
+                    View All {formatCategoryName(category)} Services
                   </Button>
                 </Link>
               </div>
@@ -104,18 +111,18 @@ const Pricing = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Secure Payment</h3>
-              <p className="text-gray-600">Safe and secure payment processing with iKhokha</p>
+              <h3 className="font-semibold mb-2">Transparent Pricing</h3>
+              <p className="text-gray-600">Clear, upfront pricing for most services with no hidden fees</p>
             </div>
             <div className="text-center">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Quick Processing</h3>
-              <p className="text-gray-600">Fast turnaround times for all services</p>
+              <h3 className="font-semibold mb-2">Expert Service</h3>
+              <p className="text-gray-600">Professional consultants and qualified accountants</p>
             </div>
             <div className="text-center">
               <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Expert Support</h3>
-              <p className="text-gray-600">Professional support throughout the process</p>
+              <h3 className="font-semibold mb-2">Fast Turnaround</h3>
+              <p className="text-gray-600">Efficient processing for all standard services</p>
             </div>
           </div>
         </section>
@@ -127,11 +134,11 @@ const Pricing = () => {
               <CardTitle className="text-2xl">Ready to Get Started?</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="mb-6">Browse our products, add them to your cart, and complete your order securely</p>
+              <p className="mb-6">Browse our services, add them to your cart, or request a quote for custom requirements</p>
               <div className="flex gap-4 justify-center">
                 <Link to="/products">
                   <Button variant="secondary" size="lg">
-                    Shop Now
+                    View Services
                   </Button>
                 </Link>
                 <Link to="/auth">

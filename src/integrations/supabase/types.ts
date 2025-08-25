@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          product_id: string | null
           quantity: number | null
           service_id: string | null
           updated_at: string | null
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          product_id?: string | null
           quantity?: number | null
           service_id?: string | null
           updated_at?: string | null
@@ -34,12 +36,20 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          product_id?: string | null
           quantity?: number | null
           service_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cart_items_service_id_fkey"
             columns: ["service_id"]
@@ -900,6 +910,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          price: number | null
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          price?: number | null
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          price?: number | null
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       services: {
         Row: {

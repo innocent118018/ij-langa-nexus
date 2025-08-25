@@ -44,7 +44,6 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     
     setLoading(true);
     try {
-      // Use type casting to work with the updated schema
       const { data, error } = await (supabase as any)
         .from('cart_items')
         .select(`
@@ -66,7 +65,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
       }
       
       // Filter out any items with null products and ensure proper typing
-      const validCartItems = (data || []).filter((item: any) => item.products) as CartItem[];
+      const validCartItems = (data || []).filter((item: any) => item.products && item.products.price !== null) as CartItem[];
       setCartItems(validCartItems);
     } catch (error) {
       console.error('Error fetching cart items:', error);
@@ -75,7 +74,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
         description: "Failed to load cart items",
         variant: "destructive",
       });
-      setCartItems([]); // Set empty array on error
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -151,6 +150,12 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     return calculateTotal() + calculateVAT();
   };
 
+  const formatCategoryName = (category: string) => {
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
     
@@ -190,6 +195,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
             <div className="flex flex-col items-center justify-center flex-1">
               <ShoppingCart className="h-16 w-16 text-gray-400 mb-4" />
               <p className="text-gray-600">Your cart is empty</p>
+              <p className="text-sm text-gray-500 mt-2">Services requiring quotes will be handled separately</p>
             </div>
           ) : (
             <>
@@ -201,7 +207,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                         <div className="flex-1">
                           <h3 className="font-semibold">{item.products.name}</h3>
                           <Badge variant="outline" className="mt-1 capitalize">
-                            {item.products.category}
+                            {formatCategoryName(item.products.category)}
                           </Badge>
                         </div>
                         <Button
@@ -235,10 +241,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">
-                            R{(item.products.price * item.quantity).toFixed(2)}
+                            R{(item.products.price * item.quantity).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                           </p>
                           <p className="text-sm text-gray-600">
-                            R{item.products.price.toFixed(2)} each
+                            R{item.products.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })} each
                           </p>
                         </div>
                       </div>
@@ -250,15 +256,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>R{calculateTotal().toFixed(2)}</span>
+                  <span>R{calculateTotal().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT (15%):</span>
-                  <span>R{calculateVAT().toFixed(2)}</span>
+                  <span>R{calculateVAT().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>R{calculateTotalWithVAT().toFixed(2)}</span>
+                  <span>R{calculateTotalWithVAT().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <Button 
                   className="w-full mt-4" 

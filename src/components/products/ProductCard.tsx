@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  price: number | null;
   image_url: string;
   category: string;
   stock_quantity: number;
@@ -88,43 +88,76 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onCartUpdate 
     }
   };
 
+  const requestQuote = () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to request a quote",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // For now, show a toast. In the future, this could open a modal or redirect to a quote form
+    toast({
+      title: "Quote Requested",
+      description: `We'll contact you shortly regarding ${product.name}`,
+    });
+  };
+
+  const formatCategoryName = (category: string) => {
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="p-4">
-        <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
-          <img 
-            src={product.image_url} 
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+        <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden flex items-center justify-center">
+          <div className="text-gray-400 text-sm text-center p-4">
+            {formatCategoryName(product.category)} Service
+          </div>
         </div>
         <CardTitle className="text-lg">{product.name}</CardTitle>
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-primary">
-            R{product.price.toFixed(2)}
-          </span>
+          {product.price ? (
+            <span className="text-2xl font-bold text-primary">
+              R{product.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+            </span>
+          ) : (
+            <span className="text-lg font-semibold text-orange-600">
+              Quote Required
+            </span>
+          )}
           <Badge variant="outline" className="capitalize">
-            {product.category}
+            {formatCategoryName(product.category)}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-          {product.description}
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+          {product.description || 'Professional service - contact us for more details'}
         </p>
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-muted-foreground">
-            Stock: {product.stock_quantity}
-          </span>
-        </div>
-        <Button 
-          onClick={addToCart}
-          className="w-full"
-          disabled={product.stock_quantity === 0}
-        >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
+        {product.price ? (
+          <Button 
+            onClick={addToCart}
+            className="w-full"
+            disabled={product.stock_quantity === 0}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+        ) : (
+          <Button 
+            onClick={requestQuote}
+            variant="outline"
+            className="w-full"
+          >
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Request Quote
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
