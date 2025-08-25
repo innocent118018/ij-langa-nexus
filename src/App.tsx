@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import About from '@/pages/About';
@@ -28,43 +27,46 @@ import PrivacyPolicy from '@/pages/policies/PrivacyPolicy';
 import TermsConditions from '@/pages/policies/TermsConditions';
 import ExportCustomsPolicy from '@/pages/policies/ExportCustomsPolicy';
 import ShelfCompaniesPolicy from '@/pages/policies/ShelfCompaniesPolicy';
+import { Layout } from '@/components/layout/Layout';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/services/:serviceId" element={<ServicePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/clients" element={<Clients />} />
-        <Route path="/dashboard/orders" element={<Orders />} />
-        <Route path="/dashboard/invoices" element={<Invoices />} />
-        <Route path="/dashboard/legal" element={<LegalEscalations />} />
-        <Route path="/dashboard/refunds" element={<Refunds />} />
-        <Route path="/dashboard/reports" element={<Reports />} />
-        <Route path="/dashboard/services" element={<Services />} />
-        <Route path="/dashboard/content" element={<ContentManagement />} />
-        <Route path="/dashboard/support" element={<Support />} />
-        <Route path="/dashboard/settings" element={<Settings />} />
-        <Route path="/dashboard/documents" element={<Documents />} />
-        <Route path="/dashboard/notifications" element={<Notifications />} />
-        <Route path="/dashboard/profile" element={<Profile />} />
-        
-        {/* Policy Routes */}
-        <Route path="/policies/refund" element={<RefundPolicy />} />
-        <Route path="/policies/services" element={<ServicesPolicy />} />
-        <Route path="/policies/invoice-quote" element={<InvoiceQuotePolicy />} />
-        <Route path="/policies/sales-order" element={<SalesOrderPolicy />} />
-        <Route path="/policies/privacy" element={<PrivacyPolicy />} />
-        <Route path="/policies/terms" element={<TermsConditions />} />
-        <Route path="/policies/export-customs" element={<ExportCustomsPolicy />} />
-        <Route path="/policies/shelf-companies" element={<ShelfCompaniesPolicy />} />
-        
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/services/:serviceId" element={<ServicePage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/clients" element={<Clients />} />
+          <Route path="/dashboard/orders" element={<Orders />} />
+          <Route path="/dashboard/invoices" element={<Invoices />} />
+          <Route path="/dashboard/legal" element={<LegalEscalations />} />
+          <Route path="/dashboard/refunds" element={<Refunds />} />
+          <Route path="/dashboard/reports" element={<Reports />} />
+          <Route path="/dashboard/services" element={<Services />} />
+          <Route path="/dashboard/content" element={<ContentManagement />} />
+          <Route path="/dashboard/support" element={<Support />} />
+          <Route path="/dashboard/settings" element={<Settings />} />
+          <Route path="/dashboard/documents" element={<Documents />} />
+          <Route path="/dashboard/notifications" element={<Notifications />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
+          
+          {/* Policy Routes */}
+          <Route path="/policies/refund" element={<RefundPolicy />} />
+          <Route path="/policies/services" element={<ServicesPolicy />} />
+          <Route path="/policies/invoice-quote" element={<InvoiceQuotePolicy />} />
+          <Route path="/policies/sales-order" element={<SalesOrderPolicy />} />
+          <Route path="/policies/privacy" element={<PrivacyPolicy />} />
+          <Route path="/policies/terms" element={<TermsConditions />} />
+          <Route path="/policies/export-customs" element={<ExportCustomsPolicy />} />
+          <Route path="/policies/shelf-companies" element={<ShelfCompaniesPolicy />} />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 }
