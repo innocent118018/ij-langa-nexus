@@ -1,9 +1,11 @@
+
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import About from '@/pages/About';
 import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
 import Pricing from '@/pages/Pricing';
+import Products from '@/pages/Products';
 import NotFound from '@/pages/NotFound';
 import ServicePage from '@/pages/services/ServicePage';
 import Clients from '@/pages/dashboard/Clients';
@@ -42,6 +44,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/services/:serviceId" element={<ServicePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/clients" element={<Clients />} />
