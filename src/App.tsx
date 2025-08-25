@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import About from '@/pages/About';
@@ -20,6 +19,8 @@ import Settings from '@/pages/dashboard/Settings';
 import Documents from '@/pages/dashboard/Documents';
 import Notifications from '@/pages/dashboard/Notifications';
 import Profile from '@/pages/dashboard/Profile';
+import Shareholders from '@/pages/dashboard/documents/Shareholders';
+import Correspondence from '@/pages/dashboard/documents/Correspondence';
 import RefundPolicy from '@/pages/policies/RefundPolicy';
 import ServicesPolicy from '@/pages/policies/ServicesPolicy';
 import InvoiceQuotePolicy from '@/pages/policies/InvoiceQuotePolicy';
@@ -54,6 +55,8 @@ function App() {
             <Route path="/dashboard/support" element={<Support />} />
             <Route path="/dashboard/settings" element={<Settings />} />
             <Route path="/dashboard/documents" element={<Documents />} />
+            <Route path="/dashboard/documents/shareholders" element={<Shareholders />} />
+            <Route path="/dashboard/documents/correspondence" element={<Correspondence />} />
             <Route path="/dashboard/notifications" element={<Notifications />} />
             <Route path="/dashboard/profile" element={<Profile />} />
             
