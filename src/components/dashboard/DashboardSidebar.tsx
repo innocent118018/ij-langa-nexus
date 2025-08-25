@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -35,9 +34,10 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const collapsed = state === 'collapsed';
 
   const adminMenuItems = [
     {
