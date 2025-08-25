@@ -107,22 +107,41 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`
-      }
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
 
-    if (error) {
+      if (error) {
+        // If Google OAuth is not enabled, show a more user-friendly message
+        if (error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider')) {
+          toast({
+            title: "Google Sign-In Unavailable",
+            description: "Google authentication is currently being configured. Please use email/password to sign in.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      }
+
+      return { error };
+    } catch (err: any) {
+      const error = err;
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Google Sign-In Unavailable",
+        description: "Please use email/password to sign in.",
         variant: "destructive",
       });
+      return { error };
     }
-
-    return { error };
   };
 
   const logout = async () => {

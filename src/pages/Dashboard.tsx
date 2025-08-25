@@ -20,8 +20,16 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if user is admin (you'll need to implement role checking)
-  const isAdmin = user.email === 'admin@ijlanga.co.za' || user.email === 'info@ijlanga.co.za';
+  // Check if user is admin with updated admin email list
+  const adminEmails = [
+    'info@ijlanga.co.za',
+    'orders@ijlanga.co.za', 
+    'billings@ijlanga.co.za',
+    'correspondence@ijlanga.co.za',
+    'ij.langa11@gmail.com'
+  ];
+  
+  const isAdmin = adminEmails.includes(user.email?.toLowerCase() || '');
 
   return (
     <div className="min-h-screen bg-gray-50">
