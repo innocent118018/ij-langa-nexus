@@ -12,6 +12,8 @@ const Pricing = () => {
   const { toast } = useToast();
 
   const addToCart = async (serviceName: string, price: number, category: string) => {
+    console.log('Adding to cart:', { serviceName, price, category, user });
+    
     if (!user) {
       toast({
         title: "Login Required",
@@ -23,13 +25,22 @@ const Pricing = () => {
 
     try {
       // First, find or create the service
+      console.log('Looking for existing service...');
       let { data: service, error: serviceError } = await supabase
         .from('services')
         .select('id')
         .eq('name', serviceName)
-        .single();
+        .maybeSingle();
 
-      if (serviceError || !service) {
+      console.log('Service lookup result:', { service, serviceError });
+
+      if (serviceError) {
+        console.error('Service lookup error:', serviceError);
+        throw serviceError;
+      }
+
+      if (!service) {
+        console.log('Creating new service...');
         // Create service if it doesn't exist
         const { data: newService, error: createError } = await supabase
           .from('services')
@@ -45,43 +56,72 @@ const Pricing = () => {
           .select('id')
           .single();
 
-        if (createError) throw createError;
+        console.log('Service creation result:', { newService, createError });
+
+        if (createError) {
+          console.error('Service creation error:', createError);
+          throw createError;
+        }
         service = newService;
       }
 
+      console.log('Using service:', service);
+
       // Check if item already exists in cart
+      console.log('Checking for existing cart item...');
       const { data: existingItem, error: checkError } = await supabase
         .from('cart_items')
         .select('id, quantity')
         .eq('user_id', user.id)
         .eq('service_id', service.id)
-        .single();
+        .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') {
+      console.log('Existing cart item check:', { existingItem, checkError });
+
+      if (checkError) {
+        console.error('Cart item check error:', checkError);
         throw checkError;
       }
 
       if (existingItem) {
+        console.log('Updating existing cart item...');
         // Update quantity
         const { error: updateError } = await supabase
           .from('cart_items')
-          .update({ quantity: existingItem.quantity + 1 })
+          .update({ 
+            quantity: existingItem.quantity + 1,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', existingItem.id);
 
-        if (updateError) throw updateError;
+        console.log('Cart item update result:', { updateError });
+
+        if (updateError) {
+          console.error('Cart update error:', updateError);
+          throw updateError;
+        }
       } else {
+        console.log('Adding new cart item...');
         // Add new item
-        const { error: insertError } = await supabase
+        const { data: newCartItem, error: insertError } = await supabase
           .from('cart_items')
           .insert({
             user_id: user.id,
             service_id: service.id,
             quantity: 1
-          });
+          })
+          .select('*')
+          .single();
 
-        if (insertError) throw insertError;
+        console.log('Cart item insert result:', { newCartItem, insertError });
+
+        if (insertError) {
+          console.error('Cart insert error:', insertError);
+          throw insertError;
+        }
       }
 
+      console.log('Successfully added to cart');
       toast({
         title: "Success",
         description: `${serviceName} added to cart`,
@@ -90,7 +130,7 @@ const Pricing = () => {
       console.error('Error adding to cart:', error);
       toast({
         title: "Error",
-        description: "Failed to add item to cart",
+        description: `Failed to add ${serviceName} to cart. Please try again.`,
         variant: "destructive",
       });
     }
