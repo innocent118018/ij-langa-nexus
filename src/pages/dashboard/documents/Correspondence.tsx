@@ -43,7 +43,7 @@ const Correspondence = () => {
   // Check if user is admin
   const { data: userRole } = useQuery({
     queryKey: ['user-role'],
-    queryFn: async () => {
+    queryFn: async (): Promise<string> => {
       const { data, error } = await supabase
         .from('users')
         .select('role')
@@ -61,17 +61,27 @@ const Correspondence = () => {
   // Fetch correspondence documents (admins see all, users see only their own)
   const { data: documents, isLoading } = useQuery({
     queryKey: ['correspondence-documents'],
-    queryFn: async () => {
-      let query = supabase
+    queryFn: async (): Promise<Document[]> => {
+      const { data, error } = await supabase
         .from('documents')
         .select(`
-          *,
+          id,
+          user_id,
+          file_name,
+          file_path,
+          file_size,
+          mime_type,
+          document_type,
+          category,
+          created_at,
+          description,
+          is_public,
+          order_id,
+          uploaded_by,
           users!documents_user_id_fkey(full_name, email)
         `)
         .eq('category', 'correspondence')
         .order('created_at', { ascending: false });
-
-      const { data, error } = await query;
 
       if (error) throw error;
       return data as Document[];
