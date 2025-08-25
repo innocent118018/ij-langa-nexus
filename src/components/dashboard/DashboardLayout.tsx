@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Bell, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useLocation } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,10 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  
+  // Check if we're on a dashboard page that should use the layout
+  const isDashboardPage = location.pathname.startsWith('/dashboard');
   
   // Check if user is admin
   const adminEmails = [
@@ -24,6 +29,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   ];
   
   const isAdmin = adminEmails.includes(user?.email?.toLowerCase() || '');
+
+  // Only show sidebar layout for dashboard pages
+  if (!isDashboardPage) {
+    return <>{children}</>;
+  }
 
   return (
     <SidebarProvider defaultOpen={true}>
