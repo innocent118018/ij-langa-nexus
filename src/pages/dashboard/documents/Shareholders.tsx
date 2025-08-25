@@ -13,6 +13,22 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
+interface Document {
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  mime_type: string | null;
+  document_type: string;
+  category: string;
+  created_at: string;
+  description: string | null;
+  is_public: boolean;
+  order_id: string | null;
+  uploaded_by: string | null;
+}
+
 const Shareholders = () => {
   const { user, loading } = useAuth();
   const { toast } = useToast();
@@ -31,7 +47,7 @@ const Shareholders = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Document[];
     },
     enabled: !!user,
   });
@@ -98,7 +114,7 @@ const Shareholders = () => {
     uploadMutation.mutate(uploadFile);
   };
 
-  const downloadDocument = async (document: any) => {
+  const downloadDocument = async (document: Document) => {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
@@ -107,14 +123,14 @@ const Shareholders = () => {
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.href = url;
       a.download = document.file_name;
-      document.body.appendChild(a);
+      window.document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (error: any) {
+    } catch (error: any) => {
       toast({
         title: "Error",
         description: "Failed to download document",

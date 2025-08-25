@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, FileText, Download, Upload, FolderOpen, Users, Receipt, FileSearch, CreditCard, Building, Mail } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 const documentCategories = [
   { id: 'shareholders', label: 'Shareholders', icon: Users, description: 'Shareholder certificates and documents' },
@@ -22,6 +23,22 @@ const documentCategories = [
   { id: 'csd', label: 'CSD', icon: Building, description: 'CSD supplier documents' },
   { id: 'correspondence', label: 'Correspondence', icon: Mail, description: 'General correspondence and communication' },
 ];
+
+interface Document {
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  mime_type: string | null;
+  document_type: string;
+  category: string;
+  created_at: string;
+  description: string | null;
+  is_public: boolean;
+  order_id: string | null;
+  uploaded_by: string | null;
+}
 
 const Documents = () => {
   const { user, loading } = useAuth();
@@ -42,7 +59,7 @@ const Documents = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Document[];
     },
     enabled: !!user,
   });
@@ -110,7 +127,7 @@ const Documents = () => {
     uploadMutation.mutate({ file: uploadFile, category: selectedCategory });
   };
 
-  const downloadDocument = async (document: any) => {
+  const downloadDocument = async (document: Document) => {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
@@ -119,12 +136,12 @@ const Documents = () => {
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.href = url;
       a.download = document.file_name;
-      document.body.appendChild(a);
+      window.document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error: any) {
       toast({
@@ -140,7 +157,7 @@ const Documents = () => {
     if (!acc[doc.category]) acc[doc.category] = [];
     acc[doc.category].push(doc);
     return acc;
-  }, {} as Record<string, any[]>) || {};
+  }, {} as Record<string, Document[]>) || {};
 
   if (loading) {
     return (
@@ -224,47 +241,52 @@ const Documents = () => {
             const Icon = category.icon;
             
             return (
-              <Card key={category.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-50 rounded-lg">
-                      <Icon className="h-6 w-6 text-blue-600" />
+              <Link key={category.id} to={`/dashboard/documents/${category.id}`}>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <Icon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{category.label}</CardTitle>
+                        <CardDescription className="text-sm">
+                          {categoryDocs.length} documents
+                        </CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{category.label}</CardTitle>
-                      <CardDescription className="text-sm">
-                        {categoryDocs.length} documents
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {category.description}
-                  </p>
-                  {categoryDocs.length > 0 && (
-                    <div className="space-y-2">
-                      {categoryDocs.slice(0, 2).map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
-                          <span className="truncate flex-1">{doc.file_name}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => downloadDocument(doc)}
-                          >
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                      {categoryDocs.length > 2 && (
-                        <p className="text-xs text-muted-foreground">
-                          +{categoryDocs.length - 2} more documents
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {category.description}
+                    </p>
+                    {categoryDocs.length > 0 && (
+                      <div className="space-y-2">
+                        {categoryDocs.slice(0, 2).map((doc) => (
+                          <div key={doc.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                            <span className="truncate flex-1">{doc.file_name}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                downloadDocument(doc);
+                              }}
+                            >
+                              <Download className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                        {categoryDocs.length > 2 && (
+                          <p className="text-xs text-muted-foreground">
+                            +{categoryDocs.length - 2} more documents
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
