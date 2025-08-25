@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SlidingLogo } from '@/components/ui/SlidingLogo';
 import { useAuth } from '@/hooks/useAuth';
-import { ShoppingCart, User, LogOut, ChevronDown } from 'lucide-react';
+import { ShoppingCart, User, LogOut, ChevronDown, FileText, DollarSign, MessageSquare, Settings } from 'lucide-react';
 import { Cart } from '@/components/cart/Cart';
 
 export const Header = () => {
@@ -150,6 +150,51 @@ export const Header = () => {
             </div>
           </div>
         </div>
+        
+        {/* Secondary Menu - Only visible when logged in */}
+        {user && (
+          <div className="bg-gray-50 border-t border-gray-200">
+            <div className="container mx-auto px-4">
+              <nav className="flex items-center space-x-6 py-2 overflow-x-auto">
+                <Link 
+                  to="/dashboard/orders" 
+                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>My Orders</span>
+                </Link>
+                <Link 
+                  to="/dashboard/invoices" 
+                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  <span>Invoices</span>
+                </Link>
+                <Link 
+                  to="/dashboard/documents" 
+                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Documents</span>
+                </Link>
+                <Link 
+                  to="/dashboard/support" 
+                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Support</span>
+                </Link>
+                <Link 
+                  to="/dashboard/profile" 
+                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
 
       <Cart isOpen={showCart} onClose={() => setShowCart(false)} />
