@@ -7,15 +7,17 @@ import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
   id: string;
-  service_id: string;
+  product_id: string;
   quantity: number;
-  services: {
+  products: {
     name: string;
     price: number;
     category: string;
+    image_url: string;
   };
 }
 
@@ -27,6 +29,7 @@ interface CartProps {
 export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,12 +48,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
         .from('cart_items')
         .select(`
           id,
-          service_id,
+          product_id,
           quantity,
-          services (
+          products (
             name,
             price,
-            category
+            category,
+            image_url
           )
         `)
         .eq('user_id', user.id);
@@ -78,7 +82,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     try {
       const { error } = await supabase
         .from('cart_items')
-        .update({ quantity: newQuantity })
+        .update({ 
+          quantity: newQuantity,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', itemId);
 
       if (error) throw error;
@@ -124,7 +131,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
 
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      return total + (item.services.price * item.quantity);
+      return total + (item.products.price * item.quantity);
     }, 0);
   };
 
@@ -137,11 +144,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   };
 
   const handleCheckout = () => {
-    // TODO: Implement iKhokha payment integration
-    toast({
-      title: "Checkout",
-      description: "Redirecting to payment...",
-    });
+    if (cartItems.length === 0) return;
+    
+    onClose();
+    navigate('/checkout');
   };
 
   if (!user) {
@@ -185,9 +191,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                     <div key={item.id} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold">{item.services.name}</h3>
-                          <Badge variant="outline" className="mt-1">
-                            {item.services.category}
+                          <h3 className="font-semibold">{item.products.name}</h3>
+                          <Badge variant="outline" className="mt-1 capitalize">
+                            {item.products.category}
                           </Badge>
                         </div>
                         <Button
@@ -221,10 +227,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">
-                            R{(item.services.price * item.quantity).toFixed(2)}
+                            R{(item.products.price * item.quantity).toFixed(2)}
                           </p>
                           <p className="text-sm text-gray-600">
-                            R{item.services.price.toFixed(2)} each
+                            R{item.products.price.toFixed(2)} each
                           </p>
                         </div>
                       </div>
