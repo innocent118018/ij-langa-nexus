@@ -12,7 +12,7 @@ interface CartItem {
   id: string;
   service_id: string;
   quantity: number;
-  service: {
+  services: {
     name: string;
     price: number;
     category: string;
@@ -124,7 +124,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
 
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      return total + (item.service.price * item.quantity);
+      return total + (item.services.price * item.quantity);
     }, 0);
   };
 
@@ -185,9 +185,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                     <div key={item.id} className="bg-gray-50 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold">{item.service.name}</h3>
+                          <h3 className="font-semibold">{item.services.name}</h3>
                           <Badge variant="outline" className="mt-1">
-                            {item.service.category}
+                            {item.services.category}
                           </Badge>
                         </div>
                         <Button
@@ -221,10 +221,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">
-                            R{(item.service.price * item.quantity).toFixed(2)}
+                            R{(item.services.price * item.quantity).toFixed(2)}
                           </p>
                           <p className="text-sm text-gray-600">
-                            R{item.service.price.toFixed(2)} each
+                            R{item.services.price.toFixed(2)} each
                           </p>
                         </div>
                       </div>
