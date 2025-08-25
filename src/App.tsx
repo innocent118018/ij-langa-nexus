@@ -24,6 +24,14 @@ import Documents from "@/pages/dashboard/Documents";
 import Support from "@/pages/dashboard/Support";
 import Notifications from "@/pages/dashboard/Notifications";
 import Profile from "@/pages/dashboard/Profile";
+import RefundPolicy from "@/pages/policies/RefundPolicy";
+import ServicesPolicy from "@/pages/policies/ServicesPolicy";
+import InvoiceQuotePolicy from "@/pages/policies/InvoiceQuotePolicy";
+import SalesOrderPolicy from "@/pages/policies/SalesOrderPolicy";
+import PrivacyPolicy from "@/pages/policies/PrivacyPolicy";
+import TermsConditions from "@/pages/policies/TermsConditions";
+import ExportCustomsPolicy from "@/pages/policies/ExportCustomsPolicy";
+import ShelfCompaniesPolicy from "@/pages/policies/ShelfCompaniesPolicy";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +62,14 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/services/:category/:service" element={<ServicePage />} />
+                <Route path="/policies/refund" element={<RefundPolicy />} />
+                <Route path="/policies/services" element={<ServicesPolicy />} />
+                <Route path="/policies/invoice-quote" element={<InvoiceQuotePolicy />} />
+                <Route path="/policies/sales-order" element={<SalesOrderPolicy />} />
+                <Route path="/policies/privacy" element={<PrivacyPolicy />} />
+                <Route path="/policies/terms" element={<TermsConditions />} />
+                <Route path="/policies/export-customs" element={<ExportCustomsPolicy />} />
+                <Route path="/policies/shelf-companies" element={<ShelfCompaniesPolicy />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
