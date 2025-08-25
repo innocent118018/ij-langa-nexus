@@ -1,10 +1,9 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Professional Law Firm Design System */
 
 @layer base {
   :root {
@@ -17,7 +16,8 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* Professional law firm primary colors */
+    --primary: 215 28% 17%; /* Deep slate for authority */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -26,7 +26,7 @@ All colors MUST be HSL.
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 45 100% 51%; /* Gold accent for premium feel */
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -34,25 +34,19 @@ All colors MUST be HSL.
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 45 100% 51%; /* Gold focus ring */
 
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly more rounded for modern feel */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Professional sidebar theme */
+    --sidebar-background: 215 28% 17%; /* Deep slate */
+    --sidebar-foreground: 210 20% 85%;
+    --sidebar-primary: 45 100% 51%; /* Gold */
+    --sidebar-primary-foreground: 215 28% 17%;
+    --sidebar-accent: 215 25% 20%;
+    --sidebar-accent-foreground: 210 20% 85%;
+    --sidebar-border: 215 25% 25%;
+    --sidebar-ring: 45 100% 51%;
   }
 
   .dark {
@@ -74,23 +68,24 @@ All colors MUST be HSL.
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 215 28% 17%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 45 100% 51%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 45 100% 51%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 45 100% 51%;
   }
 }
 
@@ -100,6 +95,118 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Professional typography for legal documents */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Enhanced focus states for accessibility */
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply ring-2 ring-accent ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Professional card shadows */
+  .card {
+    @apply shadow-sm border border-border/50;
+  }
+
+  .card-elevated {
+    @apply shadow-lg shadow-slate-200/50;
+  }
+
+  /* Premium gradient backgrounds */
+  .gradient-professional {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(215 25% 20%) 100%);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(45 90% 60%) 100%);
+  }
+
+  /* Status indicators */
+  .status-paid {
+    @apply bg-emerald-100 text-emerald-800 border-emerald-200;
+  }
+
+  .status-pending {
+    @apply bg-amber-100 text-amber-800 border-amber-200;
+  }
+
+  .status-overdue {
+    @apply bg-red-100 text-red-800 border-red-200;
+  }
+
+  .status-overpaid {
+    @apply bg-blue-100 text-blue-800 border-blue-200;
+  }
+
+  /* Professional loading states */
+  .loading-professional {
+    @apply animate-pulse bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 bg-[length:200%_100%];
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Enhanced sidebar styling */
+  .sidebar-nav-item {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .sidebar-nav-item:hover {
+    @apply bg-sidebar-accent text-accent transform translate-x-1;
+  }
+
+  .sidebar-nav-item.active {
+    @apply bg-sidebar-accent text-accent border-r-2 border-accent;
+  }
+}
+
+/* Professional scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
+
+/* Print styles for legal documents */
+@media print {
+  body {
+    @apply text-black bg-white;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break-before {
+    break-before: page;
+  }
+  
+  .print-break-after {
+    break-after: page;
   }
 }

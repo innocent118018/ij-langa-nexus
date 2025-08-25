@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { UserDashboard } from '@/components/dashboard/UserDashboard';
 import { AdminDashboard } from '@/components/dashboard/AdminDashboard';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Navigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -10,8 +11,11 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400 mx-auto"></div>
+          <p className="text-white mt-4">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -32,9 +36,9 @@ const Dashboard = () => {
   const isAdmin = adminEmails.includes(user.email?.toLowerCase() || '');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <DashboardLayout>
       {isAdmin ? <AdminDashboard /> : <UserDashboard />}
-    </div>
+    </DashboardLayout>
   );
 };
 
