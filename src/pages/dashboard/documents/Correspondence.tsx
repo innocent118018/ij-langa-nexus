@@ -43,7 +43,7 @@ const Correspondence = () => {
   // Check if user is admin
   const { data: userRole } = useQuery({
     queryKey: ['user-role'],
-    queryFn: async (): Promise<string> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('users')
         .select('role')
@@ -51,7 +51,7 @@ const Correspondence = () => {
         .single();
       
       if (error) throw error;
-      return data.role;
+      return data.role as string;
     },
     enabled: !!user,
   });
@@ -61,7 +61,7 @@ const Correspondence = () => {
   // Fetch correspondence documents (admins see all, users see only their own)
   const { data: documents, isLoading } = useQuery({
     queryKey: ['correspondence-documents'],
-    queryFn: async (): Promise<Document[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('documents')
         .select(`
@@ -84,7 +84,7 @@ const Correspondence = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Document[];
+      return data;
     },
     enabled: !!user,
   });
