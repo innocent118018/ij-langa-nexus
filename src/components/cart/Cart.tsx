@@ -44,7 +44,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Use type casting to work with the updated schema
+      const { data, error } = await (supabase as any)
         .from('cart_items')
         .select(`
           id,
@@ -59,10 +60,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
         `)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Cart fetch error:', error);
+        throw error;
+      }
       
-      // Handle the response properly, filtering out any null products
-      const validCartItems = (data || []).filter(item => item.products) as CartItem[];
+      // Filter out any items with null products and ensure proper typing
+      const validCartItems = (data || []).filter((item: any) => item.products) as CartItem[];
       setCartItems(validCartItems);
     } catch (error) {
       console.error('Error fetching cart items:', error);
@@ -71,6 +75,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
         description: "Failed to load cart items",
         variant: "destructive",
       });
+      setCartItems([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -83,7 +88,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('cart_items')
         .update({ 
           quantity: newQuantity,
@@ -110,7 +115,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
 
   const removeItem = async (itemId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('cart_items')
         .delete()
         .eq('id', itemId);

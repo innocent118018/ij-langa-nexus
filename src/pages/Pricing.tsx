@@ -22,7 +22,7 @@ const Pricing = () => {
   const { data: products, isLoading } = useQuery({
     queryKey: ['pricing-products'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('products')
         .select('*')
         .eq('is_active', true)

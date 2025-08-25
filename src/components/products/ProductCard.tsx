@@ -39,7 +39,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onCartUpdate 
 
     try {
       // Check if item already exists in cart
-      const { data: existingItem, error: checkError } = await supabase
+      const { data: existingItem, error: checkError } = await (supabase as any)
         .from('cart_items')
         .select('id, quantity')
         .eq('user_id', user.id)
@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onCartUpdate 
 
       if (existingItem) {
         // Update existing item
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
           .from('cart_items')
           .update({ 
             quantity: existingItem.quantity + 1,
@@ -60,7 +60,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onCartUpdate 
 
         if (updateError) throw updateError;
       } else {
-        // Insert new item - cast to any to bypass type checking
+        // Insert new item
         const { error: insertError } = await (supabase as any)
           .from('cart_items')
           .insert({

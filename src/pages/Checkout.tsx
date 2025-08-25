@@ -50,7 +50,7 @@ const Checkout = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cart_items')
         .select(`
           id,
@@ -65,10 +65,13 @@ const Checkout = () => {
         `)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Cart fetch error:', error);
+        throw error;
+      }
       
-      // Filter out items with null products
-      const validCartItems = (data || []).filter(item => item.products) as CartItem[];
+      // Filter out items with null products and ensure proper typing
+      const validCartItems = (data || []).filter((item: any) => item.products) as CartItem[];
       setCartItems(validCartItems);
     } catch (error) {
       console.error('Error fetching cart items:', error);
@@ -77,6 +80,7 @@ const Checkout = () => {
         description: "Failed to load cart items",
         variant: "destructive",
       });
+      setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -118,7 +122,7 @@ const Checkout = () => {
     setProcessing(true);
 
     try {
-      // Create order - cast to any to bypass type checking
+      // Create order
       const { data: order, error: orderError } = await (supabase as any)
         .from('orders')
         .insert({
@@ -169,7 +173,7 @@ const Checkout = () => {
       if (logError) console.error('Error logging payment:', logError);
 
       // Clear cart
-      await supabase
+      await (supabase as any)
         .from('cart_items')
         .delete()
         .eq('user_id', user!.id);
