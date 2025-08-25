@@ -85,14 +85,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     setShowSearchResults(false);
   };
 
-  // Only show sidebar layout for dashboard pages
+  // Only show sidebar layout for dashboard pages, but not the full layout wrapper
   if (!isDashboardPage) {
     return <>{children}</>;
   }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-gray-50">
+      <div className="flex w-full bg-gray-50">
         <DashboardSidebar isAdmin={isAdmin} />
         
         <div className="flex-1 flex flex-col">
