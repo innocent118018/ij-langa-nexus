@@ -50,7 +50,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
           id,
           product_id,
           quantity,
-          products (
+          products!cart_items_product_id_fkey (
             name,
             price,
             category,
@@ -60,7 +60,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      setCartItems(data || []);
+      
+      // Handle the response properly, filtering out any null products
+      const validCartItems = (data || []).filter(item => item.products) as CartItem[];
+      setCartItems(validCartItems);
     } catch (error) {
       console.error('Error fetching cart items:', error);
       toast({
