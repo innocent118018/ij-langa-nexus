@@ -19,6 +19,11 @@ import Orders from "@/pages/dashboard/Orders";
 import Invoices from "@/pages/dashboard/Invoices";
 import LegalEscalations from "@/pages/dashboard/LegalEscalations";
 import Reports from "@/pages/dashboard/Reports";
+import Services from "@/pages/dashboard/Services";
+import Documents from "@/pages/dashboard/Documents";
+import Support from "@/pages/dashboard/Support";
+import Notifications from "@/pages/dashboard/Notifications";
+import Profile from "@/pages/dashboard/Profile";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +46,11 @@ const App = () => (
                 <Route path="/dashboard/invoices" element={<Invoices />} />
                 <Route path="/dashboard/legal" element={<LegalEscalations />} />
                 <Route path="/dashboard/reports" element={<Reports />} />
+                <Route path="/dashboard/services" element={<Services />} />
+                <Route path="/dashboard/documents" element={<Documents />} />
+                <Route path="/dashboard/support" element={<Support />} />
+                <Route path="/dashboard/notifications" element={<Notifications />} />
+                <Route path="/dashboard/profile" element={<Profile />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/services/:category/:service" element={<ServicePage />} />
