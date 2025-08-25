@@ -5,13 +5,13 @@ import { Navigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, FileText, Download, Upload, Users, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import DocumentUploadForm from '@/components/documents/DocumentUploadForm';
 
 interface Document {
   id: string;
@@ -21,7 +21,7 @@ interface Document {
   file_size: number | null;
   mime_type: string | null;
   document_type: string;
-  category: string;
+  category: string | null;
   created_at: string;
   description: string | null;
   is_public: boolean;
@@ -32,8 +32,6 @@ interface Document {
 const Shareholders = () => {
   const { user, loading } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   // Fetch shareholders documents
@@ -51,68 +49,6 @@ const Shareholders = () => {
     },
     enabled: !!user,
   });
-
-  // Upload mutation
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const fileName = `${user!.id}/shareholders/${Date.now()}-${file.name}`;
-      
-      // Upload to storage
-      const { data: storageData, error: storageError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file);
-
-      if (storageError) throw storageError;
-
-      // Save metadata to database
-      const { data, error } = await supabase
-        .from('documents')
-        .insert({
-          user_id: user!.id,
-          file_name: file.name,
-          file_path: storageData.path,
-          file_size: file.size,
-          mime_type: file.type,
-          document_type: 'document',
-          category: 'shareholders',
-          uploaded_by: user!.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Shareholders document uploaded successfully",
-      });
-      queryClient.invalidateQueries({ queryKey: ['shareholders-documents'] });
-      setIsUploadModalOpen(false);
-      setUploadFile(null);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload document",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpload = () => {
-    if (!uploadFile) {
-      toast({
-        title: "Error",
-        description: "Please select a file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    uploadMutation.mutate(uploadFile);
-  };
 
   const downloadDocument = async (document: Document) => {
     try {
@@ -174,45 +110,10 @@ const Shareholders = () => {
               </div>
             </div>
           </div>
-          <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Document
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Upload Shareholders Document</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select File</label>
-                  <input
-                    type="file"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                    className="w-full p-2 border rounded-md"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Accepted formats: PDF, DOC, DOCX, JPG, PNG, XLS, XLSX
-                  </p>
-                </div>
-                <Button 
-                  onClick={handleUpload} 
-                  disabled={!uploadFile || uploadMutation.isPending}
-                  className="w-full"
-                >
-                  {uploadMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Upload className="h-4 w-4 mr-2" />
-                  )}
-                  Upload Document
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => setIsUploadModalOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Document
+          </Button>
         </div>
 
         {isLoading ? (
@@ -257,17 +158,15 @@ const Shareholders = () => {
               <p className="text-muted-foreground text-center mb-4">
                 Upload your first shareholders document to get started
               </p>
-              <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Document
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
             </CardContent>
           </Card>
         )}
+
+        <DocumentUploadForm
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          category="shareholders"
+        />
       </div>
     </DashboardLayout>
   );
