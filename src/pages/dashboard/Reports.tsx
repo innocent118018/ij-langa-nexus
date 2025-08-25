@@ -13,6 +13,19 @@ import {
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 
+// Type definitions for the computed data
+interface MonthlyRevenueData {
+  month: string;
+  revenue: number;
+  invoiceCount: number;
+}
+
+interface ServiceStatsData {
+  name: string;
+  count: number;
+  revenue: number;
+}
+
 const Reports = () => {
   const { invoices, customers, metrics } = useDashboardData();
 
@@ -26,7 +39,7 @@ const Reports = () => {
 
   // Calculate monthly revenue data
   const monthlyRevenue = React.useMemo(() => {
-    const months = {};
+    const months: Record<string, MonthlyRevenueData> = {};
     invoices.forEach(invoice => {
       const date = new Date(invoice.issue_date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -41,7 +54,7 @@ const Reports = () => {
 
   // Calculate service popularity
   const serviceStats = React.useMemo(() => {
-    const stats = {};
+    const stats: Record<string, ServiceStatsData> = {};
     invoices.forEach(invoice => {
       // This would need to be enhanced with actual service data from orders
       const service = 'General Consulting'; // Placeholder
