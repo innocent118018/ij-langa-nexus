@@ -24,10 +24,12 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { CreateInvoiceModal } from './CreateInvoiceModal';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
   const { invoices, customers, services, notifications, metrics } = useDashboardData();
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
+  const navigate = useNavigate();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -51,6 +53,13 @@ export const AdminDashboard = () => {
   const overdueInvoices = invoices.filter(inv => inv.status === 'Overdue' || (inv.balance_due && Number(inv.balance_due) > 0));
   const legalEscalationCandidates = overdueInvoices.filter(inv => inv.days_overdue && inv.days_overdue > 90);
 
+  // Navigation handlers
+  const handleRevenueClick = () => navigate('/dashboard/reports');
+  const handleClientsClick = () => navigate('/dashboard/clients');
+  const handleOrdersClick = () => navigate('/dashboard/orders');
+  const handleInvoicesClick = () => navigate('/dashboard/invoices');
+  const handleLegalEscalationClick = () => navigate('/dashboard/legal');
+
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
@@ -67,54 +76,66 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Key Performance Indicators */}
+      {/* Key Performance Indicators - Now Clickable */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-50 to-white">
+        <Card 
+          className="border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-50 to-white cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={handleRevenueClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-emerald-700">Total Revenue</CardTitle>
             <DollarSign className="h-5 w-5 text-emerald-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-900">{formatCurrency(metrics.totalRevenue)}</div>
-            <p className="text-xs text-emerald-600">Revenue collected to date</p>
+            <p className="text-xs text-emerald-600">Click to view revenue reports</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-white">
+        <Card 
+          className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50 to-white cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={handleClientsClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-blue-700">Registered Clients</CardTitle>
             <Users className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">{metrics.activeClients}</div>
-            <p className="text-xs text-blue-600">Active client base</p>
+            <p className="text-xs text-blue-600">Click to manage clients</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50 to-white">
+        <Card 
+          className="border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50 to-white cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={handleOrdersClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-amber-700">Pending Orders</CardTitle>
             <FileText className="h-5 w-5 text-amber-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-900">{metrics.pendingOrders}</div>
-            <p className="text-xs text-amber-600">Requiring attention</p>
+            <p className="text-xs text-amber-600">Click to view orders</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-red-500 bg-gradient-to-br from-red-50 to-white">
+        <Card 
+          className="border-l-4 border-l-red-500 bg-gradient-to-br from-red-50 to-white cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={handleInvoicesClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-red-700">Unpaid Invoices</CardTitle>
             <AlertTriangle className="h-5 w-5 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-900">{formatCurrency(metrics.unpaidAmount)}</div>
-            <p className="text-xs text-red-600">Outstanding collections</p>
+            <p className="text-xs text-red-600">Click to manage invoices</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Legal Escalation Alert */}
+      {/* Legal Escalation Alert - Now Clickable */}
       {legalEscalationCandidates.length > 0 && (
         <Card className="border-l-4 border-l-red-600 bg-red-50">
           <CardHeader>
@@ -127,7 +148,10 @@ export const AdminDashboard = () => {
             <p className="text-red-700 mb-4">
               {legalEscalationCandidates.length} invoice(s) overdue by 90+ days require escalation to Daniel Attorneys.
             </p>
-            <Button className="bg-red-600 hover:bg-red-700">
+            <Button 
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleLegalEscalationClick}
+            >
               <Scale className="h-4 w-4 mr-2" />
               Escalate to Legal
             </Button>
@@ -158,7 +182,11 @@ export const AdminDashboard = () => {
           <CardContent className="p-0">
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {invoices.slice(0, 10).map((invoice) => (
-                <div key={invoice.id} className="flex justify-between items-center p-4 hover:bg-gray-50 border-b last:border-b-0">
+                <div 
+                  key={invoice.id} 
+                  className="flex justify-between items-center p-4 hover:bg-gray-50 border-b last:border-b-0 cursor-pointer"
+                  onClick={() => navigate(`/dashboard/invoices`)}
+                >
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       <p className="font-semibold text-slate-900">{invoice.customers?.name}</p>
@@ -193,7 +221,11 @@ export const AdminDashboard = () => {
                 <Users className="h-5 w-5 text-slate-700" />
                 <span>Client Portfolio</span>
               </div>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={handleClientsClick}
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 Add Client
               </Button>
@@ -202,7 +234,11 @@ export const AdminDashboard = () => {
           <CardContent className="p-0">
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {customers.slice(0, 10).map((customer) => (
-                <div key={customer.id} className="flex justify-between items-center p-4 hover:bg-gray-50 border-b last:border-b-0">
+                <div 
+                  key={customer.id} 
+                  className="flex justify-between items-center p-4 hover:bg-gray-50 border-b last:border-b-0 cursor-pointer"
+                  onClick={() => navigate(`/dashboard/clients`)}
+                >
                   <div className="flex-1">
                     <p className="font-semibold text-slate-900">{customer.name}</p>
                     <p className="text-sm text-slate-600">
@@ -229,7 +265,10 @@ export const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <div 
+                className="flex justify-between items-center p-4 bg-amber-50 rounded-lg border border-amber-200 cursor-pointer hover:bg-amber-100 transition-colors"
+                onClick={handleOrdersClick}
+              >
                 <div>
                   <p className="font-medium text-amber-900">Company Registration Services</p>
                   <p className="text-sm text-amber-700">15 clients pending CIPC processing</p>
@@ -239,7 +278,10 @@ export const AdminDashboard = () => {
                   <Button size="sm" variant="outline">Manage</Button>
                 </div>
               </div>
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg border border-green-200">
+              <div 
+                className="flex justify-between items-center p-4 bg-green-50 rounded-lg border border-green-200 cursor-pointer hover:bg-green-100 transition-colors"
+                onClick={handleOrdersClick}
+              >
                 <div>
                   <p className="font-medium text-green-900">SARS Compliance Services</p>
                   <p className="text-sm text-green-700">8 tax clearance certificates completed</p>
@@ -263,19 +305,35 @@ export const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="h-20 flex-col">
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col"
+                onClick={() => navigate('/dashboard/reports')}
+              >
                 <BarChart3 className="h-6 w-6 mb-2 text-blue-600" />
                 <span className="text-sm">Revenue Analytics</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col"
+                onClick={() => navigate('/dashboard/clients')}
+              >
                 <Users className="h-6 w-6 mb-2 text-green-600" />
                 <span className="text-sm">Client Reports</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col"
+                onClick={() => navigate('/dashboard/invoices')}
+              >
                 <DollarSign className="h-6 w-6 mb-2 text-amber-600" />
                 <span className="text-sm">Collections Report</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col"
+                onClick={handleLegalEscalationClick}
+              >
                 <Scale className="h-6 w-6 mb-2 text-red-600" />
                 <span className="text-sm">Legal Escalations</span>
               </Button>
@@ -295,7 +353,11 @@ export const AdminDashboard = () => {
         <CardContent>
           <div className="space-y-3 max-h-64 overflow-y-auto mb-6">
             {notifications.slice(0, 8).map((notification) => (
-              <div key={notification.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div 
+                key={notification.id} 
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                onClick={() => navigate('/dashboard/notifications')}
+              >
                 <div className="flex items-center space-x-3">
                   <Mail className="h-4 w-4 text-blue-600" />
                   <div>
@@ -317,15 +379,27 @@ export const AdminDashboard = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-center space-x-2"
+              onClick={() => navigate('/dashboard/notifications')}
+            >
               <Mail className="h-4 w-4" />
               <span>Payment Reminders</span>
             </Button>
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-center space-x-2"
+              onClick={() => navigate('/dashboard/support')}
+            >
               <MessageSquare className="h-4 w-4" />
               <span>WhatsApp Alerts</span>
             </Button>
-            <Button variant="outline" className="flex items-center justify-center space-x-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center justify-center space-x-2"
+              onClick={() => navigate('/dashboard/notifications')}
+            >
               <Bell className="h-4 w-4" />
               <span>SMS Notifications</span>
             </Button>

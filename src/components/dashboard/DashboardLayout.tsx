@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { DashboardSidebar } from './DashboardSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { Bell, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDashboardData } from '@/hooks/useDashboardData';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -14,7 +15,11 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
+  const { customers, invoices } = useDashboardData();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   
   // Check if we're on a dashboard page that should use the layout
   const isDashboardPage = location.pathname.startsWith('/dashboard');
@@ -29,6 +34,56 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   ];
   
   const isAdmin = adminEmails.includes(user?.email?.toLowerCase() || '');
+
+  // Search functionality
+  const searchResults = React.useMemo(() => {
+    if (!searchTerm || searchTerm.length < 2) return [];
+    
+    const results = [];
+    
+    // Search customers
+    const matchingCustomers = customers.filter(customer => 
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    matchingCustomers.forEach(customer => {
+      results.push({
+        type: 'client',
+        title: customer.name,
+        subtitle: customer.email,
+        action: () => navigate('/dashboard/clients')
+      });
+    });
+    
+    // Search invoices
+    const matchingInvoices = invoices.filter(invoice => 
+      invoice.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customers?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    matchingInvoices.forEach(invoice => {
+      results.push({
+        type: 'invoice',
+        title: `Invoice #${invoice.reference}`,
+        subtitle: invoice.customers?.name,
+        action: () => navigate('/dashboard/invoices')
+      });
+    });
+    
+    return results.slice(0, 5);
+  }, [searchTerm, customers, invoices, navigate]);
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setShowSearchResults(value.length >= 2);
+  };
+
+  const handleSearchResultClick = (result: any) => {
+    result.action();
+    setSearchTerm('');
+    setShowSearchResults(false);
+  };
 
   // Only show sidebar layout for dashboard pages
   if (!isDashboardPage) {
@@ -51,12 +106,43 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Input 
                     placeholder="Search clients, invoices, or documents..." 
                     className="pl-10 bg-gray-50 border-gray-200"
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    onFocus={() => searchTerm.length >= 2 && setShowSearchResults(true)}
                   />
+                  
+                  {/* Search Results Dropdown */}
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 z-50">
+                      {searchResults.map((result, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                          onClick={() => handleSearchResultClick(result)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 uppercase">
+                              {result.type}
+                            </span>
+                            <div>
+                              <p className="font-medium text-sm">{result.title}</p>
+                              <p className="text-xs text-gray-500">{result.subtitle}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" className="relative">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative"
+                  onClick={() => navigate('/dashboard/notifications')}
+                >
                   <Bell className="h-5 w-5" />
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     3
@@ -90,6 +176,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </main>
         </div>
       </div>
+      
+      {/* Click outside to close search results */}
+      {showSearchResults && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowSearchResults(false)}
+        />
+      )}
     </SidebarProvider>
   );
 };
