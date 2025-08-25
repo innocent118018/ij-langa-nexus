@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -9,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -22,11 +22,9 @@ import {
   BarChart3,
   Shield,
   Building,
-  Upload,
-  Bell,
-  UserCog,
   Scale,
-  Gavel
+  Gavel,
+  RotateCcw
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -34,10 +32,8 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
-  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const collapsed = state === 'collapsed';
 
   const adminMenuItems = [
     {
@@ -49,47 +45,27 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
     {
       title: 'Clients',
       url: '/dashboard/clients',
-      icon: Users,
-      submenu: [
-        { title: 'All Clients', url: '/dashboard/clients' },
-        { title: 'Add Client', url: '/dashboard/clients/add' },
-        { title: 'Suspended Clients', url: '/dashboard/clients/suspended' }
-      ]
+      icon: Users
     },
     {
       title: 'Orders & Projects',
       url: '/dashboard/orders',
-      icon: Briefcase,
-      submenu: [
-        { title: 'Pending Orders', url: '/dashboard/orders/pending' },
-        { title: 'Ongoing Projects', url: '/dashboard/orders/ongoing' },
-        { title: 'Completed Projects', url: '/dashboard/orders/completed' }
-      ]
+      icon: Briefcase
     },
     {
       title: 'Invoices & Payments',
       url: '/dashboard/invoices',
-      icon: DollarSign,
-      submenu: [
-        { title: 'Create Invoice', url: '/dashboard/invoices/create' },
-        { title: 'Paid Invoices', url: '/dashboard/invoices/paid' },
-        { title: 'Unpaid Invoices', url: '/dashboard/invoices/unpaid' },
-        { title: 'Payment Reconciliation', url: '/dashboard/invoices/reconciliation' }
-      ]
+      icon: DollarSign
     },
     {
       title: 'Legal Escalations',
       url: '/dashboard/legal',
-      icon: Gavel,
-      submenu: [
-        { title: 'Pending Escalations', url: '/dashboard/legal/pending' },
-        { title: 'With Attorneys', url: '/dashboard/legal/attorneys' }
-      ]
+      icon: Gavel
     },
     {
       title: 'Refunds & Cancellations',
       url: '/dashboard/refunds',
-      icon: Scale
+      icon: RotateCcw
     },
     {
       title: 'Reports & Analytics',
@@ -143,7 +119,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
     {
       title: 'Documents',
       url: '/dashboard/documents',
-      icon: Upload
+      icon: Shield
     },
     {
       title: 'Messages & Support',
@@ -151,14 +127,9 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       icon: MessageSquare
     },
     {
-      title: 'Notifications',
-      url: '/dashboard/notifications',
-      icon: Bell
-    },
-    {
       title: 'Profile Settings',
       url: '/dashboard/profile',
-      icon: UserCog
+      icon: Settings
     }
   ];
 
@@ -172,22 +143,24 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
   };
 
   return (
-    <Sidebar className={`${collapsed ? 'w-14' : 'w-64'} border-r border-gray-200 bg-slate-900 text-white`}>
+    <Sidebar className="w-64 border-r border-gray-200 bg-slate-900 text-white">
       <SidebarContent className="bg-slate-900">
         <div className="p-4 border-b border-slate-700">
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'}`}>
+          <div className="flex items-center space-x-3">
             <Scale className="h-8 w-8 text-amber-400" />
-            {!collapsed && (
-              <div>
-                <h2 className="text-lg font-bold text-white">IJ Langa</h2>
-                <p className="text-xs text-slate-300">Legal Consulting</p>
-              </div>
-            )}
+            <div>
+              <h2 className="text-lg font-bold text-white">
+                <a href="https://ijlanga.co.za/" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors">
+                  IJ Langa
+                </a>
+              </h2>
+              <p className="text-xs text-slate-300">Legal Consulting</p>
+            </div>
           </div>
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-300 text-xs uppercase tracking-wider">
+          <SidebarGroupLabel className="text-slate-300 text-xs uppercase tracking-wider px-4 py-2">
             {isAdmin ? 'Administration' : 'Client Portal'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -197,7 +170,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
                   <SidebarMenuButton 
                     asChild
                     className={`
-                      hover:bg-slate-800 hover:text-amber-400 transition-colors
+                      hover:bg-slate-800 hover:text-amber-400 transition-colors mx-2 mb-1
                       ${isActive(item.url, item.exact) 
                         ? 'bg-slate-800 text-amber-400 border-r-2 border-amber-400' 
                         : 'text-slate-300'
@@ -206,7 +179,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
                   >
                     <NavLink to={item.url}>
                       <item.icon className="h-5 w-5" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
