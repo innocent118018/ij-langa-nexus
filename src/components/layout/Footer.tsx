@@ -1,33 +1,19 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SlidingLogo } from '@/components/ui/SlidingLogo';
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-gray-900 text-white py-12">
+      <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <img 
-                src="/lovable-uploads/9ba4ae64-601e-4162-9165-29b1004a73d1.png" 
-                alt="IJ Langa Logo" 
-                className="h-8 w-auto brightness-0 invert"
-              />
-              <img 
-                src="/lovable-uploads/3a4a6cc6-a0f7-4d80-831d-5c7bddc9bad0.png" 
-                alt="IJ Langa Logo" 
-                className="h-8 w-auto brightness-0 invert"
-              />
-              <img 
-                src="/lovable-uploads/a40ab648-5c25-4e45-8711-428b8042e179.png" 
-                alt="IJ Langa Logo" 
-                className="h-8 w-auto brightness-0 invert"
-              />
+            <div className="flex items-center space-x-3 mb-4">
+              <SlidingLogo className="h-12 w-16" />
+              <span className="text-xl font-bold">IJ Langa Consulting</span>
             </div>
             <div className="space-y-2 text-gray-300">
-              <p className="font-semibold">IJ Langa Consulting</p>
               <p>SAIBA16176</p>
               <p>🌹 www.ijlanga.co.za</p>
               <p>🌹 info@ijlanga.co.za</p>
@@ -39,31 +25,33 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Legal Links */}
           <div>
-            <h3 className="font-semibold mb-4">Legal & Policies</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><Link to="/policies/refund" className="hover:text-white transition-colors">Refund Policy</Link></li>
-              <li><Link to="/policies/services" className="hover:text-white transition-colors">Services Policy</Link></li>
-              <li><Link to="/policies/invoice" className="hover:text-white transition-colors">Invoice & Quote Policy</Link></li>
-              <li><Link to="/policies/sales" className="hover:text-white transition-colors">Sales Order Policy</Link></li>
-              <li><Link to="/policies/privacy" className="hover:text-white transition-colors">Privacy Policy (POPIA)</Link></li>
-              <li><Link to="/policies/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link to="/policies/refund" className="text-gray-300 hover:text-white transition-colors">Refund Policy</Link></li>
+              <li><Link to="/policies/services" className="text-gray-300 hover:text-white transition-colors">Services Policy</Link></li>
+              <li><Link to="/policies/invoice-quote" className="text-gray-300 hover:text-white transition-colors">Invoice & Quote Policy</Link></li>
+              <li><Link to="/policies/sales-order" className="text-gray-300 hover:text-white transition-colors">Sales Order Policy</Link></li>
+              <li><Link to="/policies/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy (POPIA)</Link></li>
+              <li><Link to="/policies/terms" className="text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/policies/export-customs" className="text-gray-300 hover:text-white transition-colors">Export & Customs Compliance</Link></li>
+              <li><Link to="/policies/shelf-companies" className="text-gray-300 hover:text-white transition-colors">Shelf Companies Policy</Link></li>
             </ul>
           </div>
 
-          {/* Additional Policies */}
           <div>
-            <h3 className="font-semibold mb-4">Compliance</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><Link to="/policies/export" className="hover:text-white transition-colors">Export & Customs Policy</Link></li>
-              <li><Link to="/policies/shelf-companies" className="hover:text-white transition-colors">Shelf Companies Policy</Link></li>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link to="/auth" className="text-gray-300 hover:text-white transition-colors">Login</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} IJ Langa Consulting (Pty) Ltd. All rights reserved.</p>
+          <p>&copy; 2025 IJ Langa Consulting (Pty) Ltd. All rights reserved.</p>
         </div>
       </div>
     </footer>
