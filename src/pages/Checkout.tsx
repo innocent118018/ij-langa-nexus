@@ -98,6 +98,50 @@ const Checkout = () => {
     return calculateSubtotal() + calculateVAT();
   };
 
+  const createPayment = async (orderId: string) => {
+    try {
+      console.log('Creating payment for order:', orderId);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      const paymentData = {
+        orderId: orderId,
+        amount: calculateTotal(),
+        description: `Order #${orderId} - ${cartItems.length} item(s)`,
+        customerEmail: customerDetails.email,
+        externalTransactionID: `ORDER-${orderId}-${Date.now()}`
+      };
+
+      console.log('Payment data:', paymentData);
+
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: paymentData,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Payment response:', data);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -122,7 +166,7 @@ const Checkout = () => {
     setProcessing(true);
 
     try {
-      // Create order
+      // Create order first
       const { data: order, error: orderError } = await (supabase as any)
         .from('orders')
         .insert({
@@ -139,7 +183,12 @@ const Checkout = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw orderError;
+      }
+
+      console.log('Order created:', order);
 
       // Create order items
       const orderItems = cartItems.map(item => ({
@@ -154,46 +203,37 @@ const Checkout = () => {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order items creation error:', itemsError);
+        throw itemsError;
+      }
 
-      // Log payment attempt
-      const { error: logError } = await (supabase as any)
-        .from('payment_logs')
-        .insert({
-          order_id: order.id,
-          user_id: user!.id,
-          status: 'initiated',
-          request_data: {
-            order_total: calculateTotal(),
-            customer_details: customerDetails,
-            items_count: cartItems.length
-          }
+      // Create payment link
+      const paymentResponse = await createPayment(order.id);
+      
+      if (paymentResponse.paylinkUrl) {
+        // Clear cart before redirecting
+        await (supabase as any)
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user!.id);
+
+        toast({
+          title: "Redirecting to Payment",
+          description: "You will be redirected to complete your payment",
         });
 
-      if (logError) console.error('Error logging payment:', logError);
-
-      // Clear cart
-      await (supabase as any)
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user!.id);
-
-      // Redirect to iKhokha payment (placeholder for now)
-      toast({
-        title: "Order Created",
-        description: "Redirecting to payment...",
-      });
-
-      // For now, simulate payment processing
-      setTimeout(() => {
-        navigate(`/dashboard`);
-      }, 2000);
+        // Redirect to iKhokha payment page
+        window.location.href = paymentResponse.paylinkUrl;
+      } else {
+        throw new Error('No payment URL received');
+      }
 
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
         title: "Error",
-        description: "Failed to create order. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create order. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -286,7 +326,7 @@ const Checkout = () => {
                   {processing ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
+                      Creating Payment...
                     </>
                   ) : (
                     'Proceed to Payment'
