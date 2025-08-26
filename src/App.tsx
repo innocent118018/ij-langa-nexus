@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { Layout } from "@/components/layout/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 // Import all pages
@@ -66,28 +67,28 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/checkout" element={<Checkout />} />
+              {/* Public routes with Layout */}
+              <Route path="/" element={<Layout><Index /></Layout>} />
+              <Route path="/auth" element={<Layout><Auth /></Layout>} />
+              <Route path="/about" element={<Layout><About /></Layout>} />
+              <Route path="/products" element={<Layout><Products /></Layout>} />
+              <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+              <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 
-              {/* Policy routes */}
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-conditions" element={<TermsConditions />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/services-policy" element={<ServicesPolicy />} />
-              <Route path="/invoice-quote-policy" element={<InvoiceQuotePolicy />} />
-              <Route path="/sales-order-policy" element={<SalesOrderPolicy />} />
-              <Route path="/shelf-companies-policy" element={<ShelfCompaniesPolicy />} />
-              <Route path="/export-customs-policy" element={<ExportCustomsPolicy />} />
+              {/* Policy routes with Layout */}
+              <Route path="/policies/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
+              <Route path="/policies/terms" element={<Layout><TermsConditions /></Layout>} />
+              <Route path="/policies/refund" element={<Layout><RefundPolicy /></Layout>} />
+              <Route path="/policies/services" element={<Layout><ServicesPolicy /></Layout>} />
+              <Route path="/policies/invoice-quote" element={<Layout><InvoiceQuotePolicy /></Layout>} />
+              <Route path="/policies/sales-order" element={<Layout><SalesOrderPolicy /></Layout>} />
+              <Route path="/policies/shelf-companies" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
+              <Route path="/policies/export-customs" element={<Layout><ExportCustomsPolicy /></Layout>} />
 
-              {/* Service routes */}
-              <Route path="/services/:serviceSlug" element={<ServicePage />} />
+              {/* Service routes with Layout */}
+              <Route path="/services/:serviceSlug" element={<Layout><ServicePage /></Layout>} />
 
-              {/* Dashboard routes with layout */}
+              {/* Dashboard routes with DashboardLayout (which includes Layout) */}
               <Route path="/dashboard" element={
                 <DashboardLayout>
                   <Dashboard />
@@ -190,9 +191,9 @@ function App() {
                 </DashboardLayout>
               } />
 
-              {/* Payment routes */}
-              <Route path="/dashboard/payments/success" element={<PaymentSuccess />} />
-              <Route path="/dashboard/payments/cancel" element={<PaymentCancel />} />
+              {/* Payment routes with Layout */}
+              <Route path="/dashboard/payments/success" element={<Layout><PaymentSuccess /></Layout>} />
+              <Route path="/dashboard/payments/cancel" element={<Layout><PaymentCancel /></Layout>} />
 
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/" replace />} />

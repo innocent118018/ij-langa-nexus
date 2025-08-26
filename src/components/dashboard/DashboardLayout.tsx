@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { Layout } from '@/components/layout/Layout';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -85,104 +86,110 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     setShowSearchResults(false);
   };
 
-  // Only show sidebar layout for dashboard pages, but not the full layout wrapper
+  // Only show dashboard content for dashboard pages
   if (!isDashboardPage) {
-    return <>{children}</>;
+    return (
+      <Layout>
+        {children}
+      </Layout>
+    );
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex w-full bg-gray-50">
-        <DashboardSidebar isAdmin={isAdmin} />
-        
-        <div className="flex-1 flex flex-col">
-          {/* Top Header */}
-          <header className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="relative w-96">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    placeholder="Search clients, invoices, or documents..." 
-                    className="pl-10 bg-gray-50 border-gray-200"
-                    value={searchTerm}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    onFocus={() => searchTerm.length >= 2 && setShowSearchResults(true)}
-                  />
-                  
-                  {/* Search Results Dropdown */}
-                  {showSearchResults && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 z-50">
-                      {searchResults.map((result, index) => (
-                        <div
-                          key={index}
-                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                          onClick={() => handleSearchResultClick(result)}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 uppercase">
-                              {result.type}
-                            </span>
-                            <div>
-                              <p className="font-medium text-sm">{result.title}</p>
-                              <p className="text-xs text-gray-500">{result.subtitle}</p>
+    <Layout>
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex w-full bg-gray-50">
+          <DashboardSidebar isAdmin={isAdmin} />
+          
+          <div className="flex-1 flex flex-col">
+            {/* Top Header */}
+            <header className="bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="relative w-96">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input 
+                      placeholder="Search clients, invoices, or documents..." 
+                      className="pl-10 bg-gray-50 border-gray-200"
+                      value={searchTerm}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      onFocus={() => searchTerm.length >= 2 && setShowSearchResults(true)}
+                    />
+                    
+                    {/* Search Results Dropdown */}
+                    {showSearchResults && searchResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg mt-1 z-50">
+                        {searchResults.map((result, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                            onClick={() => handleSearchResultClick(result)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 uppercase">
+                                {result.type}
+                              </span>
+                              <div>
+                                <p className="font-medium text-sm">{result.title}</p>
+                                <p className="text-xs text-gray-500">{result.subtitle}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="relative"
-                  onClick={() => navigate('/dashboard/notifications')}
-                >
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
-                  </span>
-                </Button>
-                
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-                    <p className="text-xs text-gray-500">
-                      {isAdmin ? 'Administrator' : 'Client'}
-                    </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={logout}
-                    className="flex items-center space-x-2"
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="relative"
+                    onClick={() => navigate('/dashboard/notifications')}
                   >
-                    <User className="h-4 w-4" />
-                    <span>Logout</span>
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      3
+                    </span>
                   </Button>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-900">{user?.email}</p>
+                      <p className="text-xs text-gray-500">
+                        {isAdmin ? 'Administrator' : 'Client'}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={logout}
+                      className="flex items-center space-x-2"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Logout</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 overflow-auto">
-            {children}
-          </main>
+            {/* Main Content */}
+            <main className="flex-1 p-6 overflow-auto">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
-      
-      {/* Click outside to close search results */}
-      {showSearchResults && (
-        <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setShowSearchResults(false)}
-        />
-      )}
-    </SidebarProvider>
+        
+        {/* Click outside to close search results */}
+        {showSearchResults && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowSearchResults(false)}
+          />
+        )}
+      </SidebarProvider>
+    </Layout>
   );
 };
