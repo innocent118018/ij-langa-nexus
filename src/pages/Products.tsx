@@ -25,7 +25,10 @@ const Products = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+
+  const PRODUCTS_PER_PAGE = 60; // 6 per row × 10 rows
 
   const { data: products, isLoading, refetch } = useQuery({
     queryKey: ['products'],
@@ -49,7 +52,13 @@ const Products = () => {
     return matchesSearch && matchesCategory;
   }) || [];
 
-  const groupedProducts = filteredProducts.reduce((acc, product) => {
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const groupedProducts = currentProducts.reduce((acc, product) => {
     if (!acc[product.category]) {
       acc[product.category] = [];
     }
@@ -82,6 +91,11 @@ const Products = () => {
       title: "Cart Updated",
       description: "Item added to cart successfully",
     });
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -128,12 +142,18 @@ const Products = () => {
               <Input
                 placeholder="Search services..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-10"
               />
             </div>
             <div className="w-full md:w-64">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select value={selectedCategory} onValueChange={(value) => {
+                setSelectedCategory(value);
+                setCurrentPage(1);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
@@ -150,7 +170,7 @@ const Products = () => {
           </div>
         </div>
 
-        {/* Products by Category */}
+        {/* Products Grid - 6 per row */}
         {Object.keys(groupedProducts).length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 text-lg">No services found matching your criteria.</p>
@@ -170,7 +190,8 @@ const Products = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Grid with 6 columns on large screens, responsive on smaller screens */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {categoryProducts.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -183,6 +204,59 @@ const Products = () => {
             ))}
           </div>
         )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-12">
+            <Button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              variant="outline"
+              size="sm"
+            >
+              Previous
+            </Button>
+            
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              
+              return (
+                <Button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  size="sm"
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+            
+            <Button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              size="sm"
+            >
+              Next
+            </Button>
+          </div>
+        )}
+
+        {/* Page info */}
+        <div className="text-center text-gray-500 text-sm mt-4">
+          Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} services
+          {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+        </div>
       </div>
 
       {/* Cart Sidebar */}
