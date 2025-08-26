@@ -4,11 +4,31 @@ import { useAuth } from '@/hooks/useAuth';
 import { UserDashboard } from '@/components/dashboard/UserDashboard';
 import { AdminDashboard } from '@/components/dashboard/AdminDashboard';
 import { Navigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  // Fetch user role from database
+  const { data: userRole, isLoading: roleLoading } = useQuery({
+    queryKey: ['user-role', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data.role;
+    },
+    enabled: !!user?.id,
+  });
+
+  if (loading || roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
@@ -23,16 +43,8 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if user is admin with updated admin email list
-  const adminEmails = [
-    'info@ijlanga.co.za',
-    'orders@ijlanga.co.za', 
-    'billings@ijlanga.co.za',
-    'correspondence@ijlanga.co.za',
-    'ij.langa11@gmail.com'
-  ];
-  
-  const isAdmin = adminEmails.includes(user.email?.toLowerCase() || '');
+  // Check if user is admin based on database role
+  const isAdmin = userRole && ['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole);
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -34,23 +34,25 @@ const DocumentUploadForm = ({ isOpen, onClose, category: initialCategory, onSucc
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedUserId, setSelectedUserId] = useState(user?.id || '');
 
-  // Check if user is admin
+  // Check if user is admin by fetching role from database
   const { data: userRole } = useQuery({
-    queryKey: ['user-role'],
+    queryKey: ['user-role', user?.id],
     queryFn: async () => {
+      if (!user?.id) return null;
+      
       const { data, error } = await supabase
         .from('users')
         .select('role')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
       
       if (error) throw error;
-      return data.role as string;
+      return data.role;
     },
-    enabled: !!user,
+    enabled: !!user?.id,
   });
 
-  const isAdmin = userRole === 'admin' || userRole === 'super_admin' || userRole === 'accountant' || userRole === 'consultant';
+  const isAdmin = userRole && ['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole);
 
   // Fetch all users for admin selection
   const { data: users } = useQuery({
@@ -106,6 +108,7 @@ const DocumentUploadForm = ({ isOpen, onClose, category: initialCategory, onSucc
       });
       queryClient.invalidateQueries({ queryKey: ['correspondence-documents'] });
       queryClient.invalidateQueries({ queryKey: ['user-documents'] });
+      queryClient.invalidateQueries({ queryKey: ['shareholders-documents'] });
       onClose();
       setUploadFile(null);
       if (onSuccess) onSuccess();

@@ -17,6 +17,7 @@ interface Customer {
   address: string | null;
   status: string | null;
   accounts_receivable: number;
+  user_id?: string | null;
 }
 
 interface EditClientModalProps {
@@ -116,6 +117,9 @@ const EditClientModal = ({ isOpen, onClose, customer }: EditClientModalProps) =>
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Email links client to user account if match exists
+            </p>
           </div>
           
           <div>
