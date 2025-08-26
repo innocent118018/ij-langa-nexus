@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SlidingLogo } from '@/components/ui/SlidingLogo';
 import { useAuth } from '@/hooks/useAuth';
-import { ShoppingCart, User, LogOut, ChevronDown, FileText, DollarSign, MessageSquare, Settings } from 'lucide-react';
+import { ShoppingCart, User, LogOut, ChevronDown, FileText, DollarSign, MessageSquare, Settings, Menu, X } from 'lucide-react';
 import { Cart } from '@/components/cart/Cart';
 
 export const Header = () => {
@@ -12,6 +12,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -60,15 +61,17 @@ export const Header = () => {
 
   return (
     <>
-      <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
+      <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50 w-full">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
-            <Link to="/" className="flex items-center space-x-3">
-              <SlidingLogo className="h-12 w-16" />
-              <span className="text-xl font-bold text-gray-900">IJ Langa Consulting</span>
+            <Link to="/" className="flex items-center space-x-3 flex-shrink-0">
+              <SlidingLogo className="h-8 w-12 sm:h-12 sm:w-16" />
+              <span className="text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">IJ Langa Consulting</span>
+              <span className="text-sm font-bold text-gray-900 sm:hidden">IJ Langa</span>
             </Link>
 
-            <nav className="hidden md:flex items-center space-x-8">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-8">
               <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
                 Home
               </Link>
@@ -115,7 +118,8 @@ export const Header = () => {
               </Link>
             </nav>
 
-            <div className="flex items-center space-x-4">
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-4">
               <Button
                 variant="outline"
                 size="sm"
@@ -148,13 +152,84 @@ export const Header = () => {
                 </Link>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex items-center space-x-2 md:hidden">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCart(true)}
+                className="relative"
+              >
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+              >
+                {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Menu */}
+          {showMobileMenu && (
+            <div className="lg:hidden border-t border-gray-200 py-4">
+              <nav className="flex flex-col space-y-4">
+                <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors" onClick={() => setShowMobileMenu(false)}>
+                  Home
+                </Link>
+                <Link to="/about" className="text-gray-700 hover:text-blue-600 transition-colors" onClick={() => setShowMobileMenu(false)}>
+                  About
+                </Link>
+                <Link to="/products" className="text-gray-700 hover:text-blue-600 transition-colors" onClick={() => setShowMobileMenu(false)}>
+                  Services
+                </Link>
+                <Link to="/pricing" className="text-gray-700 hover:text-blue-600 transition-colors" onClick={() => setShowMobileMenu(false)}>
+                  Pricing
+                </Link>
+                <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition-colors" onClick={() => setShowMobileMenu(false)}>
+                  Contact
+                </Link>
+                
+                {user ? (
+                  <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
+                    <Link to="/dashboard" onClick={() => setShowMobileMenu(false)}>
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        handleLogout();
+                        setShowMobileMenu(false);
+                      }}
+                      className="w-full justify-start"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="pt-4 border-t border-gray-200">
+                    <Link to="/auth" onClick={() => setShowMobileMenu(false)}>
+                      <Button className="w-full">Login</Button>
+                    </Link>
+                  </div>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
         
         {/* Secondary Menu - Only visible when logged in */}
         {user && (
           <div className="bg-gray-50 border-t border-gray-200">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <nav className="flex items-center space-x-6 py-2 overflow-x-auto">
                 <Link 
                   to="/dashboard/orders" 

@@ -36,8 +36,30 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (user && isOpen) {
       fetchCartItems();
+    } else if (!user && isOpen) {
+      // Load cart from localStorage for non-logged in users
+      loadLocalCart();
     }
   }, [user, isOpen]);
+
+  const loadLocalCart = () => {
+    const localCart = localStorage.getItem('guestCart');
+    if (localCart) {
+      try {
+        const items = JSON.parse(localCart);
+        setCartItems(items);
+      } catch (error) {
+        console.error('Error loading local cart:', error);
+        setCartItems([]);
+      }
+    } else {
+      setCartItems([]);
+    }
+  };
+
+  const saveLocalCart = (items: CartItem[]) => {
+    localStorage.setItem('guestCart', JSON.stringify(items));
+  };
 
   const fetchCartItems = async () => {
     if (!user) return;
@@ -86,6 +108,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (!user) {
+      // Update local storage cart
+      const updatedItems = cartItems.map(item =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      );
+      setCartItems(updatedItems);
+      saveLocalCart(updatedItems);
+      return;
+    }
+
     try {
       const { error } = await (supabase as any)
         .from('cart_items')
@@ -113,6 +145,18 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   };
 
   const removeItem = async (itemId: string) => {
+    if (!user) {
+      // Remove from local storage cart
+      const updatedItems = cartItems.filter(item => item.id !== itemId);
+      setCartItems(updatedItems);
+      saveLocalCart(updatedItems);
+      toast({
+        title: "Success",
+        description: "Item removed from cart",
+      });
+      return;
+    }
+
     try {
       const { error } = await (supabase as any)
         .from('cart_items')
@@ -162,22 +206,6 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
     onClose();
     navigate('/checkout');
   };
-
-  if (!user) {
-    return (
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Shopping Cart</SheetTitle>
-          </SheetHeader>
-          <div className="flex flex-col items-center justify-center h-full">
-            <ShoppingCart className="h-16 w-16 text-gray-400 mb-4" />
-            <p className="text-gray-600 text-center">Please log in to view your cart</p>
-          </div>
-        </SheetContent>
-      </Sheet>
-    );
-  }
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -273,6 +301,11 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                 >
                   Proceed to Checkout
                 </Button>
+                {!user && (
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    You'll be prompted to login during checkout
+                  </p>
+                )}
               </div>
             </>
           )}
