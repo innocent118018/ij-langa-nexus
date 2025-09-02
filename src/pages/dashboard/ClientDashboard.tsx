@@ -75,7 +75,7 @@ export const ClientDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-none">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-lg p-6">
         <h1 className="text-2xl font-bold mb-2">Welcome to Your Client Portal</h1>
