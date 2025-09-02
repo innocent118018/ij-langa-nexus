@@ -24,7 +24,8 @@ import {
   Building,
   Scale,
   Gavel,
-  RotateCcw
+  RotateCcw,
+  FileOutput
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -56,6 +57,11 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       title: 'Invoices & Payments',
       url: '/dashboard/invoices',
       icon: DollarSign
+    },
+    {
+      title: 'Document Generation',
+      url: '/dashboard/document-generation',
+      icon: FileOutput
     },
     {
       title: 'Legal Escalations',

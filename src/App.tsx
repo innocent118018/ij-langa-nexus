@@ -32,6 +32,7 @@ import ContentManagement from "./pages/dashboard/ContentManagement";
 import LegalEscalations from "./pages/dashboard/LegalEscalations";
 import Refunds from "./pages/dashboard/Refunds";
 import ProductManagementPage from "./pages/dashboard/ProductManagement";
+import DocumentGeneration from "./pages/dashboard/DocumentGeneration";
 
 // Document sub-pages
 import Correspondence from "./pages/dashboard/documents/Correspondence";
@@ -188,6 +189,12 @@ function App() {
               <Route path="/dashboard/products" element={
                 <DashboardLayout>
                   <ProductManagementPage />
+                </DashboardLayout>
+              } />
+              
+              <Route path="/dashboard/document-generation" element={
+                <DashboardLayout>
+                  <DocumentGeneration />
                 </DashboardLayout>
               } />
 
