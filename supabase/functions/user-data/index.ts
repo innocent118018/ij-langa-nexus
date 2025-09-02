@@ -31,7 +31,19 @@ serve(async (req) => {
       throw new Error('Invalid authentication token');
     }
 
-    const { endpoint } = await req.json();
+    // Parse request body safely
+    let requestBody;
+    try {
+      const bodyText = await req.text();
+      if (!bodyText || bodyText.trim() === '') {
+        throw new Error('Request body is empty');
+      }
+      requestBody = JSON.parse(bodyText);
+    } catch (parseError) {
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { endpoint } = requestBody;
 
     let response;
 
