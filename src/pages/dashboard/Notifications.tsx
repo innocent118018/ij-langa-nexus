@@ -15,17 +15,12 @@ const Notifications = () => {
   const { user, loading } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch only user's own notifications (RLS will enforce this)
+  // Fetch only user's own notifications through API
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['user-notifications'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
+      const { apiClient } = await import('@/hooks/useApiClient');
+      return await apiClient.getUserData('notifications');
     },
     enabled: !!user,
   });
@@ -33,12 +28,8 @@ const Notifications = () => {
   // Mark notification as read
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
-
-      if (error) throw error;
+      const { apiClient } = await import('@/hooks/useApiClient');
+      return await apiClient.performUserAction('mark-notification-read', { notificationId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-notifications'] });

@@ -19,17 +19,12 @@ const Profile = () => {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch only user's own profile (RLS will enforce this)
+  // Fetch only user's own profile through API
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { apiClient } = await import('@/hooks/useApiClient');
+      return await apiClient.getUserData('profile');
     },
     enabled: !!user,
   });
@@ -58,12 +53,8 @@ const Profile = () => {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase
-        .from('users')
-        .update(data)
-        .eq('id', user!.id);
-
-      if (error) throw error;
+      const { apiClient } = await import('@/hooks/useApiClient');
+      return await apiClient.performUserAction('update-profile', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });

@@ -1,50 +1,14 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from './useApiClient';
 
 export const useDashboardData = () => {
-  // Fetch invoices data - now uses direct user relationship
-  const { data: invoices = [] } = useQuery({
-    queryKey: ['invoices'],
+  // Fetch dashboard data through API with ownership validation
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['dashboard-data'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('invoices')
-        .select(`
-          *,
-          customers(name)
-        `)
-        .order('issue_date', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Fetch customers data - admins see all, users see their linked records
-  const { data: customers = [] } = useQuery({
-    queryKey: ['customers'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Fetch user's own orders
-  const { data: orders = [] } = useQuery({
-    queryKey: ['user-orders'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
+      return await apiClient.getUserData('dashboard-metrics');
     }
   });
 
@@ -63,39 +27,18 @@ export const useDashboardData = () => {
     }
   });
 
-  // Fetch user's notifications
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Calculate dashboard metrics
-  const totalRevenue = invoices.reduce((sum, invoice) => sum + Number(invoice.invoice_amount || 0), 0);
-  const activeClients = customers.length;
-  const unpaidInvoices = invoices.filter(inv => inv.status === 'Overdue' || inv.balance_due > 0);
-  const totalUnpaidAmount = unpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.balance_due || 0), 0);
-  const pendingOrders = orders.filter(order => order.status === 'pending' || order.status === 'processing').length;
-
   return {
-    invoices,
-    customers,
-    orders,
+    invoices: dashboardData?.invoices || [],
+    customers: [], // Users don't need customer data
+    orders: dashboardData?.orders || [],
     services,
-    notifications,
-    metrics: {
-      totalRevenue,
-      activeClients,
-      unpaidAmount: totalUnpaidAmount,
-      pendingOrders
-    }
+    notifications: dashboardData?.notifications || [],
+    metrics: dashboardData?.metrics || {
+      activeServices: 0,
+      pendingOrders: 0,
+      unpaidAmount: 0,
+      pendingInvoices: 0
+    },
+    isLoading
   };
 };
