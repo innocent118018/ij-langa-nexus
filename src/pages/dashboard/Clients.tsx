@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import EditClientModal from '@/components/clients/EditClientModal';
+import CreateClientModal from '@/components/admin/CreateClientModal';
 import { useNavigate } from 'react-router-dom';
 
 interface Customer {
@@ -36,6 +37,7 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const formatCurrency = (amount: number) => {
@@ -79,7 +81,7 @@ const Clients = () => {
           <p className="text-slate-600">Manage and monitor all client accounts</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add New Client
           </Button>
@@ -263,6 +265,12 @@ const Clients = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         customer={selectedCustomer}
+      />
+
+      <CreateClientModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => window.location.reload()}
       />
     </div>
   );
