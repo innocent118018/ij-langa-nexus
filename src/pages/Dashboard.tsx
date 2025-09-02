@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { UserDashboard } from '@/components/dashboard/UserDashboard';
-import { AdminDashboard } from '@/components/dashboard/AdminDashboard';
+import { AdminDashboard } from '@/pages/dashboard/AdminDashboard';
+import { ClientDashboard } from '@/pages/dashboard/ClientDashboard';
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,11 +46,7 @@ const Dashboard = () => {
   // Check if user is admin based on database role
   const isAdmin = userRole && ['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole);
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {isAdmin ? <AdminDashboard /> : <UserDashboard />}
-    </div>
-  );
+  return isAdmin ? <AdminDashboard /> : <ClientDashboard />;
 };
 
 export default Dashboard;

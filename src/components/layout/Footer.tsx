@@ -28,14 +28,14 @@ export const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/policies/refund" className="text-gray-300 hover:text-white transition-colors">Refund Policy</Link></li>
-              <li><Link to="/policies/services" className="text-gray-300 hover:text-white transition-colors">Services Policy</Link></li>
-              <li><Link to="/policies/invoice-quote" className="text-gray-300 hover:text-white transition-colors">Invoice & Quote Policy</Link></li>
-              <li><Link to="/policies/sales-order" className="text-gray-300 hover:text-white transition-colors">Sales Order Policy</Link></li>
-              <li><Link to="/policies/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy (POPIA)</Link></li>
-              <li><Link to="/policies/terms" className="text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/policies/export-customs" className="text-gray-300 hover:text-white transition-colors">Export & Customs Compliance</Link></li>
-              <li><Link to="/policies/shelf-companies" className="text-gray-300 hover:text-white transition-colors">Shelf Companies Policy</Link></li>
+              <li><Link to="/policies/refund-policy" className="text-gray-300 hover:text-white transition-colors">Refund Policy</Link></li>
+              <li><Link to="/policies/services-policy" className="text-gray-300 hover:text-white transition-colors">Services Policy</Link></li>
+              <li><Link to="/policies/invoice-quote-policy" className="text-gray-300 hover:text-white transition-colors">Invoice & Quote Policy</Link></li>
+              <li><Link to="/policies/sales-order-policy" className="text-gray-300 hover:text-white transition-colors">Sales Order Policy</Link></li>
+              <li><Link to="/policies/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy (POPIA)</Link></li>
+              <li><Link to="/policies/terms-conditions" className="text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/policies/export-customs-policy" className="text-gray-300 hover:text-white transition-colors">Export & Customs Compliance</Link></li>
+              <li><Link to="/policies/shelf-companies-policy" className="text-gray-300 hover:text-white transition-colors">Shelf Companies Policy</Link></li>
             </ul>
           </div>
 

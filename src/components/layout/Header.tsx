@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SlidingLogo } from '@/components/ui/SlidingLogo';
 import { useAuth } from '@/hooks/useAuth';
-import { ShoppingCart, User, LogOut, ChevronDown, FileText, DollarSign, MessageSquare, Settings, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, LogOut, ChevronDown, Menu, X, Search, Bell } from 'lucide-react';
 import { Cart } from '@/components/cart/Cart';
 
 export const Header = () => {
@@ -13,6 +13,8 @@ export const Header = () => {
   const [showCart, setShowCart] = useState(false);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -120,6 +122,18 @@ export const Header = () => {
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Global Search */}
+              <div className="relative w-80">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input 
+                  type="text"
+                  placeholder="Search clients, invoices, docs..."
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -130,21 +144,30 @@ export const Header = () => {
               </Button>
               
               {user ? (
-                <div className="flex items-center space-x-2">
-                  <Link to="/dashboard">
-                    <Button variant="outline" size="sm">
-                      <User className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                <div className="flex items-center space-x-3">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    onClick={handleLogout}
+                    className="relative"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
+                    <Bell className="h-4 w-4" />
+                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
+                      3
+                    </span>
                   </Button>
+                  
+                  <div className="flex items-center space-x-2 border-l border-border pl-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">Client Portal</p>
+                    </div>
+                    <Link to="/dashboard">
+                      <Button variant="outline" size="sm">
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <Link to="/auth">
@@ -226,50 +249,6 @@ export const Header = () => {
           )}
         </div>
         
-        {/* Secondary Menu - Only visible when logged in */}
-        {user && (
-          <div className="bg-gray-50 border-t border-gray-200">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <nav className="flex items-center space-x-6 py-2 overflow-x-auto">
-                <Link 
-                  to="/dashboard/orders" 
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>My Orders</span>
-                </Link>
-                <Link 
-                  to="/dashboard/invoices" 
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
-                >
-                  <DollarSign className="h-4 w-4" />
-                  <span>Invoices</span>
-                </Link>
-                <Link 
-                  to="/dashboard/documents" 
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Documents</span>
-                </Link>
-                <Link 
-                  to="/dashboard/support" 
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span>Support</span>
-                </Link>
-                <Link 
-                  to="/dashboard/profile" 
-                  className="flex items-center space-x-1 text-sm text-gray-600 hover:text-blue-600 whitespace-nowrap transition-colors"
-                >
-                  <Settings className="h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </nav>
-            </div>
-          </div>
-        )}
       </header>
 
       <Cart isOpen={showCart} onClose={() => setShowCart(false)} />

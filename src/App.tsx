@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Layout } from "@/components/layout/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-
 // Import all pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -16,6 +15,7 @@ import Products from "./pages/Products";
 import Pricing from "./pages/Pricing";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
+// Contact page will be created later
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -77,17 +77,20 @@ function App() {
               <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 
               {/* Policy routes with Layout */}
-              <Route path="/policies/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
-              <Route path="/policies/terms" element={<Layout><TermsConditions /></Layout>} />
-              <Route path="/policies/refund" element={<Layout><RefundPolicy /></Layout>} />
-              <Route path="/policies/services" element={<Layout><ServicesPolicy /></Layout>} />
-              <Route path="/policies/invoice-quote" element={<Layout><InvoiceQuotePolicy /></Layout>} />
-              <Route path="/policies/sales-order" element={<Layout><SalesOrderPolicy /></Layout>} />
-              <Route path="/policies/shelf-companies" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
-              <Route path="/policies/export-customs" element={<Layout><ExportCustomsPolicy /></Layout>} />
+              <Route path="/policies/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+              <Route path="/policies/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
+              <Route path="/policies/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
+              <Route path="/policies/services-policy" element={<Layout><ServicesPolicy /></Layout>} />
+              <Route path="/policies/invoice-quote-policy" element={<Layout><InvoiceQuotePolicy /></Layout>} />
+              <Route path="/policies/sales-order-policy" element={<Layout><SalesOrderPolicy /></Layout>} />
+              <Route path="/policies/shelf-companies-policy" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
+              <Route path="/policies/export-customs-policy" element={<Layout><ExportCustomsPolicy /></Layout>} />
+              
+              {/* Contact route - will be created later */}
+              <Route path="/contact" element={<Layout><Index /></Layout>} />
 
               {/* Service routes with Layout */}
-              <Route path="/services/:serviceSlug" element={<Layout><ServicePage /></Layout>} />
+              <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
 
               {/* Dashboard routes with DashboardLayout (which includes Layout) */}
               <Route path="/dashboard" element={
