@@ -31,19 +31,17 @@ serve(async (req) => {
       throw new Error('Invalid authentication token');
     }
 
-    // Parse request body safely
-    let requestBody;
+    // Handle empty request body safely
+    let endpoint = 'profile'; // default endpoint
     try {
-      const bodyText = await req.text();
-      if (!bodyText || bodyText.trim() === '') {
-        throw new Error('Request body is empty');
+      const body = await req.text();
+      if (body && body.trim()) {
+        const parsed = JSON.parse(body);
+        endpoint = parsed.endpoint || 'profile';
       }
-      requestBody = JSON.parse(bodyText);
     } catch (parseError) {
-      throw new Error('Invalid JSON in request body');
+      console.log('Using default endpoint due to parsing error:', parseError);
     }
-
-    const { endpoint } = requestBody;
 
     let response;
 
