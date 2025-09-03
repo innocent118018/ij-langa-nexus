@@ -15,7 +15,7 @@ import Products from "./pages/Products";
 import Pricing from "./pages/Pricing";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
-// Contact page will be created later
+import Contact from "./pages/Contact";
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -86,8 +86,8 @@ function App() {
               <Route path="/policies/shelf-companies-policy" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
               <Route path="/policies/export-customs-policy" element={<Layout><ExportCustomsPolicy /></Layout>} />
               
-              {/* Contact route - will be created later */}
-              <Route path="/contact" element={<Layout><Index /></Layout>} />
+              {/* Contact route */}
+              <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
               {/* Service routes with Layout */}
               <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
