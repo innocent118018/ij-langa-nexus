@@ -2,6 +2,7 @@
 import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { FloatingCheckoutButton } from '@/components/cart/FloatingCheckoutButton';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export const Layout = ({ children }: LayoutProps) => {
         {children}
       </main>
       <Footer />
+      <FloatingCheckoutButton />
     </div>
   );
 };

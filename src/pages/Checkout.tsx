@@ -8,28 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
-interface CartItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  products: {
-    id: string;
-    name: string;
-    price: number;
-    category: string;
-  };
-}
-
 const Checkout = () => {
   const { user } = useAuth();
+  const { cartItems, clearCart, getTotalAmount } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({
     name: user?.user_metadata?.full_name || '',
@@ -39,55 +28,17 @@ const Checkout = () => {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
+    // Don't redirect if no user - allow guest checkout
+    if (cartItems.length === 0) {
+      navigate('/products');
     }
-    fetchCartItems();
-  }, [user, navigate]);
-
-  const fetchCartItems = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await (supabase as any)
-        .from('cart_items')
-        .select(`
-          id,
-          product_id,
-          quantity,
-          products!cart_items_product_id_fkey (
-            id,
-            name,
-            price,
-            category
-          )
-        `)
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Cart fetch error:', error);
-        throw error;
-      }
-      
-      // Filter out items with null products and ensure proper typing
-      const validCartItems = (data || []).filter((item: any) => item.products) as CartItem[];
-      setCartItems(validCartItems);
-    } catch (error) {
-      console.error('Error fetching cart items:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load cart items",
-        variant: "destructive",
-      });
-      setCartItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [cartItems, navigate]);
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.products.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.products?.price || item.services?.price || 0;
+      return total + (price * item.quantity);
+    }, 0);
   };
 
   const calculateVAT = () => {
@@ -103,10 +54,7 @@ const Checkout = () => {
       console.log('Creating payment for order:', orderId);
       
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
-      }
-
+      
       const paymentData = {
         orderId: orderId,
         amount: calculateTotal(),
@@ -119,9 +67,9 @@ const Checkout = () => {
 
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: paymentData,
-        headers: {
+        headers: session?.access_token ? {
           Authorization: `Bearer ${session.access_token}`,
-        },
+        } : {},
       });
 
       if (error) {
@@ -166,20 +114,27 @@ const Checkout = () => {
     setProcessing(true);
 
     try {
+      // Create order data
+      const orderData: any = {
+        customer_name: customerDetails.name,
+        customer_email: customerDetails.email,
+        customer_phone: customerDetails.phone,
+        customer_address: customerDetails.address,
+        subtotal: calculateSubtotal(),
+        vat_amount: calculateVAT(),
+        total_amount: calculateTotal(),
+        status: 'pending'
+      };
+
+      // Add user_id if logged in
+      if (user) {
+        orderData.user_id = user.id;
+      }
+
       // Create order first
-      const { data: order, error: orderError } = await (supabase as any)
+      const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: user!.id,
-          customer_name: customerDetails.name,
-          customer_email: customerDetails.email,
-          customer_phone: customerDetails.phone,
-          customer_address: customerDetails.address,
-          subtotal: calculateSubtotal(),
-          vat_amount: calculateVAT(),
-          total_amount: calculateTotal(),
-          status: 'pending'
-        })
+        .insert(orderData)
         .select()
         .single();
 
@@ -194,12 +149,13 @@ const Checkout = () => {
       const orderItems = cartItems.map(item => ({
         order_id: order.id,
         product_id: item.product_id,
+        service_id: item.service_id,
         quantity: item.quantity,
-        price: item.products.price,
-        total: item.products.price * item.quantity
+        price: item.products?.price || item.services?.price || 0,
+        total: (item.products?.price || item.services?.price || 0) * item.quantity
       }));
 
-      const { error: itemsError } = await (supabase as any)
+      const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
@@ -213,17 +169,14 @@ const Checkout = () => {
       
       if (paymentResponse.paylinkUrl) {
         // Clear cart before redirecting
-        await (supabase as any)
-          .from('cart_items')
-          .delete()
-          .eq('user_id', user!.id);
+        await clearCart();
 
         toast({
           title: "Redirecting to Payment",
           description: "You will be redirected to complete your payment",
         });
 
-        // Redirect to iKhokha payment page
+        // Redirect to payment page
         window.location.href = paymentResponse.paylinkUrl;
       } else {
         throw new Error('No payment URL received');
@@ -343,19 +296,24 @@ const Checkout = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">{item.products.name}</p>
-                      <p className="text-sm text-gray-600">
-                        Qty: {item.quantity} × R{item.products.price.toFixed(2)}
+                {cartItems.map((item) => {
+                  const itemData = item.products || item.services;
+                  const price = itemData?.price || 0;
+                  
+                  return (
+                    <div key={item.id} className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{itemData?.name}</p>
+                        <p className="text-sm text-gray-600">
+                          Qty: {item.quantity} × R{price.toFixed(2)}
+                        </p>
+                      </div>
+                      <p className="font-semibold">
+                        R{(price * item.quantity).toFixed(2)}
                       </p>
                     </div>
-                    <p className="font-semibold">
-                      R{(item.products.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <Separator />
 
@@ -374,6 +332,14 @@ const Checkout = () => {
                     <span>R{calculateTotal().toFixed(2)}</span>
                   </div>
                 </div>
+
+                {!user && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      💡 Create an account to track your orders and access exclusive features!
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

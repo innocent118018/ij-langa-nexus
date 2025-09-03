@@ -244,14 +244,19 @@ export const ServicePackages = ({ onOrderService }: ServicePackagesProps) => {
 
   const handleOrderService = (service: any) => {
     const quantity = service.isHourly ? (hourlyQuantities[service.name] || 1) : 1;
-    const totalAmount = service.price * quantity;
     
-    onOrderService({
-      ...service,
+    // Add to cart instead of direct order creation
+    const cartItem = {
+      id: service.id || `service-${Date.now()}`,
+      name: service.name,
+      price: service.price,
+      category: service.category || 'Services',
       quantity,
-      totalAmount,
-      description: service.isHourly ? `${service.name} (${quantity} hours)` : service.name
-    });
+      description: service.isHourly ? `${service.name} (${quantity} hours)` : service.name,
+      isService: true
+    };
+    
+    onOrderService(cartItem);
   };
 
   const setHourlyQuantity = (serviceName: string, quantity: number) => {
