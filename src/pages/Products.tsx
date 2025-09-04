@@ -3,12 +3,11 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Cart } from '@/components/cart/Cart';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ShoppingCart, Search } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Search } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
 
 interface Product {
   id: string;
@@ -22,18 +21,17 @@ interface Product {
 }
 
 const Products = () => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const { toast } = useToast();
+  const { addToCart } = useCart();
 
   const PRODUCTS_PER_PAGE = 60; // 6 per row × 10 rows
 
-  const { data: products, isLoading, refetch } = useQuery({
+  const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('is_active', true)
@@ -86,11 +84,8 @@ const Products = () => {
 
   const stats = getCategoryStats();
 
-  const handleCartUpdate = () => {
-    toast({
-      title: "Cart Updated",
-      description: "Item added to cart successfully",
-    });
+  const handleCartUpdate = async (product: Product) => {
+    await addToCart(product);
   };
 
   const handlePageChange = (page: number) => {
@@ -110,28 +105,18 @@ const Products = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Professional Services</h1>
-            <p className="text-gray-600 mt-2">
-              Complete range of business, legal, and taxation services
-            </p>
-            <div className="flex gap-4 text-sm text-gray-500 mt-2">
-              <span>{stats.total} services</span>
-              <span>•</span>
-              <span>{stats.priced} fixed price</span>
-              <span>•</span>
-              <span>{stats.quotes} quote required</span>
-            </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Professional Services</h1>
+          <p className="text-gray-600 mt-2">
+            Complete range of business, legal, and taxation services
+          </p>
+          <div className="flex gap-4 text-sm text-gray-500 mt-2">
+            <span>{stats.total} services</span>
+            <span>•</span>
+            <span>{stats.priced} fixed price</span>
+            <span>•</span>
+            <span>{stats.quotes} quote required</span>
           </div>
-          <Button
-            onClick={() => setIsCartOpen(true)}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Cart
-          </Button>
         </div>
 
         {/* Search and Filter */}
@@ -196,7 +181,7 @@ const Products = () => {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onCartUpdate={handleCartUpdate}
+                      onCartUpdate={() => handleCartUpdate(product)}
                     />
                   ))}
                 </div>
@@ -258,9 +243,6 @@ const Products = () => {
           {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
         </div>
       </div>
-
-      {/* Cart Sidebar */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };

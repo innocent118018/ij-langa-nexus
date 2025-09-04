@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 import { Layout } from "@/components/layout/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 // Import all pages
@@ -63,153 +64,155 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes with Layout */}
-              <Route path="/" element={<Layout><Index /></Layout>} />
-              <Route path="/auth" element={<Layout><Auth /></Layout>} />
-              <Route path="/about" element={<Layout><About /></Layout>} />
-              <Route path="/products" element={<Layout><Products /></Layout>} />
-              <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
-              <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes with Layout */}
+                <Route path="/" element={<Layout><Index /></Layout>} />
+                <Route path="/auth" element={<Layout><Auth /></Layout>} />
+                <Route path="/about" element={<Layout><About /></Layout>} />
+                <Route path="/products" element={<Layout><Products /></Layout>} />
+                <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+                <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 
-              {/* Policy routes with Layout */}
-              <Route path="/policies/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
-              <Route path="/policies/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
-              <Route path="/policies/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
-              <Route path="/policies/services-policy" element={<Layout><ServicesPolicy /></Layout>} />
-              <Route path="/policies/invoice-quote-policy" element={<Layout><InvoiceQuotePolicy /></Layout>} />
-              <Route path="/policies/sales-order-policy" element={<Layout><SalesOrderPolicy /></Layout>} />
-              <Route path="/policies/shelf-companies-policy" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
-              <Route path="/policies/export-customs-policy" element={<Layout><ExportCustomsPolicy /></Layout>} />
-              
-              {/* Contact route */}
-              <Route path="/contact" element={<Layout><Contact /></Layout>} />
+                {/* Policy routes with Layout */}
+                <Route path="/policies/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+                <Route path="/policies/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
+                <Route path="/policies/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
+                <Route path="/policies/services-policy" element={<Layout><ServicesPolicy /></Layout>} />
+                <Route path="/policies/invoice-quote-policy" element={<Layout><InvoiceQuotePolicy /></Layout>} />
+                <Route path="/policies/sales-order-policy" element={<Layout><SalesOrderPolicy /></Layout>} />
+                <Route path="/policies/shelf-companies-policy" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
+                <Route path="/policies/export-customs-policy" element={<Layout><ExportCustomsPolicy /></Layout>} />
+                
+                {/* Contact route */}
+                <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
-              {/* Service routes with Layout */}
-              <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
+                {/* Service routes with Layout */}
+                <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
 
-              {/* Dashboard routes with DashboardLayout (which includes Layout) */}
-              <Route path="/dashboard" element={
-                <DashboardLayout>
-                  <Dashboard />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/clients" element={
-                <DashboardLayout>
-                  <Clients />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/orders" element={
-                <DashboardLayout>
-                  <Orders />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/invoices" element={
-                <DashboardLayout>
-                  <Invoices />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/reports" element={
-                <DashboardLayout>
-                  <Reports />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/services" element={
-                <DashboardLayout>
-                  <Services />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/documents" element={
-                <DashboardLayout>
-                  <Documents />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/documents/correspondence" element={
-                <DashboardLayout>
-                  <Correspondence />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/documents/shareholders" element={
-                <DashboardLayout>
-                  <Shareholders />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/profile" element={
-                <DashboardLayout>
-                  <Profile />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/settings" element={
-                <DashboardLayout>
-                  <Settings />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/support" element={
-                <DashboardLayout>
-                  <Support />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/notifications" element={
-                <DashboardLayout>
-                  <Notifications />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/content" element={
-                <DashboardLayout>
-                  <ContentManagement />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/legal" element={
-                <DashboardLayout>
-                  <LegalEscalations />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/refunds" element={
-                <DashboardLayout>
-                  <Refunds />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/products" element={
-                <DashboardLayout>
-                  <ProductManagementPage />
-                </DashboardLayout>
-              } />
-              
-              <Route path="/dashboard/document-generation" element={
-                <DashboardLayout>
-                  <DocumentGeneration />
-                </DashboardLayout>
-              } />
+                {/* Dashboard routes with DashboardLayout (which includes Layout) */}
+                <Route path="/dashboard" element={
+                  <DashboardLayout>
+                    <Dashboard />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/clients" element={
+                  <DashboardLayout>
+                    <Clients />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/orders" element={
+                  <DashboardLayout>
+                    <Orders />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/invoices" element={
+                  <DashboardLayout>
+                    <Invoices />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/reports" element={
+                  <DashboardLayout>
+                    <Reports />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/services" element={
+                  <DashboardLayout>
+                    <Services />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/documents" element={
+                  <DashboardLayout>
+                    <Documents />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/documents/correspondence" element={
+                  <DashboardLayout>
+                    <Correspondence />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/documents/shareholders" element={
+                  <DashboardLayout>
+                    <Shareholders />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/profile" element={
+                  <DashboardLayout>
+                    <Profile />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/settings" element={
+                  <DashboardLayout>
+                    <Settings />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/support" element={
+                  <DashboardLayout>
+                    <Support />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/notifications" element={
+                  <DashboardLayout>
+                    <Notifications />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/content" element={
+                  <DashboardLayout>
+                    <ContentManagement />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/legal" element={
+                  <DashboardLayout>
+                    <LegalEscalations />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/refunds" element={
+                  <DashboardLayout>
+                    <Refunds />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/products" element={
+                  <DashboardLayout>
+                    <ProductManagementPage />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/document-generation" element={
+                  <DashboardLayout>
+                    <DocumentGeneration />
+                  </DashboardLayout>
+                } />
 
-              {/* Payment routes with Layout */}
-              <Route path="/dashboard/payments/success" element={<Layout><PaymentSuccess /></Layout>} />
-              <Route path="/dashboard/payments/cancel" element={<Layout><PaymentCancel /></Layout>} />
+                {/* Payment routes with Layout */}
+                <Route path="/dashboard/payments/success" element={<Layout><PaymentSuccess /></Layout>} />
+                <Route path="/dashboard/payments/cancel" element={<Layout><PaymentCancel /></Layout>} />
 
-              {/* Catch all route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
