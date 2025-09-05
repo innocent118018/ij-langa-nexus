@@ -861,13 +861,18 @@ export type Database = {
           assigned_to: string | null
           completed_at: string | null
           created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           id: string
           notes: string | null
-          service_id: string
+          service_id: string | null
           status: string
+          subtotal: number | null
           total_amount: number | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           vat_amount: number | null
         }
         Insert: {
@@ -875,13 +880,18 @@ export type Database = {
           assigned_to?: string | null
           completed_at?: string | null
           created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           id?: string
           notes?: string | null
-          service_id: string
+          service_id?: string | null
           status?: string
+          subtotal?: number | null
           total_amount?: number | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           vat_amount?: number | null
         }
         Update: {
@@ -889,13 +899,18 @@ export type Database = {
           assigned_to?: string | null
           completed_at?: string | null
           created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           id?: string
           notes?: string | null
-          service_id?: string
+          service_id?: string | null
           status?: string
+          subtotal?: number | null
           total_amount?: number | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           vat_amount?: number | null
         }
         Relationships: [

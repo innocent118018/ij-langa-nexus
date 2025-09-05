@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,15 +12,16 @@ import { useCart } from '@/hooks/useCart';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import type { CartItem, CustomerDetails, Order, OrderItem, PaymentResponse } from '@/types';
 
-const Checkout = () => {
+const Checkout: React.FC = () => {
   const { user } = useAuth();
-  const { cartItems, clearCart, getTotalAmount } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [customerDetails, setCustomerDetails] = useState({
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetails>({
     name: user?.user_metadata?.full_name || '',
     email: user?.email || '',
     phone: '',
@@ -34,22 +35,18 @@ const Checkout = () => {
     }
   }, [cartItems, navigate]);
 
-  const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => {
+  // Optimized calculations with useMemo
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((total: number, item: CartItem) => {
       const price = item.products?.price || item.services?.price || 0;
       return total + (price * item.quantity);
     }, 0);
-  };
+  }, [cartItems]);
 
-  const calculateVAT = () => {
-    return calculateSubtotal() * 0.15;
-  };
+  const vat = useMemo(() => subtotal * 0.15, [subtotal]);
+  const total = useMemo(() => subtotal + vat, [subtotal, vat]);
 
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateVAT();
-  };
-
-  const createPayment = async (orderId: string) => {
+  const createPayment = async (orderId: string): Promise<PaymentResponse> => {
     try {
       console.log('Creating payment for order:', orderId);
       
@@ -57,7 +54,7 @@ const Checkout = () => {
       
       const paymentData = {
         orderId: orderId,
-        amount: calculateTotal(),
+        amount: total,
         description: `Order #${orderId} - ${cartItems.length} item(s)`,
         customerEmail: customerDetails.email,
         externalTransactionID: `ORDER-${orderId}-${Date.now()}`
@@ -74,16 +71,20 @@ const Checkout = () => {
 
       if (error) {
         console.error('Edge function error:', error);
-        throw error;
+        throw new Error(error.message || 'Payment request failed');
       }
 
       console.log('Payment response:', data);
 
-      if (data.error) {
+      if (data?.error) {
         throw new Error(data.error);
       }
 
-      return data;
+      if (!data || !data.paylinkUrl) {
+        throw new Error('No payment URL received');
+      }
+
+      return data as PaymentResponse;
     } catch (error) {
       console.error('Error creating payment:', error);
       throw error;
@@ -93,10 +94,33 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Enhanced validation
     if (!customerDetails.name || !customerDetails.email || !customerDetails.phone) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Phone validation (South Africa: +27XXXXXXXXX or 0XXXXXXXXX)
+    const phoneRegex = /^(\+27|0)\d{9}$/;
+    if (!phoneRegex.test(customerDetails.phone)) {
+      toast({
+        title: "Error",
+        description: "Invalid phone number format. Use +27XXXXXXXXX or 0XXXXXXXXX",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customerDetails.email)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address",
         variant: "destructive",
       });
       return;
@@ -115,14 +139,14 @@ const Checkout = () => {
 
     try {
       // Create order data
-      const orderData: any = {
+      const orderData: Partial<Order> = {
         customer_name: customerDetails.name,
         customer_email: customerDetails.email,
         customer_phone: customerDetails.phone,
         customer_address: customerDetails.address,
-        subtotal: calculateSubtotal(),
-        vat_amount: calculateVAT(),
-        total_amount: calculateTotal(),
+        subtotal,
+        vat_amount: vat,
+        total_amount: total,
         status: 'pending'
       };
 
@@ -130,6 +154,8 @@ const Checkout = () => {
       if (user) {
         orderData.user_id = user.id;
       }
+
+      console.log('Creating order with data:', orderData);
 
       // Create order first
       const { data: order, error: orderError } = await supabase
@@ -140,20 +166,26 @@ const Checkout = () => {
 
       if (orderError) {
         console.error('Order creation error:', orderError);
-        throw orderError;
+        throw new Error(`Failed to create order: ${orderError.message}`);
+      }
+
+      if (!order) {
+        throw new Error('No order returned from database');
       }
 
       console.log('Order created:', order);
 
-      // Create order items
-      const orderItems = cartItems.map(item => ({
+      // Create order items with better validation
+      const orderItems = cartItems.map((item: CartItem) => ({
         order_id: order.id,
-        product_id: item.product_id,
-        service_id: item.service_id,
+        product_id: item.product_id || null,
+        service_id: item.service_id || null,
         quantity: item.quantity,
         price: item.products?.price || item.services?.price || 0,
         total: (item.products?.price || item.services?.price || 0) * item.quantity
       }));
+
+      console.log('Creating order items:', orderItems);
 
       const { error: itemsError } = await supabase
         .from('order_items')
@@ -161,32 +193,36 @@ const Checkout = () => {
 
       if (itemsError) {
         console.error('Order items creation error:', itemsError);
-        throw itemsError;
+        throw new Error(`Failed to create order items: ${itemsError.message}`);
       }
+
+      // Store order ID before payment redirect
+      localStorage.setItem('lastOrderId', order.id);
+      localStorage.setItem('lastOrderTotal', total.toString());
 
       // Create payment link
       const paymentResponse = await createPayment(order.id);
       
-      if (paymentResponse.paylinkUrl) {
-        // Clear cart before redirecting
-        await clearCart();
+      // Clear cart before redirecting
+      await clearCart();
 
-        toast({
-          title: "Redirecting to Payment",
-          description: "You will be redirected to complete your payment",
-        });
+      toast({
+        title: "Redirecting to Payment",
+        description: "You will be redirected to complete your payment",
+      });
 
-        // Redirect to payment page
-        window.location.href = paymentResponse.paylinkUrl;
-      } else {
-        throw new Error('No payment URL received');
-      }
+      // Small delay to ensure toast is visible
+      setTimeout(() => {
+        window.location.href = paymentResponse.paylinkUrl!;
+      }, 1000);
 
     } catch (error) {
       console.error('Error creating order:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create order. Please try again.";
+      
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create order. Please try again.",
+        title: "Order Creation Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -305,11 +341,11 @@ const Checkout = () => {
                       <div>
                         <p className="font-medium">{itemData?.name}</p>
                         <p className="text-sm text-gray-600">
-                          Qty: {item.quantity} × R{price.toFixed(2)}
+                          Qty: {item.quantity} × R{price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
                       <p className="font-semibold">
-                        R{(price * item.quantity).toFixed(2)}
+                        R{(price * item.quantity).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                   );
@@ -320,16 +356,16 @@ const Checkout = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
-                    <span>R{calculateSubtotal().toFixed(2)}</span>
+                    <span>R{subtotal.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>VAT (15%):</span>
-                    <span>R{calculateVAT().toFixed(2)}</span>
+                    <span>R{vat.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total:</span>
-                    <span>R{calculateTotal().toFixed(2)}</span>
+                    <span>R{total.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
 
