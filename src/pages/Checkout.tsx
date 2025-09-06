@@ -200,14 +200,29 @@ const Checkout: React.FC = () => {
       console.log('Order created:', order);
 
       // Create order items with better validation
-      const orderItems = cartItems.map((item: CartItem) => ({
-        order_id: order.id,
-        product_id: item.product_id || null,
-        service_id: item.service_id || null,
-        quantity: item.quantity,
-        price: item.products?.price || item.services?.price || 0,
-        total: (item.products?.price || item.services?.price || 0) * item.quantity
-      }));
+      const orderItems = cartItems.map((item: CartItem) => {
+        // For guest cart items, service_id might be a string code, not a UUID
+        // We'll store it as a reference in a different way or handle it properly
+        let productId = null;
+        let serviceId = null;
+        
+        // Check if IDs are valid UUIDs (36 characters with hyphens)
+        if (item.product_id && item.product_id.length === 36 && item.product_id.includes('-')) {
+          productId = item.product_id;
+        }
+        if (item.service_id && item.service_id.length === 36 && item.service_id.includes('-')) {
+          serviceId = item.service_id;
+        }
+        
+        return {
+          order_id: order.id,
+          product_id: productId,
+          service_id: serviceId,
+          quantity: item.quantity,
+          price: item.products?.price || item.services?.price || 0,
+          total: (item.products?.price || item.services?.price || 0) * item.quantity
+        };
+      });
 
       console.log('Creating order items:', orderItems);
 
