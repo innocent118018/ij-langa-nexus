@@ -29,8 +29,12 @@ const Checkout: React.FC = () => {
   });
 
   useEffect(() => {
+    console.log('Checkout page loaded. Cart items:', cartItems);
+    console.log('Cart items length:', cartItems.length);
+    
     // Don't redirect if no user - allow guest checkout
     if (cartItems.length === 0) {
+      console.log('No cart items, redirecting to products');
       navigate('/products');
     }
   }, [cartItems, navigate]);
@@ -153,9 +157,29 @@ const Checkout: React.FC = () => {
       // Add user_id if logged in
       if (user) {
         orderData.user_id = user.id;
+        console.log('Adding user_id to order:', user.id);
+      } else {
+        console.log('Creating guest order (no user_id)');
       }
 
       console.log('Creating order with data:', orderData);
+      console.log('Cart items:', cartItems);
+
+      // Validate cart items before proceeding
+      if (cartItems.length === 0) {
+        throw new Error('Cart is empty');
+      }
+
+      // Validate that cart items have valid prices
+      const invalidItems = cartItems.filter(item => {
+        const price = item.products?.price || item.services?.price;
+        return !price || price <= 0;
+      });
+
+      if (invalidItems.length > 0) {
+        console.error('Invalid cart items found:', invalidItems);
+        throw new Error('Some items in your cart have invalid prices. Please refresh and try again.');
+      }
 
       // Create order first
       const { data: order, error: orderError } = await supabase
