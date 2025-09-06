@@ -937,6 +937,33 @@ export type Database = {
           },
         ]
       }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          phone: string
+          username: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          phone: string
+          username?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -1082,6 +1109,7 @@ export type Database = {
           phone: string | null
           role: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           company_name?: string | null
@@ -1096,6 +1124,7 @@ export type Database = {
           phone?: string | null
           role?: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           company_name?: string | null
@@ -1110,6 +1139,7 @@ export type Database = {
           phone?: string | null
           role?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
