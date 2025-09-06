@@ -74,7 +74,8 @@ function App() {
                 <Route path="/" element={<Layout><Index /></Layout>} />
                 <Route path="/auth" element={<Layout><Auth /></Layout>} />
                 <Route path="/about" element={<Layout><About /></Layout>} />
-                <Route path="/products" element={<Layout><Products /></Layout>} />
+                <Route path="/services" element={<Layout><Services /></Layout>} />
+                <Route path="/services/:category/:service" element={<Layout><Services /></Layout>} />
                 <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
                 <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 

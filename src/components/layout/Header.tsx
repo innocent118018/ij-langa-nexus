@@ -27,11 +27,11 @@ export const Header = () => {
             <Link to="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
               About
             </Link>
-            <Link to="/pricing" className="text-gray-600 hover:text-blue-600 transition-colors">
+            <Link to="/services" className="text-gray-600 hover:text-blue-600 transition-colors">
               Services
             </Link>
-            <Link to="/products" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Products
+            <Link to="/pricing" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Pricing
             </Link>
             <Link to="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
               Contact
@@ -67,18 +67,18 @@ export const Header = () => {
                 About
               </Link>
               <Link
-                to="/pricing"
+                to="/services"
                 className="text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Services
               </Link>
               <Link
-                to="/products"
+                to="/pricing"
                 className="text-gray-600 hover:text-blue-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Products
+                Pricing
               </Link>
               <Link
                 to="/contact"
