@@ -14,10 +14,13 @@ const Index = () => {
       <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Professional Business Services
+            IJ Langa Consulting (Pty) Ltd
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90">
-            Accounting, Taxation, HR & Payroll, and Secretarial Services
+            Professional Business Services - Accounting, Taxation, HR & Payroll, and Secretarial Services
+          </p>
+          <p className="text-lg mb-8 text-white/80">
+            Our secure platform allows clients to access services, manage documents, and track orders. We collect only necessary business information to provide our professional services and comply with South African regulatory requirements.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/services" className="bg-accent hover:bg-accent/90 text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
@@ -83,16 +86,38 @@ const Index = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* App Description Section */}
         <section className="py-16 bg-muted">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Contact us today for a consultation and see how we can help your business
-            </p>
-            <Link to="/contact" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors">
-              Contact Us
-            </Link>
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-6">About Our Platform</h2>
+              <div className="max-w-4xl mx-auto space-y-6 text-lg text-muted-foreground">
+                <p>
+                  IJ Langa Consulting (Pty) Ltd provides a secure digital platform for professional business services in South Africa. Our application enables clients to access accounting, taxation, HR & payroll, and secretarial services through a streamlined online interface.
+                </p>
+                <p>
+                  <strong>Data Usage & Privacy:</strong> We collect and process only the business information necessary to provide our professional services, including company details, financial data, and contact information. All data is handled in compliance with South Africa's Protection of Personal Information Act (POPIA) and stored securely within our platform.
+                </p>
+                <p>
+                  <strong>Platform Features:</strong> Client document management, secure order processing, invoice generation, and direct communication with our professional team. Users can track service progress and access completed documents through their secure dashboard.
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
+              <p className="text-lg text-muted-foreground mb-8">
+                Contact us today for a consultation and see how we can help your business
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/contact" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors">
+                  Contact Us
+                </Link>
+                <Link to="/policies/privacy-policy" className="border border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </div>
