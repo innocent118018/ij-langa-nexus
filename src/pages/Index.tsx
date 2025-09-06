@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
@@ -13,12 +14,12 @@ const Index = () => {
             Accounting, Taxation, HR & Payroll, and Secretarial Services
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/services" className="bg-accent hover:bg-accent/90 text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
+            <Link to="/services" className="bg-accent hover:bg-accent/90 text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
               View Services
-            </a>
-              <a href="/contact" className="border border-white text-white hover:bg-white hover:text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
-                Get Quote
-              </a>
+            </Link>
+            <Link to="/contact" className="border border-white text-white hover:bg-white hover:text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
+              Get Quote
+            </Link>
             </div>
           </div>
         </section>
@@ -68,9 +69,9 @@ const Index = () => {
             <p className="text-lg text-muted-foreground mb-8">
               Contact us today for a consultation and see how we can help your business
             </p>
-            <a href="/contact" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors">
+            <Link to="/contact" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg font-semibold transition-colors">
               Contact Us
-            </a>
+            </Link>
           </div>
         </section>
       </div>

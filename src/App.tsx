@@ -121,7 +121,7 @@ function App() {
                 {/* Service routes with Layout */}
                 <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
 
-                {/* Dashboard routes with DashboardLayout (which includes Layout) */}
+                {/* Dashboard routes with DashboardLayout only (no Layout wrapper) */}
                 <Route path="/dashboard" element={
                   <DashboardLayout>
                     <Dashboard />

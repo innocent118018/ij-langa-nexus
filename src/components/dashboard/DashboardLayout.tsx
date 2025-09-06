@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import { Layout } from '@/components/layout/Layout';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -25,14 +24,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // Check if we're on a dashboard page that should use the layout
   const isDashboardPage = location.pathname.startsWith('/dashboard');
   
-  // If not a dashboard page, use regular Layout
-  if (!isDashboardPage) {
-    return (
-      <Layout>
-        {children}
-      </Layout>
-    );
-  }
+  // Dashboard pages should not use the regular Layout
+  // They have their own header and footer structure
   
   // Check if user is admin
   const adminEmails = [
