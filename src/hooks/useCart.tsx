@@ -1,13 +1,15 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './useAuth';
+import { useToast } from './use-toast';
 
-interface CartItem {
+// Define cart item interface
+export interface CartItem {
   id: string;
+  quantity: number;
   product_id?: string;
   service_id?: string;
-  quantity: number;
+  user_id?: string;
   products?: {
     name: string;
     price: number;
@@ -21,6 +23,7 @@ interface CartItem {
   };
 }
 
+// Define cart context interface
 interface CartContextType {
   cartItems: CartItem[];
   cartCount: number;
@@ -33,8 +36,10 @@ interface CartContextType {
   getTotalAmount: () => number;
 }
 
+// Create context
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Custom hook to use cart context
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
@@ -43,25 +48,46 @@ export const useCart = () => {
   return context;
 };
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+// Cart provider component
+export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Clear corrupted cart data on mount
+  useEffect(() => {
+    try {
+      const guestCart = localStorage.getItem('guestCart');
+      if (guestCart) {
+        const items = JSON.parse(guestCart);
+        const hasCorrupted = items.some((item: any) => 
+          !item.id || 
+          item.id.includes('undefined') || 
+          (!item.products && !item.services) ||
+          (item.products && typeof item.products.price !== 'number') ||
+          (item.services && typeof item.services.price !== 'number')
+        );
+        if (hasCorrupted) {
+          console.log('Clearing corrupted cart data');
+          localStorage.removeItem('guestCart');
+        }
+      }
+    } catch (error) {
+      console.log('Clearing corrupted cart due to error:', error);
+      localStorage.removeItem('guestCart');
+    }
+  }, []);
 
   useEffect(() => {
-    refreshCart();
-  }, [user]);
-
-  const refreshCart = async () => {
     if (user) {
-      await fetchUserCart();
+      fetchCartItems();
     } else {
       loadLocalCart();
     }
-  };
+  }, [user]);
 
-  const fetchUserCart = async () => {
+  const fetchCartItems = async () => {
     if (!user) return;
     
     setIsLoading(true);
@@ -73,13 +99,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           product_id,
           service_id,
           quantity,
-          products!cart_items_product_id_fkey (
+          products (
             name,
             price,
             category,
             image_url
           ),
-          services!cart_items_service_id_fkey (
+          services (
             name,
             price,
             category
@@ -107,46 +133,97 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const localCart = localStorage.getItem('guestCart');
       if (localCart) {
         const items = JSON.parse(localCart);
-        setCartItems(items);
+        // Validate items before setting
+        const validItems = items.filter((item: CartItem) => {
+          const hasValidPrice = (item.products?.price && typeof item.products.price === 'number') || 
+                               (item.services?.price && typeof item.services.price === 'number');
+          const hasValidId = item.id && !item.id.includes('undefined');
+          const hasValidData = (item.products?.name) || (item.services?.name);
+          return hasValidPrice && hasValidId && hasValidData;
+        });
+        
+        setCartItems(validItems);
+        
+        // Update localStorage if items were filtered
+        if (validItems.length !== items.length) {
+          saveLocalCart(validItems);
+        }
       } else {
         setCartItems([]);
       }
     } catch (error) {
       console.error('Error loading local cart:', error);
       setCartItems([]);
+      localStorage.removeItem('guestCart');
     }
   };
 
   const saveLocalCart = (items: CartItem[]) => {
-    localStorage.setItem('guestCart', JSON.stringify(items));
+    try {
+      localStorage.setItem('guestCart', JSON.stringify(items));
+    } catch (error) {
+      console.error('Error saving local cart:', error);
+    }
+  };
+
+  const refreshCart = async () => {
+    if (user) {
+      await fetchCartItems();
+    } else {
+      loadLocalCart();
+    }
   };
 
   const addToCart = async (item: any) => {
+    console.log('Adding item to cart:', item);
+
     if (!user) {
       // Add to localStorage cart for guest users
       try {
+        // Ensure we have valid data
+        if (!item.service?.price && !item.product?.price && !item.price) {
+          throw new Error('Item has no valid price');
+        }
+
         const newItem: CartItem = {
-          id: `guest-${Date.now()}-${item.id}`,
-          product_id: item.product_id || item.id,
-          service_id: item.service_id,
+          id: `guest-${Date.now()}-${Math.random()}`,
+          product_id: item.type === 'product' ? (item.product?.id || item.id) : undefined,
+          service_id: item.type === 'service' ? (item.service?.id || item.code || item.id) : undefined,
           quantity: item.quantity || 1,
-          products: item.products || (item.price ? {
-            name: item.name,
-            price: item.price,
-            category: item.category,
-            image_url: item.image_url || ''
-          } : undefined),
-          services: item.services || (!item.products && item.price ? {
-            name: item.name,
-            price: item.price,
-            category: item.category
-          } : undefined)
+          products: item.type === 'product' ? {
+            name: item.product?.name || item.name,
+            price: Number(item.product?.price || item.price),
+            category: item.product?.category || item.category,
+            image_url: item.product?.image_url || item.image_url || ''
+          } : undefined,
+          services: item.type === 'service' ? {
+            name: item.service?.name || item.name,
+            price: Number(item.service?.price || item.price),
+            category: item.service?.category || item.category
+          } : undefined
         };
 
-        const existingItemIndex = cartItems.findIndex(cartItem => 
-          (cartItem.product_id === newItem.product_id && newItem.product_id) ||
-          (cartItem.service_id === newItem.service_id && newItem.service_id)
-        );
+        console.log('Created cart item:', newItem);
+
+        // Validate the created item
+        if (!newItem.products && !newItem.services) {
+          throw new Error('Failed to create valid cart item');
+        }
+
+        const validPrice = newItem.products?.price || newItem.services?.price;
+        if (!validPrice || isNaN(validPrice)) {
+          throw new Error('Invalid price in cart item');
+        }
+
+        const existingItemIndex = cartItems.findIndex(cartItem => {
+          if (newItem.product_id && cartItem.product_id) {
+            return cartItem.product_id === newItem.product_id;
+          }
+          if (newItem.service_id && cartItem.service_id) {
+            return cartItem.service_id === newItem.service_id;
+          }
+          return false;
+        });
 
         let updatedItems;
         if (existingItemIndex > -1) {
@@ -164,13 +241,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         toast({
           title: "Success",
-          description: `${item.name} added to cart`,
+          description: `${newItem.services?.name || newItem.products?.name} added to cart`,
         });
       } catch (error) {
         console.error('Error adding to local cart:', error);
         toast({
           title: "Error",
-          description: "Failed to add item to cart",
+          description: "Failed to add item to cart. Please try again.",
           variant: "destructive",
         });
       }
@@ -199,26 +276,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (updateError) throw updateError;
       } else {
-        const insertData: any = {
-          user_id: user.id,
-          quantity: item.quantity || 1
-        };
-
-        if (item.product_id || (!item.service_id && item.id)) {
-          insertData.product_id = item.product_id || item.id;
-        } else {
-          insertData.service_id = item.service_id || item.id;
-        }
-
         const { error: insertError } = await supabase
           .from('cart_items')
-          .insert(insertData);
+          .insert({
+            user_id: user.id,
+            product_id: item.product_id || null,
+            service_id: item.service_id || null,
+            quantity: item.quantity || 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
 
         if (insertError) throw insertError;
       }
 
       await refreshCart();
-      
       toast({
         title: "Success",
         description: `${item.name} added to cart`,
@@ -251,10 +323,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       await refreshCart();
     } catch (error) {
-      console.error('Error removing item:', error);
+      console.error('Error removing from cart:', error);
       toast({
         title: "Error",
-        description: "Failed to remove item",
+        description: "Failed to remove item from cart",
         variant: "destructive",
       });
     }
@@ -318,18 +390,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getTotalAmount = () => {
-    return cartItems.reduce((total, item) => {
-      // Handle both product and service pricing
-      const price = item.products?.price || item.services?.price;
+    const total = cartItems.reduce((total, item) => {
+      const price = item.products?.price || item.services?.price || 0;
       
-      // Debug logging
-      if (price === undefined || price === null) {
-        console.warn('Item with undefined price:', item);
+      if (typeof price !== 'number' || isNaN(price)) {
+        console.warn('Invalid price for item:', item);
         return total;
       }
       
-      return total + (Number(price) * Number(item.quantity));
+      return total + (price * item.quantity);
     }, 0);
+    
+    console.log('Total amount calculated:', total, 'from items:', cartItems);
+    return total;
   };
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);

@@ -13,9 +13,12 @@ import { ShoppingCart, Share2, FileText } from 'lucide-react';
 // Featured packages (carousel)
 const featuredPackages = [
   {
+    code: 'UNLEASH-PKG',
     name: 'Unleash',
     price: 6700,
     unit: 'per month',
+    category: 'Featured',
+    description: 'Complete business solution package',
     features: [
       'Annual Financial Statements', 'Income Tax Returns', 'Provisional Tax Returns',
       'Bi-annual IRP5 reconciliation', 'Monthly EMP201s', 'Monthly UIF submission',
@@ -26,9 +29,12 @@ const featuredPackages = [
     ]
   },
   {
+    code: 'PULSE-PKG',
     name: 'Pulse',
     price: 4500,
     unit: 'per month',
+    category: 'Featured',
+    description: 'Business monitoring and reporting package',
     features: [
       'Annual Financial Statements', 'Income Tax Returns', 'Provisional Tax Returns',
       'Bi-annual IRP5 reconciliation', 'Monthly EMP201s', 'Monthly UIF submission',
@@ -39,9 +45,12 @@ const featuredPackages = [
     ]
   },
   {
+    code: 'NURTURE-PKG',
     name: 'Nurture',
     price: 3000,
     unit: 'per month',
+    category: 'Featured',
+    description: 'Essential business services package',
     features: [
       'Annual Financial Statements', 'Income Tax Returns', 'Provisional Tax Returns',
       'Bi-annual IRP5 reconciliation', 'Monthly EMP201s', 'Monthly UIF submission',
@@ -92,6 +101,8 @@ const Pricing = () => {
       const basePrice = service.price || 0;
       const priceWithVAT = Math.round(basePrice * 1.15);
 
+      console.log('Adding service to cart:', service, 'Price with VAT:', priceWithVAT);
+
       const cartItem = {
         type: 'service' as const,
         service: {
@@ -110,7 +121,8 @@ const Pricing = () => {
         title: 'Added to Cart',
         description: `${service.name} has been added to your cart (including 15% VAT)`,
       });
-    } catch {
+    } catch (error) {
+      console.error('Error adding to cart:', error);
       toast({
         title: 'Error',
         description: 'Failed to add service to cart. Please try again.',
