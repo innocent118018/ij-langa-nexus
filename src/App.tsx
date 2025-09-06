@@ -225,11 +225,6 @@ function App() {
                   </DashboardLayout>
                 } />
                 
-                <Route path="/dashboard/notifications" element={
-                  <DashboardLayout>
-                    <Notifications />
-                  </DashboardLayout>
-                } />
                 
                 <Route path="/dashboard/content" element={
                   <DashboardLayout>
