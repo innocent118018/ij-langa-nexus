@@ -401,7 +401,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return total + (price * item.quantity);
     }, 0);
     
-    console.log('Total amount calculated:', total, 'from items:', cartItems);
     return total;
   };
 

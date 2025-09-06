@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Quote } from 'lucide-react';
 
 interface QuoteRequestModalProps {
@@ -38,17 +39,29 @@ export const QuoteRequestModal: React.FC<QuoteRequestModalProps> = ({
     setLoading(true);
 
     try {
-      // TODO: Implement quote request submission to database
-      console.log('Quote request:', {
-        ...formData,
-        serviceName,
-        serviceCode,
-        requestedAt: new Date().toISOString()
+      // Send email notification
+      const emailResponse = await supabase.functions.invoke('send-form-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          message: `Service: ${serviceName} (${serviceCode})
+Urgency: ${formData.urgency}
+Requirements: ${formData.requirements}
+Additional Info: ${formData.additionalInfo}`,
+          subject: `Quote Request: ${serviceName}`,
+          formType: 'Quote Request',
+        }
       });
+
+      if (emailResponse.error) {
+        console.error('Email error:', emailResponse.error);
+      }
 
       toast({
         title: "Quote Request Sent",
-        description: "We'll contact you within 24 hours with a detailed quote.",
+        description: "We'll contact you within 24 hours with a detailed quote. A confirmation email has been sent to you.",
       });
 
       setIsOpen(false);
@@ -62,6 +75,7 @@ export const QuoteRequestModal: React.FC<QuoteRequestModalProps> = ({
         additionalInfo: ''
       });
     } catch (error) {
+      console.error('Quote request error:', error);
       toast({
         title: "Error",
         description: "Failed to send quote request. Please try again.",
