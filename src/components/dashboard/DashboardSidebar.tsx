@@ -29,7 +29,8 @@ import {
   RotateCcw,
   FileOutput,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Bell
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -101,6 +102,11 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       icon: MessageSquare
     },
     {
+      title: 'Notifications',
+      url: '/dashboard/notifications',
+      icon: Bell
+    },
+    {
       title: 'Settings',
       url: '/dashboard/settings',
       icon: Settings
@@ -138,6 +144,11 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       title: 'Messages & Support',
       url: '/dashboard/support',
       icon: MessageSquare
+    },
+    {
+      title: 'Notifications',
+      url: '/dashboard/notifications',
+      icon: Bell
     },
     {
       title: 'Profile Settings',

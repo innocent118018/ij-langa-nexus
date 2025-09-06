@@ -201,6 +201,12 @@ function App() {
                   </DashboardLayout>
                 } />
                 
+                <Route path="/dashboard/notifications" element={
+                  <DashboardLayout>
+                    <Notifications />
+                  </DashboardLayout>
+                } />
+                
                 <Route path="/dashboard/profile" element={
                   <DashboardLayout>
                     <Profile />
