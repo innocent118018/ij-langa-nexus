@@ -37,6 +37,10 @@ import LegalEscalations from "./pages/dashboard/LegalEscalations";
 import Refunds from "./pages/dashboard/Refunds";
 import ProductManagementPage from "./pages/dashboard/ProductManagement";
 import DocumentGeneration from "./pages/dashboard/DocumentGeneration";
+import Overview from "./pages/dashboard/Overview";
+import MyServices from "./pages/dashboard/MyServices";
+import MyInvoices from "./pages/dashboard/MyInvoices";
+import Messages from "./pages/dashboard/Messages";
 
 // Individual Service Pages
 import Services from "./pages/Services";
@@ -274,6 +278,30 @@ function App() {
                 <Route path="/dashboard/document-generation" element={
                   <DashboardLayout>
                     <DocumentGeneration />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/overview" element={
+                  <DashboardLayout>
+                    <Overview />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/my-services" element={
+                  <DashboardLayout>
+                    <MyServices />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/my-invoices" element={
+                  <DashboardLayout>
+                    <MyInvoices />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/messages" element={
+                  <DashboardLayout>
+                    <Messages />
                   </DashboardLayout>
                 } />
 

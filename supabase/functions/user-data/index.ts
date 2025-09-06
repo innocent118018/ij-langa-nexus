@@ -83,18 +83,17 @@ serve(async (req) => {
         break;
 
       case 'invoices':
-        // Get invoices for user's customer record
+        // Get invoices for user's customer record - use left join to handle missing customer records
         const { data: invoices, error: invoicesError } = await supabaseClient
           .from('invoices')
           .select(`
             *,
-            customers!inner(name)
+            customers(name)
           `)
           .eq('customers.email', user.email)
           .order('issue_date', { ascending: false });
         
-        if (invoicesError) throw invoicesError;
-        response = invoices;
+        response = invoices || [];
         break;
 
       case 'dashboard-metrics':
@@ -106,7 +105,7 @@ serve(async (req) => {
         ] = await Promise.all([
           supabaseClient.from('orders').select('*').eq('user_id', user.id),
           supabaseClient.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
-          supabaseClient.from('invoices').select('*, customers!inner(name)').eq('customers.email', user.email)
+          supabaseClient.from('invoices').select('*, customers(name)').eq('customers.email', user.email)
         ]);
 
         const activeServices = userOrders?.filter(order => order.status === 'completed' || order.status === 'processing').length || 0;
