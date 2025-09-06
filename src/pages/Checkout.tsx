@@ -34,8 +34,8 @@ const Checkout: React.FC = () => {
     
     // Don't redirect if no user - allow guest checkout
     if (cartItems.length === 0) {
-      console.log('No cart items, redirecting to products');
-      navigate('/products');
+      console.log('No cart items, redirecting to services');
+      navigate('/services');
     }
   }, [cartItems, navigate]);
 
@@ -283,7 +283,7 @@ const Checkout: React.FC = () => {
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <p className="mb-4">Your cart is empty</p>
-            <Button onClick={() => navigate('/products')}>
+            <Button onClick={() => navigate('/services')}>
               Continue Shopping
             </Button>
           </CardContent>

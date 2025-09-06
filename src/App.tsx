@@ -107,6 +107,9 @@ function App() {
                 <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
                 <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 
+                {/* Products route */}
+                <Route path="/products" element={<Layout><Products /></Layout>} />
+
                 {/* Policy routes with Layout */}
                 <Route path="/policies/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
                 <Route path="/policies/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
