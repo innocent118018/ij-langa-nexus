@@ -98,7 +98,8 @@ serve(async (req) => {
 
     // Create the payment request
     const apiEndPoint = "https://api.ikhokha.com/public-api/v1/api/payment"
-    const baseUrl = req.headers.get('origin') || 'https://www.ijlanga.co.za'
+    // Always use production domain for iKhokha payments (sandbox domains won't work)
+    const baseUrl = 'https://www.ijlanga.co.za'
     
     const paymentRequest = {
       entityID: appId,
