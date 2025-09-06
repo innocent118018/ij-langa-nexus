@@ -52,6 +52,11 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       exact: true
     },
     {
+      title: 'User Management',
+      url: '/dashboard/users',
+      icon: Users
+    },
+    {
       title: 'Clients',
       url: '/dashboard/clients',
       icon: Users
