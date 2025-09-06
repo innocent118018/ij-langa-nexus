@@ -82,8 +82,8 @@ export const usePayments = () => {
   };
 
   const redirectToPayment = (paymentUrl: string) => {
-    // Redirect to iKhokha hosted checkout
-    window.location.href = paymentUrl;
+    // Open iKhokha payment in new tab as required
+    window.open(paymentUrl, '_blank');
   };
 
   return {

@@ -252,7 +252,8 @@ const Checkout: React.FC = () => {
 
       // Small delay to ensure toast is visible
       setTimeout(() => {
-        window.location.href = paymentResponse.paylinkUrl!;
+        // Open payment in new tab as required by iKhokha
+        window.open(paymentResponse.paylinkUrl!, '_blank');
       }, 1000);
 
     } catch (error) {
