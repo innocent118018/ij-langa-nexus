@@ -1,7 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleServiceClick = (category: string) => {
+    navigate(`/services?category=${encodeURIComponent(category)}`);
+  };
+
   return (
     <div className="min-h-screen w-full">
       {/* Hero Section */}
@@ -32,28 +38,43 @@ const Index = () => {
               <p className="text-muted-foreground text-lg">
                 Comprehensive business services to help your company thrive
               </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Click on any service category below to explore our offerings
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center p-6 rounded-lg border hover:shadow-lg transition-shadow">
+              <div 
+                className="text-center p-6 rounded-lg border hover:shadow-lg transition-all cursor-pointer hover:border-primary"
+                onClick={() => handleServiceClick('Accounting')}
+              >
                 <div className="text-4xl mb-4">📊</div>
                 <h3 className="text-xl font-semibold mb-2">Accounting</h3>
                 <p className="text-muted-foreground">Bookkeeping, Financial Statements, and Reviews</p>
               </div>
               
-              <div className="text-center p-6 rounded-lg border hover:shadow-lg transition-shadow">
+              <div 
+                className="text-center p-6 rounded-lg border hover:shadow-lg transition-all cursor-pointer hover:border-primary"
+                onClick={() => handleServiceClick('Taxation')}
+              >
                 <div className="text-4xl mb-4">💰</div>
                 <h3 className="text-xl font-semibold mb-2">Taxation</h3>
                 <p className="text-muted-foreground">Income Tax, VAT, PAYE, and Compliance</p>
               </div>
               
-              <div className="text-center p-6 rounded-lg border hover:shadow-lg transition-shadow">
+              <div 
+                className="text-center p-6 rounded-lg border hover:shadow-lg transition-all cursor-pointer hover:border-primary"
+                onClick={() => handleServiceClick('HR & Payroll')}
+              >
                 <div className="text-4xl mb-4">👥</div>
                 <h3 className="text-xl font-semibold mb-2">HR & Payroll</h3>
                 <p className="text-muted-foreground">Payroll Administration and SARS Returns</p>
               </div>
               
-              <div className="text-center p-6 rounded-lg border hover:shadow-lg transition-shadow">
+              <div 
+                className="text-center p-6 rounded-lg border hover:shadow-lg transition-all cursor-pointer hover:border-primary"
+                onClick={() => handleServiceClick('Secretarial')}
+              >
                 <div className="text-4xl mb-4">🏢</div>
                 <h3 className="text-xl font-semibold mb-2">Secretarial</h3>
                 <p className="text-muted-foreground">Company Registration and CIPC Returns</p>

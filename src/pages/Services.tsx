@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -18,6 +18,30 @@ import {
 } from 'lucide-react';
 
 const Services = () => {
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Set the selected category when component mounts or URL changes
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
+
+  const scrollToCategory = (categoryTitle: string) => {
+    const element = document.getElementById(`category-${categoryTitle.toLowerCase().replace(/\s+/g, '-')}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Scroll to category when selected category changes
+  useEffect(() => {
+    if (selectedCategory) {
+      setTimeout(() => scrollToCategory(selectedCategory), 100);
+    }
+  }, [selectedCategory]);
   const serviceCategories = [
     {
       title: "Accounting",
@@ -116,8 +140,15 @@ const Services = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {serviceCategories.map((category, index) => {
               const IconComponent = category.icon;
+              const isSelected = selectedCategory === category.title;
               return (
-                <Card key={index} className="h-full hover:shadow-lg transition-shadow">
+                <Card 
+                  key={index} 
+                  id={`category-${category.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  className={`h-full hover:shadow-lg transition-all ${
+                    isSelected ? 'ring-2 ring-primary shadow-lg bg-primary/5' : ''
+                  }`}
+                >
                   <CardHeader>
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-blue-100 rounded-lg">
