@@ -87,6 +87,11 @@ serve(async (req) => {
     const appId = Deno.env.get('IKHOKHA_APP_ID')
     const appSecret = Deno.env.get('IKHOKHA_APP_SECRET')
 
+    console.log('iKhokha credentials check:', {
+      appId: appId ? `${appId.substring(0, 4)}...` : 'missing',
+      appSecret: appSecret ? `${appSecret.substring(0, 4)}...` : 'missing'
+    })
+
     if (!appId || !appSecret) {
       throw new Error('iKhokha credentials not configured')
     }
@@ -138,8 +143,18 @@ serve(async (req) => {
     console.log('iKhokha response:', responseData)
 
     if (!response.ok) {
-      console.error('iKhokha API error:', responseData)
+      console.error('iKhokha API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseData
+      })
       throw new Error(`iKhokha API error: ${responseData.message || 'Unknown error'}`)
+    }
+
+    // Check if we got a valid response with payment URL
+    if (!responseData.paylinkUrl && !responseData.paylink_url && !responseData.url) {
+      console.error('No payment URL in response:', responseData)
+      throw new Error(`iKhokha API didn't return a payment URL. Response: ${JSON.stringify(responseData)}`)
     }
 
     // Log the payment creation (only if user is authenticated)
