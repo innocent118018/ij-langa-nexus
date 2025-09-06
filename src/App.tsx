@@ -17,6 +17,7 @@ import Pricing from "./pages/Pricing";
 import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Contact from "./pages/Contact";
+import TestCheckout from "./pages/TestCheckout";
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -106,6 +107,9 @@ function App() {
                 <Route path="/services/:category/:service" element={<Layout><Services /></Layout>} />
                 <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
                 <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+
+                {/* Test checkout route */}
+                <Route path="/test-checkout" element={<Layout><TestCheckout /></Layout>} />
 
                 {/* Products route */}
                 <Route path="/products" element={<Layout><Products /></Layout>} />
