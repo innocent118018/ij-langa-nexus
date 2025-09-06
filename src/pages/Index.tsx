@@ -1,23 +1,21 @@
 import React from 'react';
-import { Layout } from '@/components/layout/Layout';
 
 const Index = () => {
   return (
     <div className="min-h-screen w-full">
-      <Layout>
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Professional Business Services
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-white/90">
-              Accounting, Taxation, HR & Payroll, and Secretarial Services
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/services" className="bg-accent hover:bg-accent/90 text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
-                View Services
-              </a>
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Professional Business Services
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 text-white/90">
+            Accounting, Taxation, HR & Payroll, and Secretarial Services
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/services" className="bg-accent hover:bg-accent/90 text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
+              View Services
+            </a>
               <a href="/contact" className="border border-white text-white hover:bg-white hover:text-primary px-8 py-3 rounded-lg font-semibold transition-colors">
                 Get Quote
               </a>
@@ -75,9 +73,8 @@ const Index = () => {
             </a>
           </div>
         </section>
-      </Layout>
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
-export default Index;
+  export default Index;
