@@ -319,8 +319,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getTotalAmount = () => {
     return cartItems.reduce((total, item) => {
-      const price = item.products?.price || item.services?.price || 0;
-      return total + (price * item.quantity);
+      // Handle both product and service pricing
+      const price = item.products?.price || item.services?.price;
+      
+      // Debug logging
+      if (price === undefined || price === null) {
+        console.warn('Item with undefined price:', item);
+        return total;
+      }
+      
+      return total + (Number(price) * Number(item.quantity));
     }, 0);
   };
 

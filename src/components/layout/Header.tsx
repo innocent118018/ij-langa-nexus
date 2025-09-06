@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { CartButton } from '@/components/cart/CartButton';
+import { TaxCalculator } from '@/components/ui/TaxCalculator';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -150,6 +151,7 @@ export const Header = () => {
               Contact
             </Link>
             <CartButton />
+            <TaxCalculator />
             <Link to="/auth">
               <Button size="sm">Login</Button>
             </Link>
