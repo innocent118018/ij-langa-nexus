@@ -98,7 +98,7 @@ serve(async (req) => {
 
     // Create the payment request
     const apiEndPoint = "https://api.ikhokha.com/public-api/v1/api/payment"
-    const baseUrl = req.headers.get('origin') || 'https://preview--ij-langa-nexus.lovable.app'
+    const baseUrl = req.headers.get('origin') || 'https://www.ijlanga.co.za'
     
     const paymentRequest = {
       entityID: appId,
@@ -111,9 +111,9 @@ serve(async (req) => {
       externalTransactionID: externalTransactionID,
       urls: {
         callbackUrl: `${baseUrl}/api/payment-callback`,
-        successPageUrl: `${baseUrl}/dashboard?payment=success&order=${orderId}`,
-        failurePageUrl: `${baseUrl}/checkout?payment=failed&order=${orderId}`,
-        cancelUrl: `${baseUrl}/checkout?payment=cancelled&order=${orderId}`
+        successPageUrl: `${baseUrl}/payment-success?order=${orderId}`,
+        failurePageUrl: `${baseUrl}/payment-cancel?payment=failed&order=${orderId}`,
+        cancelUrl: `${baseUrl}/payment-cancel?payment=cancelled&order=${orderId}`
       }
     }
 

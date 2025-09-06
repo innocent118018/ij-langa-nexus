@@ -69,8 +69,8 @@ import Correspondence from "./pages/dashboard/documents/Correspondence";
 import Shareholders from "./pages/dashboard/documents/Shareholders";
 
 // Payment pages
-import PaymentSuccess from "./pages/dashboard/PaymentSuccess";
-import PaymentCancel from "./pages/dashboard/PaymentCancel";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 
 // Policy pages
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
@@ -278,10 +278,10 @@ function App() {
                 } />
 
                 {/* Payment routes with Layout */}
-                <Route path="/payment-success" element={<Layout><PaymentSuccess /></Layout>} />
-                <Route path="/payment-cancel" element={<Layout><PaymentCancel /></Layout>} />
-                <Route path="/dashboard/payments/success" element={<Layout><PaymentSuccess /></Layout>} />
-                <Route path="/dashboard/payments/cancel" element={<Layout><PaymentCancel /></Layout>} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-cancel" element={<PaymentCancel />} />
+                <Route path="/dashboard/payments/success" element={<PaymentSuccess />} />
+                <Route path="/dashboard/payments/cancel" element={<PaymentCancel />} />
 
                 {/* Catch all route */}
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -31,11 +31,11 @@ export const Footer = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-accent">🌐</span>
-                <span>www.ijlanga.co.za</span>
+                <a href="https://www.ijlanga.co.za" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">www.ijlanga.co.za</a>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-accent">✉️</span>
-                <span>info@ijlanga.co.za</span>
+                <a href="mailto:info@ijlanga.co.za" className="hover:text-accent transition-colors">info@ijlanga.co.za</a>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-accent">📍</span>
@@ -43,7 +43,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-accent">📞</span>
-                <span>+27 1300 40 620</span>
+                <a href="tel:+27130040620" className="hover:text-accent transition-colors">+27 13 004 0620</a>
               </div>
             </div>
             <div className="mt-6 p-4 bg-white/10 rounded-lg border border-accent/20">
