@@ -30,6 +30,7 @@ import Settings from "./pages/dashboard/Settings";
 import Support from "./pages/dashboard/Support";
 import Notifications from "./pages/dashboard/Notifications";
 import UserManagement from "./pages/dashboard/UserManagement";
+import AdminClientPortalView from "./pages/dashboard/AdminClientPortalView";
 import ContentManagement from "./pages/dashboard/ContentManagement";
 import LegalEscalations from "./pages/dashboard/LegalEscalations";
 import Refunds from "./pages/dashboard/Refunds";
@@ -138,6 +139,12 @@ function App() {
                 <Route path="/dashboard/users" element={
                   <DashboardLayout>
                     <UserManagement />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/clients/:clientId" element={
+                  <DashboardLayout>
+                    <AdminClientPortalView />
                   </DashboardLayout>
                 } />
                 

@@ -15,11 +15,15 @@ import {
   Filter,
   Edit,
   Eye,
-  FileText
+  FileText,
+  Settings,
+  Key,
+  Upload
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import EditClientModal from '@/components/clients/EditClientModal';
 import CreateClientModal from '@/components/admin/CreateClientModal';
+import { ClientManagementModal } from '@/components/admin/ClientManagementModal';
 import { useNavigate } from 'react-router-dom';
 
 interface Customer {
@@ -38,6 +42,7 @@ const Clients = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isManagementModalOpen, setIsManagementModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const formatCurrency = (amount: number) => {
@@ -271,6 +276,13 @@ const Clients = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => window.location.reload()}
+      />
+
+      <ClientManagementModal
+        isOpen={isManagementModalOpen}
+        onClose={() => setIsManagementModalOpen(false)}
+        clientId={selectedCustomer?.id}
+        clientData={selectedCustomer}
       />
     </div>
   );
