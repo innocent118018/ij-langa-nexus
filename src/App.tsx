@@ -23,7 +23,7 @@ import Clients from "./pages/dashboard/Clients";
 import Orders from "./pages/dashboard/Orders";
 import Invoices from "./pages/dashboard/Invoices";
 import Reports from "./pages/dashboard/Reports";
-import Services from "./pages/dashboard/Services";
+import DashboardServices from "./pages/dashboard/Services";
 import Documents from "./pages/dashboard/Documents";
 import Profile from "./pages/dashboard/Profile";
 import Settings from "./pages/dashboard/Settings";
@@ -34,6 +34,32 @@ import LegalEscalations from "./pages/dashboard/LegalEscalations";
 import Refunds from "./pages/dashboard/Refunds";
 import ProductManagementPage from "./pages/dashboard/ProductManagement";
 import DocumentGeneration from "./pages/dashboard/DocumentGeneration";
+
+// Individual Service Pages
+import Services from "./pages/Services";
+import BookkeepingTrialBalance from "./pages/services/accounting/BookkeepingTrialBalance";
+import MonthlyManagementAccounts from "./pages/services/accounting/MonthlyManagementAccounts";
+import AnnualFinancialStatements from "./pages/services/accounting/AnnualFinancialStatements";
+import IndependentReview from "./pages/services/accounting/IndependentReview";
+import EfilingRegistration from "./pages/services/taxation/EfilingRegistration";
+import PersonalIncomeTax from "./pages/services/taxation/PersonalIncomeTax";
+import CompanyTax from "./pages/services/taxation/CompanyTax";
+import ProvisionalTax from "./pages/services/taxation/ProvisionalTax";
+import TaxClearanceCertificates from "./pages/services/taxation/TaxClearanceCertificates";
+import VATRegistration from "./pages/services/taxation/VATRegistration";
+import PAYERegistration from "./pages/services/taxation/PAYERegistration";
+import SARSReturnsEMP201 from "./pages/services/hr-payroll/SARSReturnsEMP201";
+import IRP5ReconciliationEMP501 from "./pages/services/hr-payroll/IRP5ReconciliationEMP501";
+import UIFRegistrationReturns from "./pages/services/hr-payroll/UIFRegistrationReturns";
+import PayrollAdministration from "./pages/services/hr-payroll/PayrollAdministration";
+import WorkmensCompensation from "./pages/services/hr-payroll/WorkmensCompensation";
+import CompanyRegistrations from "./pages/services/secretarial/CompanyRegistrations";
+import CIPCAnnualReturns from "./pages/services/secretarial/CIPCAnnualReturns";
+import ChangeCompanyDetails from "./pages/services/secretarial/ChangeCompanyDetails";
+import BeneficialOwnershipSubmissions from "./pages/services/secretarial/BeneficialOwnershipSubmissions";
+import BBBEECertificates from "./pages/services/secretarial/BBBEECertificates";
+import CreditChecks from "./pages/services/secretarial/CreditChecks";
+import CriminalRecordCheck from "./pages/services/secretarial/CriminalRecordCheck";
 
 // Document sub-pages
 import Correspondence from "./pages/dashboard/documents/Correspondence";
@@ -128,9 +154,34 @@ function App() {
                 
                 <Route path="/dashboard/services" element={
                   <DashboardLayout>
-                    <Services />
+                    <DashboardServices />
                   </DashboardLayout>
                 } />
+                
+                {/* Individual Service Routes */}
+                <Route path="/services/accounting/bookkeeping-trial-balance" element={<Layout><BookkeepingTrialBalance /></Layout>} />
+                <Route path="/services/accounting/monthly-management-accounts" element={<Layout><MonthlyManagementAccounts /></Layout>} />
+                <Route path="/services/accounting/annual-financial-statements" element={<Layout><AnnualFinancialStatements /></Layout>} />
+                <Route path="/services/accounting/independent-review" element={<Layout><IndependentReview /></Layout>} />
+                <Route path="/services/taxation/efiling-registration" element={<Layout><EfilingRegistration /></Layout>} />
+                <Route path="/services/taxation/personal-income-tax" element={<Layout><PersonalIncomeTax /></Layout>} />
+                <Route path="/services/taxation/company-tax" element={<Layout><CompanyTax /></Layout>} />
+                <Route path="/services/taxation/provisional-tax" element={<Layout><ProvisionalTax /></Layout>} />
+                <Route path="/services/taxation/tax-clearance-certificates" element={<Layout><TaxClearanceCertificates /></Layout>} />
+                <Route path="/services/taxation/vat-registration" element={<Layout><VATRegistration /></Layout>} />
+                <Route path="/services/taxation/paye-registration" element={<Layout><PAYERegistration /></Layout>} />
+                <Route path="/services/hr-payroll/sars-returns-emp201" element={<Layout><SARSReturnsEMP201 /></Layout>} />
+                <Route path="/services/hr-payroll/irp5-reconciliation-emp501" element={<Layout><IRP5ReconciliationEMP501 /></Layout>} />
+                <Route path="/services/hr-payroll/uif-registration-returns" element={<Layout><UIFRegistrationReturns /></Layout>} />
+                <Route path="/services/hr-payroll/payroll-administration" element={<Layout><PayrollAdministration /></Layout>} />
+                <Route path="/services/hr-payroll/workmens-compensation" element={<Layout><WorkmensCompensation /></Layout>} />
+                <Route path="/services/secretarial/company-registrations" element={<Layout><CompanyRegistrations /></Layout>} />
+                <Route path="/services/secretarial/cipc-annual-returns" element={<Layout><CIPCAnnualReturns /></Layout>} />
+                <Route path="/services/secretarial/change-company-details" element={<Layout><ChangeCompanyDetails /></Layout>} />
+                <Route path="/services/secretarial/beneficial-ownership-submissions" element={<Layout><BeneficialOwnershipSubmissions /></Layout>} />
+                <Route path="/services/secretarial/bbbee-certificates" element={<Layout><BBBEECertificates /></Layout>} />
+                <Route path="/services/secretarial/credit-checks" element={<Layout><CreditChecks /></Layout>} />
+                <Route path="/services/secretarial/criminal-record-check" element={<Layout><CriminalRecordCheck /></Layout>} />
                 
                 <Route path="/dashboard/documents" element={
                   <DashboardLayout>
