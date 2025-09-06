@@ -160,7 +160,13 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify(responseData), {
+    // Return the payment link URL for checkout redirection
+    return new Response(JSON.stringify({
+      success: true,
+      paylinkUrl: responseData.paylinkUrl || responseData.paylink_url || responseData.url,
+      transactionId: responseData.transactionId || responseData.transaction_id,
+      ...responseData
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
