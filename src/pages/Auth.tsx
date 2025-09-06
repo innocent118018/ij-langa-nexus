@@ -8,14 +8,24 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Mail, Phone, User, Building, CreditCard, Lock, Eye, EyeOff } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { OTPInput } from '@/components/auth/OTPInput';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Mail, Phone, User, Building, CreditCard, Lock, Eye, EyeOff, MessageSquare } from 'lucide-react';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
+  const [authMethod, setAuthMethod] = useState<'traditional' | 'otp'>('traditional');
+  const [otpMethod, setOtpMethod] = useState<'sms' | 'whatsapp'>('sms');
+  const [otpStep, setOtpStep] = useState<'request' | 'verify'>('request');
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     surname: '',
@@ -25,10 +35,13 @@ const Auth = () => {
     businessName: '',
     idNumber: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    username: '',
+    phone: ''
   });
 
   const { signUp, signIn, signInWithGoogle, resetPassword, loading } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +97,95 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     await signInWithGoogle();
+  };
+
+  const handleOTPRequest = async () => {
+    if (!formData.phone) {
+      toast({
+        title: "Error",
+        description: "Please enter your phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-otp', {
+        body: {
+          phone: formData.phone,
+          method: otpMethod,
+          username: formData.username
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `OTP sent via ${otpMethod.toUpperCase()}`,
+      });
+      setOtpStep('verify');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send OTP",
+        variant: "destructive",
+      });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleOTPVerify = async () => {
+    if (otpCode.length !== 6) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid 6-digit code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: {
+          phone: formData.phone,
+          code: otpCode,
+          username: formData.username
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: "Phone number verified successfully",
+        });
+        
+        if (data.userExists) {
+          // User exists, proceed to login
+          navigate('/dashboard');
+        } else {
+          // New user, continue with registration or create account
+          toast({
+            title: "Welcome",
+            description: "Phone verified! You can now access your account.",
+          });
+          navigate('/dashboard');
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Invalid OTP",
+        variant: "destructive",
+      });
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   if (mode === 'forgot') {
@@ -155,187 +257,293 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Google Sign In */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full mb-4"
-            onClick={handleGoogleSignIn}
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              className="w-4 h-4 mr-2"
-            />
-            Continue with Google
-          </Button>
+          <Tabs value={authMethod} onValueChange={(value) => setAuthMethod(value as 'traditional' | 'otp')}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="traditional">Email & Password</TabsTrigger>
+              <TabsTrigger value="otp">Phone & OTP</TabsTrigger>
+            </TabsList>
 
-          <Separator className="my-4" />
-
-          <form onSubmit={mode === 'signup' ? handleSignUp : handleSignIn} className="space-y-4">
-            {mode === 'signup' && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      required
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      placeholder="John"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="surname">Surname</Label>
-                    <Input
-                      id="surname"
-                      name="surname"
-                      required
-                      value={formData.surname}
-                      onChange={handleInputChange}
-                      placeholder="Doe"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="cellNumber">Cell Number</Label>
-                  <Input
-                    id="cellNumber"
-                    name="cellNumber"
-                    type="tel"
-                    required
-                    value={formData.cellNumber}
-                    onChange={handleInputChange}
-                    placeholder="+27 123 456 789"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
-                  <Input
-                    id="whatsappNumber"
-                    name="whatsappNumber"
-                    type="tel"
-                    value={formData.whatsappNumber}
-                    onChange={handleInputChange}
-                    placeholder="+27 123 456 789"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="businessName">Business Name</Label>
-                  <Input
-                    id="businessName"
-                    name="businessName"
-                    value={formData.businessName}
-                    onChange={handleInputChange}
-                    placeholder="Your Business Name"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="idNumber">ID Number</Label>
-                  <Input
-                    id="idNumber"
-                    name="idNumber"
-                    value={formData.idNumber}
-                    onChange={handleInputChange}
-                    placeholder="Your ID Number"
-                  />
-                </div>
-              </>
-            )}
-
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="john@example.com"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter your password"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            {mode === 'signup' && (
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="Confirm your password"
-                />
-              </div>
-            )}
-
-            {mode === 'signup' && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                />
-                <label htmlFor="terms" className="text-sm">
-                  I accept the{' '}
-                  <a href="/policies/terms" target="_blank" className="text-primary hover:underline">
-                    Terms and Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="/policies/privacy" target="_blank" className="text-primary hover:underline">
-                    Privacy Policy
-                  </a>
-                </label>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {mode === 'signup' ? 'Create Account' : 'Sign In'}
-            </Button>
-
-            {mode === 'login' && (
+            <TabsContent value="traditional">
+              {/* Google Sign In */}
               <Button
                 type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setMode('forgot')}
+                variant="outline"
+                className="w-full mb-4"
+                onClick={handleGoogleSignIn}
               >
-                Forgot Password?
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google"
+                  className="w-4 h-4 mr-2"
+                />
+                Continue with Google
               </Button>
-            )}
-          </form>
+
+              <Separator className="my-4" />
+
+              <form onSubmit={mode === 'signup' ? handleSignUp : handleSignIn} className="space-y-4">
+                {mode === 'signup' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          required
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          placeholder="John"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="surname">Surname</Label>
+                        <Input
+                          id="surname"
+                          name="surname"
+                          required
+                          value={formData.surname}
+                          onChange={handleInputChange}
+                          placeholder="Doe"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cellNumber">Cell Number</Label>
+                      <Input
+                        id="cellNumber"
+                        name="cellNumber"
+                        type="tel"
+                        required
+                        value={formData.cellNumber}
+                        onChange={handleInputChange}
+                        placeholder="+27 123 456 789"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                      <Input
+                        id="whatsappNumber"
+                        name="whatsappNumber"
+                        type="tel"
+                        value={formData.whatsappNumber}
+                        onChange={handleInputChange}
+                        placeholder="+27 123 456 789"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="businessName">Business Name</Label>
+                      <Input
+                        id="businessName"
+                        name="businessName"
+                        value={formData.businessName}
+                        onChange={handleInputChange}
+                        placeholder="Your Business Name"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="idNumber">ID Number</Label>
+                      <Input
+                        id="idNumber"
+                        name="idNumber"
+                        value={formData.idNumber}
+                        onChange={handleInputChange}
+                        placeholder="Your ID Number"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="john@example.com"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Enter your password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                {mode === 'signup' && (
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      required
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="Confirm your password"
+                    />
+                  </div>
+                )}
+
+                {mode === 'signup' && (
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="terms"
+                      checked={acceptTerms}
+                      onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                    />
+                    <label htmlFor="terms" className="text-sm">
+                      I accept the{' '}
+                      <a href="/policies/terms" target="_blank" className="text-primary hover:underline">
+                        Terms and Conditions
+                      </a>{' '}
+                      and{' '}
+                      <a href="/policies/privacy" target="_blank" className="text-primary hover:underline">
+                        Privacy Policy
+                      </a>
+                    </label>
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {mode === 'signup' ? 'Create Account' : 'Sign In'}
+                </Button>
+
+                {mode === 'login' && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setMode('forgot')}
+                  >
+                    Forgot Password?
+                  </Button>
+                )}
+              </form>
+            </TabsContent>
+
+            <TabsContent value="otp">
+              <div className="space-y-4">
+                {otpStep === 'request' ? (
+                  <>
+                    <div>
+                      <Label htmlFor="username">Username (Optional)</Label>
+                      <Input
+                        id="username"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
+                        placeholder="Enter username"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+27 123 456 789"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Verification Method</Label>
+                      <Select value={otpMethod} onValueChange={(value) => setOtpMethod(value as 'sms' | 'whatsapp')}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sms">
+                            <div className="flex items-center">
+                              <Phone className="h-4 w-4 mr-2" />
+                              SMS
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="whatsapp">
+                            <div className="flex items-center">
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              WhatsApp
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button 
+                      type="button" 
+                      className="w-full" 
+                      onClick={handleOTPRequest}
+                      disabled={otpLoading}
+                    >
+                      {otpLoading ? 'Sending...' : `Send OTP via ${otpMethod.toUpperCase()}`}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center space-y-4">
+                      <h3 className="text-lg font-medium">Enter Verification Code</h3>
+                      <p className="text-sm text-muted-foreground">
+                        We sent a 6-digit code to {formData.phone} via {otpMethod.toUpperCase()}
+                      </p>
+                      
+                      <OTPInput
+                        value={otpCode}
+                        onChange={setOtpCode}
+                        disabled={otpLoading}
+                      />
+
+                      <Button 
+                        type="button" 
+                        className="w-full" 
+                        onClick={handleOTPVerify}
+                        disabled={otpLoading || otpCode.length !== 6}
+                      >
+                        {otpLoading ? 'Verifying...' : 'Verify Code'}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setOtpStep('request')}
+                      >
+                        Back to Phone Number
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
