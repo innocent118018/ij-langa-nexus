@@ -204,6 +204,8 @@ function App() {
                 } />
 
                 {/* Payment routes with Layout */}
+                <Route path="/payment-success" element={<Layout><PaymentSuccess /></Layout>} />
+                <Route path="/payment-cancel" element={<Layout><PaymentCancel /></Layout>} />
                 <Route path="/dashboard/payments/success" element={<Layout><PaymentSuccess /></Layout>} />
                 <Route path="/dashboard/payments/cancel" element={<Layout><PaymentCancel /></Layout>} />
 
