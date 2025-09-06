@@ -57,6 +57,13 @@ serve(async (req) => {
   }
 
   try {
+    // Create Supabase client with anon key for auth verification
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    )
+
+    // Create Supabase client with service role for database operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -64,14 +71,14 @@ serve(async (req) => {
 
     // Get the authorization header
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      throw new Error('Missing authorization header')
-    }
-
-    // Verify the user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
-    if (authError || !user) {
-      throw new Error('Unauthorized')
+    let user = null
+    
+    if (authHeader) {
+      // Try to verify the user with anon key client
+      const { data: authData, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace('Bearer ', ''))
+      if (!authError && authData?.user) {
+        user = authData.user
+      }
     }
 
     const { orderId, amount, description, customerEmail, externalTransactionID }: PaymentRequest = await req.json()
@@ -90,7 +97,7 @@ serve(async (req) => {
     
     const paymentRequest = {
       entityID: appId,
-      externalEntityID: user.id,
+      externalEntityID: user?.id || 'guest',
       amount: Math.round(amount * 100), // Convert to cents
       currency: "ZAR",
       requesterUrl: baseUrl,
@@ -135,16 +142,23 @@ serve(async (req) => {
       throw new Error(`iKhokha API error: ${responseData.message || 'Unknown error'}`)
     }
 
-    // Log the payment creation
-    await supabase
-      .from('payment_logs')
-      .insert({
-        order_id: orderId,
-        user_id: user.id,
-        status: 'payment_link_created',
-        request_data: paymentRequest,
-        response_data: responseData
-      })
+    // Log the payment creation (only if user is authenticated)
+    if (user) {
+      try {
+        await supabase
+          .from('payment_logs')
+          .insert({
+            order_id: orderId,
+            user_id: user.id,
+            status: 'payment_link_created',
+            request_data: paymentRequest,
+            response_data: responseData
+          })
+      } catch (logError) {
+        console.error('Error logging payment:', logError)
+        // Don't fail the payment creation if logging fails
+      }
+    }
 
     return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
