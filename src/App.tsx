@@ -41,6 +41,10 @@ import Overview from "./pages/dashboard/Overview";
 import MyServices from "./pages/dashboard/MyServices";
 import MyInvoices from "./pages/dashboard/MyInvoices";
 import Messages from "./pages/dashboard/Messages";
+import Orders from "./pages/dashboard/Orders";
+import Documents from "./pages/dashboard/Documents";
+import Notifications from "./pages/dashboard/Notifications";
+import Profile from "./pages/dashboard/Profile";
 
 // Individual Service Pages
 import Services from "./pages/Services";
