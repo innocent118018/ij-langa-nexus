@@ -17,7 +17,7 @@ const ITEMS_PER_PAGE = 30;
 
 const Pricing = () => {
   const [featuredServices, setFeaturedServices] = useState<ServiceData[]>([]);
-  const [allMonthlyServices, setAllMonthlyServices] = useState<ServiceData[]>([]);
+  const [gridServices, setGridServices] = useState<ServiceData[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -26,19 +26,21 @@ const Pricing = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  // Fetch all monthly-charged services
+  // Fetch monthly-charged services
   useEffect(() => {
     const fetchServices = async () => {
       const { data, error } = await supabase
         .from('services')
         .select('*')
-        .ilike('description', '%/Month%'); // Only services with "/Month" in description
+        .ilike('description', '%/Month%'); // Only monthly services
 
       if (error) {
         console.error('Error fetching services:', error);
-      } else {
-        setFeaturedServices(data || []);
-        setAllMonthlyServices(data || []);
+      } else if (data) {
+        // Top 3 as featured
+        setFeaturedServices(data.slice(0, 3));
+        // Remaining for grid
+        setGridServices(data.slice(3));
       }
     };
 
@@ -54,8 +56,8 @@ const Pricing = () => {
     return () => clearInterval(interval);
   }, [featuredServices]);
 
-  // Filtered services for grid
-  const filteredServices = allMonthlyServices.filter(service => {
+  // Filtered grid services
+  const filteredServices = gridServices.filter(service => {
     const matchesSearch = service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.code?.toLowerCase().includes(searchTerm.toLowerCase());
