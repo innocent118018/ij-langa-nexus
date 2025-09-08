@@ -90,9 +90,12 @@ export const Footer = () => {
               <li><Link to="/services" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
                 <span className="w-1 h-1 bg-accent rounded-full"></span>Services
               </Link></li>
-              <li><Link to="/pricing" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
-                <span className="w-1 h-1 bg-accent rounded-full"></span>Pricing
-              </Link></li>
+               <li><Link to="/pricing" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
+                 <span className="w-1 h-1 bg-accent rounded-full"></span>Pricing
+               </Link></li>
+               <li><Link to="/tax-calculator" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
+                 <span className="w-1 h-1 bg-accent rounded-full"></span>Tax Calculator
+               </Link></li>
               <li><Link to="/contact" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
                 <span className="w-1 h-1 bg-accent rounded-full"></span>Contact
               </Link></li>

@@ -18,6 +18,7 @@ import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Contact from "./pages/Contact";
 import TestCheckout from "./pages/TestCheckout";
+import TaxCalculator from "./pages/TaxCalculator";
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -41,6 +42,7 @@ import Overview from "./pages/dashboard/Overview";
 import MyServices from "./pages/dashboard/MyServices";
 import MyInvoices from "./pages/dashboard/MyInvoices";
 import Messages from "./pages/dashboard/Messages";
+import SecretarialSoftware from "./pages/dashboard/SecretarialSoftware";
 
 // Individual Service Pages
 import Services from "./pages/Services";
@@ -110,6 +112,7 @@ function App() {
                 <Route path="/services" element={<Layout><Services /></Layout>} />
                 <Route path="/services/:category/:service" element={<Layout><Services /></Layout>} />
                 <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+                <Route path="/tax-calculator" element={<TaxCalculator />} />
                 <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
 
                 {/* Test checkout route */}
@@ -302,6 +305,12 @@ function App() {
                 <Route path="/dashboard/messages" element={
                   <DashboardLayout>
                     <Messages />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/secretarial" element={
+                  <DashboardLayout>
+                    <SecretarialSoftware />
                   </DashboardLayout>
                 } />
 

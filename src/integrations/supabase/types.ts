@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string
+          table_name: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id: string
+          table_name: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      board_meetings: {
+        Row: {
+          action_items: Json | null
+          agenda: string | null
+          attendees: Json | null
+          company_id: string
+          created_at: string
+          id: string
+          meeting_date: string
+          meeting_type: string
+          minutes: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          action_items?: Json | null
+          agenda?: string | null
+          attendees?: Json | null
+          company_id: string
+          created_at?: string
+          id?: string
+          meeting_date: string
+          meeting_type: string
+          minutes?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          action_items?: Json | null
+          agenda?: string | null
+          attendees?: Json | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          meeting_date?: string
+          meeting_type?: string
+          minutes?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_meetings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           created_at: string | null
@@ -511,6 +600,201 @@ export type Database = {
           },
         ]
       }
+      company_directors: {
+        Row: {
+          appointment_date: string | null
+          company_id: string
+          created_at: string
+          first_name: string
+          id: string
+          id_number: string | null
+          last_name: string
+          residential_address: string | null
+          resignation_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_date?: string | null
+          company_id: string
+          created_at?: string
+          first_name: string
+          id?: string
+          id_number?: string | null
+          last_name: string
+          residential_address?: string | null
+          resignation_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string | null
+          company_id?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          id_number?: string | null
+          last_name?: string
+          residential_address?: string | null
+          resignation_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_directors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_entities: {
+        Row: {
+          business_address: string | null
+          company_name: string
+          created_at: string
+          email: string | null
+          id: string
+          incorporation_date: string | null
+          phone: string | null
+          postal_address: string | null
+          registration_number: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_address?: string | null
+          company_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          incorporation_date?: string | null
+          phone?: string | null
+          postal_address?: string | null
+          registration_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_address?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          incorporation_date?: string | null
+          phone?: string | null
+          postal_address?: string | null
+          registration_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      company_shareholders: {
+        Row: {
+          acquisition_date: string | null
+          certificate_number: string | null
+          company_id: string
+          created_at: string
+          id: string
+          id_number: string | null
+          share_class: string | null
+          share_percentage: number | null
+          shareholder_name: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_date?: string | null
+          certificate_number?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          id_number?: string | null
+          share_class?: string | null
+          share_percentage?: number | null
+          shareholder_name: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_date?: string | null
+          certificate_number?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          id_number?: string | null
+          share_class?: string | null
+          share_percentage?: number | null
+          shareholder_name?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_shareholders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_calendar: {
+        Row: {
+          company_id: string | null
+          completed_date: string | null
+          compliance_type: string
+          created_at: string
+          due_date: string
+          id: string
+          notes: string | null
+          reminder_sent: boolean | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          completed_date?: string | null
+          compliance_type: string
+          created_at?: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          reminder_sent?: boolean | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          completed_date?: string | null
+          compliance_type?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          reminder_sent?: boolean | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_calendar_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compliance_records: {
         Row: {
           completed_date: string | null
@@ -636,6 +920,39 @@ export type Database = {
         }
         Relationships: []
       }
+      document_templates: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          template_name: string
+          template_type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          template_name: string
+          template_type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          template_name?: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           category: string | null
@@ -702,6 +1019,63 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generated_documents: {
+        Row: {
+          company_id: string | null
+          content: string | null
+          created_at: string
+          document_name: string
+          document_type: string
+          file_path: string | null
+          id: string
+          status: string | null
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          content?: string | null
+          created_at?: string
+          document_name: string
+          document_type: string
+          file_path?: string | null
+          id?: string
+          status?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          content?: string | null
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          file_path?: string | null
+          id?: string
+          status?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
             referencedColumns: ["id"]
           },
         ]
