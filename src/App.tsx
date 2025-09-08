@@ -308,6 +308,22 @@ function App() {
                   </DashboardLayout>
                 } />
 
+                <Route path="/dashboard/secretarial-software" element={
+                  <DashboardLayout>
+                    <SecretarialSoftware />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/tax-calculator" element={<TaxCalculator />} />
+
+                <Route path="/dashboard/secretarial-software" element={
+                  <DashboardLayout>
+                    <SecretarialSoftware />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/tax-calculator" element={<TaxCalculator />} />
+
                 <Route path="/dashboard/secretarial" element={
                   <DashboardLayout>
                     <SecretarialSoftware />
