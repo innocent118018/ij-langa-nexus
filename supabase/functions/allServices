@@ -1,0 +1,24 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { ServiceData } from '@/data/services'; // define your ServiceData type
+
+const [allServices, setAllServices] = useState<ServiceData[]>([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchServices = async () => {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('unit', 'per month'); // only monthly services
+
+    if (error) {
+      console.error('Error fetching services:', error);
+    } else if (data) {
+      setAllServices(data);
+    }
+    setLoading(false);
+  };
+
+  fetchServices();
+}, []);
