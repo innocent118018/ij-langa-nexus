@@ -8,9 +8,8 @@ import { QuoteRequestModal } from '@/components/ui/quote-request-modal';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { allServices, serviceCategories, ServiceData } from '@/data/services';
-import { ShoppingCart, Share2, FileText } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
-// Featured packages (carousel)
 const featuredPackages = [
   {
     code: 'UNLEASH-PKG',
@@ -74,8 +73,8 @@ const Pricing = () => {
 
   const filteredServices = allServices.filter(service => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.code.toLowerCase().includes(searchTerm.toLowerCase());
+      service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -93,22 +92,17 @@ const Pricing = () => {
     return acc;
   }, {} as Record<string, ServiceData[]>);
 
-  const categories = serviceCategories;
-
   const handleAddToCart = async (service: any) => {
     try {
-      // Calculate price with 15% VAT
       const basePrice = service.price || 0;
       const priceWithVAT = Math.round(basePrice * 1.15);
-
-      console.log('Adding service to cart:', service, 'Price with VAT:', priceWithVAT);
 
       const cartItem = {
         type: 'service' as const,
         service: {
           id: service.code || service.name,
           name: service.name,
-          price: priceWithVAT, // Include VAT in the price
+          price: priceWithVAT,
           category: service.category || 'Featured',
           description: service.description || 'Custom Package',
         },
@@ -131,7 +125,6 @@ const Pricing = () => {
     }
   };
 
-  // Carousel effect auto slide
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % featuredPackages.length);
@@ -154,10 +147,17 @@ const Pricing = () => {
         <div className="relative w-full overflow-hidden mb-12">
           <div
             className="flex transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${currentSlide * 100}%)`, width: `${featuredPackages.length * 100}%` }}
+            style={{
+              transform: `translateX(-${currentSlide * 100}%)`,
+              width: `${featuredPackages.length * 100}%`
+            }}
           >
             {featuredPackages.map((pkg, index) => (
-              <div key={index} className="w-full flex-shrink-0 px-4">
+              <div
+                key={index}
+                className="w-full flex-shrink-0 px-4"
+                style={{ minWidth: '100%' }}
+              >
                 <Card className="h-full shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-2xl font-bold">{pkg.name}</CardTitle>
@@ -166,7 +166,7 @@ const Pricing = () => {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700">
+                    <ul className="list-disc list-inside space-y-1 text-gray-700 max-h-64 overflow-y-auto">
                       {pkg.features.map((f, i) => (
                         <li key={i}>{f}</li>
                       ))}
@@ -183,12 +183,21 @@ const Pricing = () => {
               </div>
             ))}
           </div>
-          {/* Carousel controls */}
+
+          {/* Carousel Controls */}
           <div className="absolute inset-0 flex items-center justify-between px-4">
-            <Button variant="outline" size="sm" onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredPackages.length) % featuredPackages.length)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredPackages.length) % featuredPackages.length)}
+            >
               Prev
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredPackages.length)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredPackages.length)}
+            >
               Next
             </Button>
           </div>
@@ -197,34 +206,30 @@ const Pricing = () => {
         {/* Search and Filter */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Input
-                placeholder="Search services..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-            <div className="w-full md:w-64">
-              <Select value={selectedCategory} onValueChange={(value) => {
-                setSelectedCategory(value);
+            <Input
+              placeholder="Search services..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
                 setCurrentPage(1);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id} className="capitalize">
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              }}
+            />
+            <Select value={selectedCategory} onValueChange={(value) => {
+              setSelectedCategory(value);
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {serviceCategories.map(category => (
+                  <SelectItem key={category.id} value={category.id} className="capitalize">
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -276,7 +281,6 @@ const Pricing = () => {
             >
               Previous
             </Button>
-            
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -288,7 +292,7 @@ const Pricing = () => {
               } else {
                 pageNum = currentPage - 2 + i;
               }
-              
+
               return (
                 <Button
                   key={pageNum}
@@ -300,7 +304,6 @@ const Pricing = () => {
                 </Button>
               );
             })}
-            
             <Button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -312,7 +315,6 @@ const Pricing = () => {
           </div>
         )}
 
-        {/* Page info */}
         <div className="text-center text-gray-500 text-sm mt-4">
           Showing {startIndex + 1}-{Math.min(endIndex, filteredServices.length)} of {filteredServices.length} services
           {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
