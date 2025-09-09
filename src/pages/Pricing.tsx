@@ -310,42 +310,45 @@ const Pricing = () => {
           <TabsContent value="products">
             {currentItems.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {currentItems.map((product) => (
-                  <Card key={product.id} className="h-full flex flex-col">
-                    <CardHeader>
-                      {(product as ProductData).image_url && (
-                        <div className="w-full h-32 bg-muted rounded-md mb-4 flex items-center justify-center">
-                          <Package className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      <CardTitle className="text-lg font-semibold line-clamp-2">{product.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground capitalize">{product.category.replace(/-/g, ' ')}</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col">
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
-                        {product.description}
-                      </p>
-                      <div className="flex justify-between items-center mt-auto">
-                        {product.price ? (
-                          <div>
-                            <span className="text-lg font-bold text-primary">
-                              R{Math.round(product.price * 1.15).toLocaleString()}
-                            </span>
-                            <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
+                {currentItems.map((item) => {
+                  const product = item as ProductData;
+                  return (
+                    <Card key={product.id} className="h-full flex flex-col">
+                      <CardHeader>
+                        {product.image_url && (
+                          <div className="w-full h-32 bg-muted rounded-md mb-4 flex items-center justify-center">
+                            <Package className="h-8 w-8 text-muted-foreground" />
                           </div>
-                        ) : (
-                          <span className="text-amber-600 font-medium">Quote Required</span>
                         )}
-                        {product.price && (
-                          <Button size="sm" onClick={() => handleAddToCart(product)}>
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <CardTitle className="text-lg font-semibold line-clamp-2">{product.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground capitalize">{product.category.replace(/-/g, ' ')}</p>
+                      </CardHeader>
+                      <CardContent className="flex-1 flex flex-col">
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
+                          {product.description}
+                        </p>
+                        <div className="flex justify-between items-center mt-auto">
+                          {product.price ? (
+                            <div>
+                              <span className="text-lg font-bold text-primary">
+                                R{Math.round(product.price * 1.15).toLocaleString()}
+                              </span>
+                              <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
+                            </div>
+                          ) : (
+                            <span className="text-amber-600 font-medium">Quote Required</span>
+                          )}
+                          {product.price && (
+                            <Button size="sm" onClick={() => handleAddToCart(product)}>
+                              <ShoppingCart className="h-4 w-4 mr-2" />
+                              Add
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-12">
