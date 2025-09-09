@@ -1,239 +1,371 @@
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ShoppingCart } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ShoppingCart, Package, Wrench } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
-import { serviceCategories, ServiceData } from '@/data/services';
 
-const supabaseUrl = 'https://nnotjvqgejcmutukcwvt.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ub3RqdnFnZWpjbXV0dWtjd3Z0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1ODU5NzYsImV4cCI6MjA3MDE2MTk3Nn0.0LtKdRvV54V17N5PYlWaY4Tn8i7fASEvLmMM0kGgoXE0';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const ITEMS_PER_PAGE = 12;
 
-const ITEMS_PER_PAGE = 30;
+interface ServiceData {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  is_active: boolean;
+  processing_time?: string;
+  requirements?: string;
+}
+
+interface ProductData {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  is_active: boolean;
+  image_url?: string;
+  stock_quantity: number;
+}
 
 const Pricing = () => {
-  const [featuredServices, setFeaturedServices] = useState<ServiceData[]>([]);
-  const [gridServices, setGridServices] = useState<ServiceData[]>([]);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [monthlyServices, setMonthlyServices] = useState<ServiceData[]>([]);
+  const [services, setServices] = useState<ServiceData[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('services');
 
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  // Fetch monthly-charged services
+  // Fetch data
   useEffect(() => {
-    const fetchServices = async () => {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .ilike('description', '%/Month%'); // Only monthly services
+    const fetchData = async () => {
+      try {
+        // Fetch all services
+        const { data: servicesData, error: servicesError } = await supabase
+          .from('services')
+          .select('*')
+          .eq('is_active', true)
+          .order('price', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching services:', error);
-      } else if (data) {
-        // Top 3 as featured
-        setFeaturedServices(data.slice(0, 3));
-        // Remaining for grid
-        setGridServices(data.slice(3));
+        if (servicesError) {
+          console.error('Error fetching services:', servicesError);
+        } else {
+          setServices(servicesData || []);
+          // Create mock monthly services for display
+          const mockMonthly = servicesData?.slice(0, 3).map(service => ({
+            ...service,
+            description: `${service.description}\n\nMonthly subscription service`,
+            price: Math.round(service.price * 0.3) // 30% of one-time price for monthly
+          })) || [];
+          setMonthlyServices(mockMonthly);
+        }
+
+        // Fetch all products
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .order('price', { ascending: true });
+
+        if (productsError) {
+          console.error('Error fetching products:', productsError);
+        } else {
+          setProducts(productsData || []);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchServices();
+    fetchData();
   }, []);
 
-  // Carousel auto-slide
-  useEffect(() => {
-    if (featuredServices.length === 0) return;
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % featuredServices.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [featuredServices]);
+  // Get current data based on active tab
+  const getCurrentData = () => {
+    if (activeTab === 'monthly') return monthlyServices;
+    if (activeTab === 'services') return services;
+    return products;
+  };
 
-  // Filtered grid services
-  const filteredServices = gridServices.filter(service => {
-    const matchesSearch = service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.code?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+  // Filter current data
+  const filteredData = getCurrentData().filter(item => {
+    const matchesSearch = item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const totalPages = Math.ceil(filteredServices.length / ITEMS_PER_PAGE);
+  // Pagination
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentServices = filteredServices.slice(startIndex, endIndex);
+  const currentItems = filteredData.slice(startIndex, endIndex);
 
-  const groupedServices = currentServices.reduce((acc, service) => {
-    if (!acc[service.category]) acc[service.category] = [];
-    acc[service.category].push(service);
-    return acc;
-  }, {} as Record<string, ServiceData[]>);
+  // Get unique categories
+  const categories = [...new Set(getCurrentData().map(item => item.category))];
+
+  // Reset page when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setCurrentPage(1);
+    setSelectedCategory('all');
+    setSearchTerm('');
+  };
 
   // Add to cart handler
-  const handleAddToCart = async (service: any) => {
+  const handleAddToCart = async (item: any) => {
     try {
-      const priceWithVAT = Math.round((service.price || 0) * 1.15);
-      await addToCart({
-        type: 'service',
-        service: {
-          id: service.code || service.name,
-          name: service.name,
-          price: priceWithVAT,
-          category: service.category || 'Featured',
-          description: service.description,
-        },
-        quantity: 1,
-      });
+      const priceWithVAT = Math.round((item.price || 0) * 1.15);
+      
+      if (activeTab === 'products') {
+        await addToCart({
+          type: 'product',
+          product: {
+            id: item.id,
+            name: item.name,
+            price: priceWithVAT,
+            category: item.category,
+            image_url: item.image_url,
+          },
+          quantity: 1,
+        });
+      } else {
+        await addToCart({
+          type: 'service',
+          service: {
+            id: item.id,
+            name: item.name,
+            price: priceWithVAT,
+            category: item.category,
+            description: item.description,
+          },
+          quantity: 1,
+        });
+      }
 
       toast({
         title: 'Added to Cart',
-        description: `${service.name} has been added to your cart (including 15% VAT)`,
+        description: `${item.name} has been added to your cart (including 15% VAT)`,
       });
     } catch (error) {
       console.error(error);
       toast({
         title: 'Error',
-        description: 'Failed to add service to cart.',
+        description: 'Failed to add item to cart.',
         variant: 'destructive',
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-red-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Professional Service Pricing</h1>
-          <p className="text-lg text-gray-600 mb-4">
+          <h1 className="text-4xl font-bold mb-4">Professional Service Pricing</h1>
+          <p className="text-lg text-muted-foreground mb-4">
             Transparent pricing for all your business, legal, and taxation needs
           </p>
         </div>
 
-        {/* Featured Packages Carousel */}
-        {featuredServices.length > 0 && (
-          <div className="relative w-full overflow-hidden mb-12">
-            <div
-              className="flex transition-transform duration-700 ease-in-out"
-              style={{
-                transform: `translateX(-${currentSlide * 100}%)`,
-                width: `${featuredServices.length * 100}%`
-              }}
-            >
-              {featuredServices.map((pkg, index) => (
-                <div
-                  key={index}
-                  className="w-full flex-shrink-0 px-4"
-                  style={{ minWidth: '100%' }}
-                >
-                  <Card className="h-full shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-2xl font-bold">{pkg.name}</CardTitle>
-                      <p className="text-xl text-green-600 font-semibold">
-                        R{Math.round(pkg.price * 1.15).toLocaleString()} <span className="text-sm text-gray-500">/Month (incl. 15% VAT)</span>
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-700 whitespace-pre-line">{pkg.description}</p>
-                      <Button
-                        onClick={() => handleAddToCart(pkg)}
-                        className="mt-4 w-full bg-blue-600 hover:bg-blue-700"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" /> Buy Now
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-
-            {/* Carousel controls */}
-            <div className="absolute inset-0 flex items-center justify-between px-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredServices.length) % featuredServices.length)}
-              >Prev</Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredServices.length)}
-              >Next</Button>
-            </div>
-          </div>
-        )}
-
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Input
-              placeholder="Search services..."
-              value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-            />
-            <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {serviceCategories.map(category => (
-                  <SelectItem key={category.id} value={category.id} className="capitalize">{category.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Services Grid */}
-        {Object.entries(groupedServices).map(([category, services]) => (
-          <section key={category} className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">{category}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map(service => (
-                <Card key={service.code}>
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">{service.name}</CardTitle>
-                    <p className="text-sm text-gray-500">Code: {service.code}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-4 whitespace-pre-line">{service.description}</p>
-                    <div className="flex justify-between items-center">
-                      {service.price ? (
-                        <div>
-                          <span className="text-lg font-bold text-green-600">
-                            R{Math.round(service.price * 1.15).toLocaleString()}
-                          </span>
-                          <p className="text-xs text-gray-500">incl. 15% VAT</p>
-                        </div>
-                      ) : (
-                        <span className="text-amber-600 font-medium">Quote Required</span>
-                      )}
-                      {service.price && (
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => handleAddToCart(service)}>
-                          <ShoppingCart className="h-4 w-4 mr-2" /> Buy Now
-                        </Button>
-                      )}
+        {/* Monthly Services Featured Section */}
+        {monthlyServices.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 text-center">Monthly Service Packages</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {monthlyServices.map((service, index) => (
+                <Card key={service.id} className="relative border-2 border-primary/20 shadow-lg">
+                  {index === 1 && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                      </span>
                     </div>
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">{service.name}</CardTitle>
+                    <div className="text-3xl font-bold text-primary">
+                      R{Math.round(service.price * 1.15).toLocaleString()}
+                      <span className="text-sm font-normal text-muted-foreground">/month</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-sm text-muted-foreground mb-6 whitespace-pre-line">
+                      {service.description}
+                    </p>
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Subscribe Now
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </section>
-        ))}
+          </div>
+        )}
+
+        {/* Tabs for Services and Products */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="monthly" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Monthly Plans
+            </TabsTrigger>
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Wrench className="h-4 w-4" />
+              One-time Services
+            </TabsTrigger>
+            <TabsTrigger value="products" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Products
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Search and Filter */}
+          <div className="bg-card rounded-lg shadow p-6 mb-8">
+            <div className="flex flex-col md:flex-row gap-4">
+              <Input
+                placeholder={`Search ${activeTab}...`}
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              />
+              <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category} className="capitalize">
+                      {category.replace(/-/g, ' ')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <TabsContent value="monthly">
+            <div className="text-center text-muted-foreground">
+              Monthly services are displayed in the featured section above.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="services">
+            {currentItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {currentItems.map((service) => (
+                  <Card key={service.id} className="h-full flex flex-col">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-semibold line-clamp-2">{service.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground capitalize">{service.category.replace(/-/g, ' ')}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col">
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
+                        {service.description}
+                      </p>
+                      <div className="flex justify-between items-center mt-auto">
+                        {service.price ? (
+                          <div>
+                            <span className="text-lg font-bold text-primary">
+                              R{Math.round(service.price * 1.15).toLocaleString()}
+                            </span>
+                            <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
+                          </div>
+                        ) : (
+                          <span className="text-amber-600 font-medium">Quote Required</span>
+                        )}
+                        {service.price && (
+                          <Button size="sm" onClick={() => handleAddToCart(service)}>
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Add
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-12">
+                No services found matching your criteria.
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="products">
+            {currentItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {currentItems.map((product) => (
+                  <Card key={product.id} className="h-full flex flex-col">
+                    <CardHeader>
+                      {product.image_url && (
+                        <div className="w-full h-32 bg-muted rounded-md mb-4 flex items-center justify-center">
+                          <Package className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <CardTitle className="text-lg font-semibold line-clamp-2">{product.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground capitalize">{product.category.replace(/-/g, ' ')}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col">
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
+                        {product.description}
+                      </p>
+                      <div className="flex justify-between items-center mt-auto">
+                        {product.price ? (
+                          <div>
+                            <span className="text-lg font-bold text-primary">
+                              R{Math.round(product.price * 1.15).toLocaleString()}
+                            </span>
+                            <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
+                          </div>
+                        ) : (
+                          <span className="text-amber-600 font-medium">Quote Required</span>
+                        )}
+                        {product.price && (
+                          <Button size="sm" onClick={() => handleAddToCart(product)}>
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Add
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-12">
+                No products found matching your criteria.
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center space-x-2 mt-12">
-            <Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} variant="outline" size="sm">Previous</Button>
+            <Button 
+              onClick={() => setCurrentPage(currentPage - 1)} 
+              disabled={currentPage === 1} 
+              variant="outline" 
+              size="sm"
+            >
+              Previous
+            </Button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) pageNum = i + 1;
@@ -242,19 +374,33 @@ const Pricing = () => {
               else pageNum = currentPage - 2 + i;
 
               return (
-                <Button key={pageNum} onClick={() => setCurrentPage(pageNum)} variant={currentPage === pageNum ? "default" : "outline"} size="sm">
+                <Button 
+                  key={pageNum} 
+                  onClick={() => setCurrentPage(pageNum)} 
+                  variant={currentPage === pageNum ? "default" : "outline"} 
+                  size="sm"
+                >
                   {pageNum}
                 </Button>
               );
             })}
-            <Button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} variant="outline" size="sm">Next</Button>
+            <Button 
+              onClick={() => setCurrentPage(currentPage + 1)} 
+              disabled={currentPage === totalPages} 
+              variant="outline" 
+              size="sm"
+            >
+              Next
+            </Button>
           </div>
         )}
 
-        <div className="text-center text-gray-500 text-sm mt-4">
-          Showing {startIndex + 1}-{Math.min(endIndex, filteredServices.length)} of {filteredServices.length} services
-          {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
-        </div>
+        {filteredData.length > 0 && (
+          <div className="text-center text-muted-foreground text-sm mt-4">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length} {activeTab}
+            {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+          </div>
+        )}
       </div>
     </div>
   );
