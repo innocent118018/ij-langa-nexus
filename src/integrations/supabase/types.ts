@@ -1646,6 +1646,24 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_companies: {
+        Args: { user_uuid: string }
+        Returns: {
+          company_name: string
+          id: string
+          registration_number: string
+          status: string
+        }[]
+      }
+      get_user_recent_activity: {
+        Args: { limit_count?: number; user_uuid: string }
+        Returns: {
+          activity_type: string
+          created_at: string
+          description: string
+          related_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -313,7 +313,7 @@ const Pricing = () => {
                 {currentItems.map((product) => (
                   <Card key={product.id} className="h-full flex flex-col">
                     <CardHeader>
-                      {product.image_url && (
+                      {(product as ProductData).image_url && (
                         <div className="w-full h-32 bg-muted rounded-md mb-4 flex items-center justify-center">
                           <Package className="h-8 w-8 text-muted-foreground" />
                         </div>
