@@ -177,13 +177,19 @@ const Pricing = () => {
           </p>
         </div>
 
-        {/* Monthly Services Featured Section */}
-        {monthlyServices.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-center">Monthly Service Packages</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {monthlyServices.map((service, index) => (
-                <Card key={service.id} className="relative border-2 border-primary/20 shadow-lg">
+        {/* Monthly Compliance Packages */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-center">Monthly Compliance Packages</h2>
+          <p className="text-center text-muted-foreground mb-8">
+            Pay one amount per month and know that all basic required returns are taken care of when they come due during the year.
+          </p>
+          
+          {/* Compliance Packages */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">For All Companies (2026 Financial Year)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {services.filter(service => service.category === 'monthly-compliance').slice(0, 3).map((service, index) => (
+                <Card key={service.id} className="relative border-2 border-primary/20 shadow-lg h-full">
                   {index === 1 && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
@@ -192,31 +198,250 @@ const Pricing = () => {
                     </div>
                   )}
                   <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold">{service.name}</CardTitle>
+                    <CardTitle className="text-xl font-bold">
+                      {service.name.replace(' Compliance Package', '')}
+                    </CardTitle>
                     <div className="text-3xl font-bold text-primary">
-                      R{Math.round(service.price * 1.15).toLocaleString()}
-                      <span className="text-sm font-normal text-muted-foreground">/month</span>
+                      From R{Math.round(service.price * 1.15).toLocaleString()}
+                      <span className="text-sm font-normal text-muted-foreground">/Month</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
                   </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-sm text-muted-foreground mb-6 whitespace-pre-line">
-                      {service.description}
-                    </p>
+                  <CardContent className="flex-1">
+                    <div className="space-y-3 mb-6">
+                      {service.name.includes('Beginner') && (
+                        <>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Bookkeeping - Once A Month</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Dedicated Account Manager</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Full Payroll Service (up to 10 employees)</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Sage Accounting Online Subscription</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Up to 100 Transactions P/M</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> VAT Returns</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> All Tax Returns</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> CIPC Services</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Financial Statements</div>
+                        </>
+                      )}
+                      {service.name.includes('Enhanced') && (
+                        <>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Bookkeeping - Once A Week</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Dedicated Account Manager</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Full Payroll Service (up to 20 employees)</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Sage Accounting Online Subscription</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Up to 200 Transactions P/M</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Supplier Invoice Capturing</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> VAT Returns</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> 1 Performance Meeting Per Year</div>
+                        </>
+                      )}
+                      {service.name.includes('Ultimate') && (
+                        <>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Bookkeeping - Once a Week</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Dedicated Account Manager</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Full Payroll Service (up to 30 employees)</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Sage Accounting Online Subscription</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Up to 300 Transactions P/M</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> Supplier Invoice Capturing</div>
+                          <div className="flex items-center gap-2"><span className="text-green-500">✓</span> 2 Performance Meetings Per Year</div>
+                        </>
+                      )}
+                    </div>
                     <Button
-                      onClick={() => handleAddToCart(service)}
+                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
                       className="w-full"
                       size="lg"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      Subscribe Now
+                      Join Now - Monthly Subscription
                     </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
-        )}
+
+          {/* Individual Tax Returns */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Individual Tax Returns</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {services.filter(service => service.category === 'individual-tax').map((service) => (
+                <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">{service.name}</CardTitle>
+                    <div className="text-3xl font-bold text-primary">
+                      R{Math.round(service.price * 1.15).toLocaleString()}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                    <Button
+                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Join Now - Monthly Billing
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Business Growth Plans */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Run & Grow Your Business</h3>
+            <p className="text-center text-muted-foreground mb-8">
+              Select the plan that's right for your business. You can always upgrade or downgrade anytime.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {services.filter(service => service.category === 'business-growth').map((service, index) => (
+                <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">
+                      {service.name.replace(' Business Plan', '')}
+                    </CardTitle>
+                    <div className="text-3xl font-bold text-primary">
+                      R{Math.round(service.price * 1.15).toLocaleString()}
+                      <span className="text-sm font-normal text-muted-foreground">/month</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                    <Button
+                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
+                      className="w-full"
+                      size="lg"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Join Now - Monthly Subscription
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Comparison Table */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Compare Our Plans</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300 bg-white rounded-lg shadow-lg">
+                <thead>
+                  <tr className="bg-primary text-primary-foreground">
+                    <th className="border border-gray-300 p-4 text-left font-semibold">Services</th>
+                    <th className="border border-gray-300 p-4 text-center font-semibold">
+                      <div>STARTS</div>
+                      <div className="text-sm font-normal mt-2">
+                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                          Select Plan →
+                        </Button>
+                      </div>
+                    </th>
+                    <th className="border border-gray-300 p-4 text-center font-semibold">
+                      <div>ACCURATE</div>
+                      <div className="text-sm font-normal mt-2">
+                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                          Select Plan →
+                        </Button>
+                      </div>
+                    </th>
+                    <th className="border border-gray-300 p-4 text-center font-semibold">
+                      <div>GO BRAVE</div>
+                      <div className="text-sm font-normal mt-2">
+                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                          Select Plan →
+                        </Button>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-gray-50">
+                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">CIPC Services</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">CIPC Annual Return reminders</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">CIPC Beneficial Ownership register</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Company Changes/Updates</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Tax Services</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Submit Company Income Tax Return (ITR14)</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">VAT return (VAT201) review and submission</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-yellow-600">R500 per return</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">PAYE return (EMP201) review and submission</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-yellow-600">R300 per return</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Accounting Services</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Xero Accounting Software</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Monthly bookkeeping by experts</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-yellow-600">Limited to 20 transactions</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Payroll Services</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">SimplePay payroll software</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Monthly Payroll Processing</td>
+                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
+                    <td className="border border-gray-300 p-3 text-center text-yellow-600">Limited to 3 employees</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Funding Services</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-gray-300 p-3">Pre-approved purchase order facility</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         {/* Tabs for Services and Products */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
