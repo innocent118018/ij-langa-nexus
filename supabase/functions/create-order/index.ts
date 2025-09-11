@@ -108,6 +108,20 @@ serve(async (req) => {
       console.error('Failed to send order notification:', emailError);
     }
 
+    // Create in-app notification for the user
+    try {
+      await supabaseClient.functions.invoke('create-notification', {
+        body: {
+          user_id: user.id,
+          title: 'Order Created Successfully',
+          message: `Your order for ${service.name} has been created and is being processed. Order total: R${totalWithVat.toFixed(2)}`,
+          type: 'order'
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to create in-app notification:', notificationError);
+    }
+
     return new Response(JSON.stringify({
       success: true,
       order: {

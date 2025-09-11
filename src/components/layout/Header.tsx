@@ -5,8 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { CartButton } from '@/components/cart/CartButton';
 import { TaxCalculator } from '@/components/ui/TaxCalculator';
+import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export const Header = () => {
+  const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
@@ -152,14 +156,25 @@ export const Header = () => {
             </Link>
             <CartButton />
             <TaxCalculator />
-            <Link to="/auth">
-              <Button size="sm">Login</Button>
-            </Link>
+            
+            {/* Authentication Section */}
+            {user && (
+              <>
+                <NotificationBell />
+                <LogoutButton size="sm" />
+              </>
+            )}
+            {!user && !loading && (
+              <Link to="/auth">
+                <Button size="sm">Login</Button>
+              </Link>
+            )}
           </nav>
 
           {/* Mobile Navigation Button */}
           <div className="md:hidden flex items-center space-x-2">
             <CartButton />
+            {user && <NotificationBell />}
             <Button
               variant="ghost"
               size="sm"
@@ -244,9 +259,22 @@ export const Header = () => {
               >
                 Contact
               </Link>
-              <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                <Button size="sm" className="w-full">Login</Button>
-              </Link>
+              
+              {/* Mobile Authentication Section */}
+              {user && (
+                <div className="pt-2 border-t border-gray-200">
+                  <LogoutButton 
+                    size="sm" 
+                    variant="outline"
+                    className="w-full"
+                  />
+                </div>
+              )}
+              {!user && !loading && (
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                  <Button size="sm" className="w-full">Login</Button>
+                </Link>
+              )}
             </nav>
           </div>
         )}
