@@ -40,18 +40,22 @@ export const QuoteRequestModal: React.FC<QuoteRequestModalProps> = ({
 
     try {
       // Send email notification
-      const emailResponse = await supabase.functions.invoke('send-form-email', {
+      const emailResponse = await supabase.functions.invoke('send-notification-email', {
         body: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
-          message: `Service: ${serviceName} (${serviceCode})
+          type: 'contact',
+          data: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            company: formData.company,
+            service_type: `Quote Request: ${serviceName}`,
+            message: `Service: ${serviceName} (${serviceCode})
 Urgency: ${formData.urgency}
 Requirements: ${formData.requirements}
 Additional Info: ${formData.additionalInfo}`,
-          subject: `Quote Request: ${serviceName}`,
-          formType: 'Quote Request',
+            budget_range: formData.urgency,
+            timeline: formData.urgency
+          }
         }
       });
 

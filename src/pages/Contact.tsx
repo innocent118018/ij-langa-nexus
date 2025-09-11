@@ -42,15 +42,19 @@ export default function Contact() {
 
     try {
       // Send email notification
-      const emailResponse = await supabase.functions.invoke('send-form-email', {
+      const emailResponse = await supabase.functions.invoke('send-notification-email', {
         body: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
-          message: formData.message,
-          subject: `Contact Form: ${formData.service_type || 'General Inquiry'}`,
-          formType: 'Contact Form',
+          type: 'contact',
+          data: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            company: formData.company,
+            service_type: formData.service_type,
+            message: formData.message,
+            budget_range: formData.budget_range,
+            timeline: formData.timeline
+          }
         }
       });
 
