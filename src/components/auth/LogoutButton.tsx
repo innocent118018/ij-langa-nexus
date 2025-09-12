@@ -41,8 +41,8 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
         description: "You have been successfully logged out.",
       });
 
-      // Redirect to home page
-      navigate('/');
+      // Redirect to auth page
+      window.location.href = 'https://ijlanga.co.za/auth';
     } catch (error) {
       console.error('Logout error:', error);
       toast({
