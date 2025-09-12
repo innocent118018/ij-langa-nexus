@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Send, Plus, Reply, User, Clock, CheckCircle2 } from 'lucide-react';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 
 interface Message {
   id: string;
@@ -97,6 +98,23 @@ const Messages = () => {
         .single();
       
       if (error) throw error;
+
+      // Send email notification
+      await supabase.functions.invoke('send-message-email', {
+        body: {
+          type: 'new_message',
+          data: {
+            senderName: user!.user_metadata?.full_name || user!.email,
+            senderEmail: user!.email,
+            recipientName: adminUsers.find(u => u.id === messageData.recipient_id)?.full_name || 'Admin',
+            recipientEmail: adminUsers.find(u => u.id === messageData.recipient_id)?.email || 'info@ijlanga.co.za',
+            subject: messageData.subject,
+            content: messageData.content,
+            messageId: data.id
+          }
+        }
+      });
+
       return data;
     },
     onSuccess: () => {
@@ -170,7 +188,8 @@ const Messages = () => {
   const unreadCount = messages.filter(m => !m.is_read && m.recipient_id === user.id).length;
 
   return (
-    <div className="space-y-6">
+    <DashboardWrapper>
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Messages & Support</h1>
@@ -353,7 +372,8 @@ const Messages = () => {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+      </div>
+    </DashboardWrapper>
   );
 };
 

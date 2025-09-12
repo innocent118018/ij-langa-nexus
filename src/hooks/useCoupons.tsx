@@ -28,17 +28,17 @@ export const useCoupons = () => {
 
     try {
       const { data, error } = await supabase
-        .from('user_coupons')
+        .from('user_coupons' as any)
         .select('*')
         .eq('user_id', user.id)
         .eq('used', false)
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (data && !error) {
-        setAvailableCoupon(data);
+        setAvailableCoupon(data as any);
       }
     } catch (error) {
       // No available coupon, which is fine
@@ -54,7 +54,7 @@ export const useCoupons = () => {
       expiresAt.setMonth(expiresAt.getMonth() + 3); // Expires in 3 months
 
       const { error } = await supabase
-        .from('user_coupons')
+        .from('user_coupons' as any)
         .insert({
           user_id: user.id,
           code: couponCode,
@@ -80,7 +80,7 @@ export const useCoupons = () => {
 
     try {
       const { error } = await supabase
-        .from('user_coupons')
+        .from('user_coupons' as any)
         .update({ 
           used: true, 
           used_at: new Date().toISOString(),

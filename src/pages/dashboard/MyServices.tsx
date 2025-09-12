@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Calendar, Clock, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
+import { PaymentButton } from '@/components/payments/PaymentButton';
+import { useCoupons } from '@/hooks/useCoupons';
 
 interface Service {
   id: string;
@@ -27,6 +30,7 @@ interface Order {
 
 const MyServices = () => {
   const { user, loading } = useAuth();
+  const { availableCoupon } = useCoupons();
 
   // Fetch user's service orders
   const { data: orders = [], isLoading } = useQuery({
@@ -106,7 +110,21 @@ const MyServices = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <DashboardWrapper>
+      {availableCoupon && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <h3 className="font-semibold text-green-800">You have a 5% discount coupon!</h3>
+              <p className="text-sm text-green-600">
+                Code: <strong>{availableCoupon.code}</strong> - Will be automatically applied to your next order
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Services</h1>
@@ -168,6 +186,15 @@ const MyServices = () => {
                         R{order.total_amount?.toFixed(2) || '0.00'}
                       </div>
                     </div>
+                    {order.status === 'pending' && (
+                      <div className="pt-3">
+                        <PaymentButton
+                          invoiceId={order.id}
+                          amount={order.total_amount || 0}
+                          description={`Payment for ${order.services?.name || 'Service'}`}
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -222,7 +249,8 @@ const MyServices = () => {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </DashboardWrapper>
   );
 };
 

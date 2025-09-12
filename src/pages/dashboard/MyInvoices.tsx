@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/hooks/useApiClient';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
+import { PaymentButton } from '@/components/payments/PaymentButton';
 import { 
   FileText, 
   DollarSign, 
@@ -102,14 +104,13 @@ const MyInvoices = () => {
   };
 
   const handlePayInvoice = (invoice: Invoice) => {
-    // This would typically redirect to a payment gateway
+    // Payment will be handled by PaymentButton component
     console.log('Pay invoice:', invoice.id);
-    // For now, we'll just show an alert
-    alert(`Payment for invoice ${invoice.reference} would be processed here.`);
   };
 
   return (
-    <div className="space-y-6">
+    <DashboardWrapper>
+      <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">My Invoices</h1>
@@ -273,12 +274,11 @@ const MyInvoices = () => {
                       Download
                     </Button>
                     {invoice.balance_due && invoice.balance_due > 0 && (
-                      <Button 
-                        size="sm"
-                        onClick={() => handlePayInvoice(invoice)}
-                      >
-                        Pay Now
-                      </Button>
+                      <PaymentButton
+                        invoiceId={invoice.id}
+                        amount={invoice.balance_due}
+                        description={`Payment for Invoice ${invoice.reference}`}
+                      />
                     )}
                   </div>
                 </div>
@@ -287,7 +287,8 @@ const MyInvoices = () => {
           ))
         )}
       </div>
-    </div>
+      </div>
+    </DashboardWrapper>
   );
 };
 

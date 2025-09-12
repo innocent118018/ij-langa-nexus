@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,9 +8,18 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Package, Eye, Download, Mail } from 'lucide-react';
 import { PaymentButton } from '@/components/payments/PaymentButton';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
+import { OrderDetailsModal } from '@/components/orders/OrderDetailsModal';
+import { ContactSupportModal } from '@/components/orders/ContactSupportModal';
+import { useCoupons } from '@/hooks/useCoupons';
 
 const Orders = () => {
   const { user, loading } = useAuth();
+  const { availableCoupon, createCouponForNextOrder } = useCoupons();
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showContactSupport, setShowContactSupport] = useState(false);
+  const [supportOrder, setSupportOrder] = useState<any>(null);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['user-orders', user?.id],
@@ -68,8 +77,43 @@ const Orders = () => {
     });
   };
 
+  // Generate coupon for completed orders
+  React.useEffect(() => {
+    if (orders.length > 0) {
+      const hasCompletedOrder = orders.some(order => order.status === 'completed');
+      if (hasCompletedOrder && !availableCoupon) {
+        // Only create if user doesn't already have a coupon
+        createCouponForNextOrder();
+      }
+    }
+  }, [orders, availableCoupon, createCouponForNextOrder]);
+
+  const handleViewOrder = (order: any) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
+  const handleContactSupport = (order: any) => {
+    setSupportOrder(order);
+    setShowContactSupport(true);
+  };
+
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-6 py-8">
+    <DashboardWrapper>
+      {availableCoupon && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <h3 className="font-semibold text-green-800">You have a 5% discount coupon!</h3>
+              <p className="text-sm text-green-600">
+                Code: <strong>{availableCoupon.code}</strong> - Will be automatically applied to your next order
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="space-y-8 max-w-7xl mx-auto px-6 py-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">My Orders</h1>
         <p className="text-muted-foreground">
@@ -133,11 +177,11 @@ const Orders = () => {
                         description={`Payment for ${order.services?.name || 'Service'}`}
                       />
                     )}
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)}>
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleContactSupport(order)}>
                       <Mail className="h-4 w-4 mr-2" />
                       Contact Support
                     </Button>
@@ -159,7 +203,22 @@ const Orders = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+
+      {/* Order Details Modal */}
+      <OrderDetailsModal
+        order={selectedOrder}
+        isOpen={showOrderDetails}
+        onClose={() => setShowOrderDetails(false)}
+      />
+
+      {/* Contact Support Modal */}
+      <ContactSupportModal
+        order={supportOrder}
+        isOpen={showContactSupport}
+        onClose={() => setShowContactSupport(false)}
+      />
+    </DashboardWrapper>
   );
 };
 

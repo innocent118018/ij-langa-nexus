@@ -1550,6 +1550,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_percentage: number
+          expires_at: string
+          id: string
+          order_id: string | null
+          updated_at: string
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_percentage?: number
+          expires_at: string
+          id?: string
+          order_id?: string | null
+          updated_at?: string
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_percentage?: number
+          expires_at?: string
+          id?: string
+          order_id?: string | null
+          updated_at?: string
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_coupons_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           created_at: string | null

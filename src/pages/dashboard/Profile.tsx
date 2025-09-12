@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,7 +91,7 @@ const Profile = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardWrapper>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
@@ -256,7 +256,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </DashboardWrapper>
   );
 };
 
