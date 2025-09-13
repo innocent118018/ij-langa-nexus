@@ -12,7 +12,6 @@ import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 import { OrderDetailsModal } from '@/components/orders/OrderDetailsModal';
 import { ContactSupportModal } from '@/components/orders/ContactSupportModal';
 import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
-import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
 import { useCoupons } from '@/hooks/useCoupons';
 
 const Orders = () => {
@@ -172,7 +171,7 @@ const Orders = () => {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2 pt-4">
+                  <div className="button-group pt-4">
                     {order.status === 'pending' && (
                       <PaymentButton
                         invoiceId={order.id}
