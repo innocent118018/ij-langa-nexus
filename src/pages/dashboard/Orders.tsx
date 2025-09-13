@@ -12,6 +12,7 @@ import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 import { OrderDetailsModal } from '@/components/orders/OrderDetailsModal';
 import { ContactSupportModal } from '@/components/orders/ContactSupportModal';
 import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
+import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
 import { useCoupons } from '@/hooks/useCoupons';
 
 const Orders = () => {
