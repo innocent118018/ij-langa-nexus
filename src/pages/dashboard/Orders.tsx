@@ -11,12 +11,14 @@ import { PaymentButton } from '@/components/payments/PaymentButton';
 import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 import { OrderDetailsModal } from '@/components/orders/OrderDetailsModal';
 import { ContactSupportModal } from '@/components/orders/ContactSupportModal';
+import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
 import { useCoupons } from '@/hooks/useCoupons';
 
 const Orders = () => {
   const { user, loading } = useAuth();
   const { availableCoupon, createCouponForNextOrder } = useCoupons();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [showContactSupport, setShowContactSupport] = useState(false);
   const [supportOrder, setSupportOrder] = useState<any>(null);
@@ -169,7 +171,7 @@ const Orders = () => {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-4">
+                  <div className="flex flex-wrap gap-2 pt-4">
                     {order.status === 'pending' && (
                       <PaymentButton
                         invoiceId={order.id}
@@ -177,14 +179,34 @@ const Orders = () => {
                         description={`Payment for ${order.services?.name || 'Service'}`}
                       />
                     )}
-                    <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewOrder(order)}
+                    >
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleContactSupport(order)}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleContactSupport(order)}
+                    >
                       <Mail className="h-4 w-4 mr-2" />
                       Contact Support
                     </Button>
+                    {order.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setIsCancelModalOpen(true);
+                        }}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -217,6 +239,20 @@ const Orders = () => {
         order={supportOrder}
         isOpen={showContactSupport}
         onClose={() => setShowContactSupport(false)}
+      />
+
+      {/* Cancel Order Modal */}
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => {
+          setIsCancelModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        orderId={selectedOrder?.id || ''}
+        orderNumber={selectedOrder?.id}
+        onOrderCancelled={() => {
+          window.location.reload();
+        }}
       />
     </DashboardWrapper>
   );

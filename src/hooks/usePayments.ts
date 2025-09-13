@@ -23,34 +23,36 @@ export const usePayments = () => {
     setLoading(true);
     
     try {
-      // TODO: Replace with actual iKhokha API integration
-      // For now, simulate the payment flow
+      const { supabase } = await import('@/integrations/supabase/client');
       
-      // In a real implementation, you would:
-      // 1. Call your backend API to create a payment record
-      // 2. Your backend calls iKhokha API to create checkout session
-      // 3. Return the hosted checkout URL to redirect user
-      
-      const response = await fetch('/api/payments/initiate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // or however you handle auth
-        },
-        body: JSON.stringify({
-          invoiceId,
-          amount,
-          description,
-          returnUrl: `${window.location.origin}/dashboard/payments/success`,
-          cancelUrl: `${window.location.origin}/dashboard/payments/cancel`
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to initiate payment');
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Please login to make payments');
       }
 
-      const data = await response.json();
+      // Call Supabase edge function for payment creation
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          orderId: invoiceId,
+          amount: amount,
+          description: description || 'Payment',
+          customerEmail: session.user.email || '',
+          externalTransactionID: `inv-${invoiceId}-${Date.now()}`
+        },
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) {
+        console.error('Payment creation error:', error);
+        throw new Error(error.message || 'Failed to create payment');
+      }
+
+      if (!data.success || !data.paylinkUrl) {
+        throw new Error('Payment link creation failed');
+      }
       
       toast({
         title: "Payment Initiated",
@@ -59,7 +61,7 @@ export const usePayments = () => {
 
       return {
         success: true,
-        paymentUrl: data.paymentUrl,
+        paymentUrl: data.paylinkUrl,
         transactionId: data.transactionId
       };
 

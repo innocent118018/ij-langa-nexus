@@ -161,6 +161,9 @@ export const Header = () => {
             {user && (
               <>
                 <NotificationBell />
+                <Link to="/dashboard">
+                  <Button size="sm" variant="outline">Dashboard</Button>
+                </Link>
                 <LogoutButton size="sm" />
               </>
             )}
@@ -262,7 +265,12 @@ export const Header = () => {
               
               {/* Mobile Authentication Section */}
               {user && (
-                <div className="pt-2 border-t border-gray-200">
+                <div className="pt-2 border-t border-gray-200 space-y-2">
+                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                    <Button size="sm" variant="outline" className="w-full">
+                      Dashboard
+                    </Button>
+                  </Link>
                   <LogoutButton 
                     size="sm" 
                     variant="outline"
