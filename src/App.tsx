@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
+import { WhatsAppChat } from '@/components/whatsapp/WhatsAppChat';
 import { Layout } from "@/components/layout/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 // Import all pages

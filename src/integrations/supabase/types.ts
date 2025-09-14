@@ -1684,6 +1684,178 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_business_settings: {
+        Row: {
+          access_token_encrypted: string | null
+          business_phone_number_id: string
+          created_at: string
+          display_name: string | null
+          id: string
+          phone_number: string
+          quality_rating: string | null
+          updated_at: string
+          verified_name: string | null
+          verify_token: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          business_phone_number_id: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone_number: string
+          quality_rating?: string | null
+          updated_at?: string
+          verified_name?: string | null
+          verify_token?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          business_phone_number_id?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          phone_number?: string
+          quality_rating?: string | null
+          updated_at?: string
+          verified_name?: string | null
+          verify_token?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      whatsapp_messages: {
+        Row: {
+          content: string | null
+          created_at: string
+          direction: string
+          from_number: string
+          id: string
+          invoice_id: string | null
+          media_url: string | null
+          message_id: string | null
+          message_type: string
+          metadata: Json | null
+          order_id: string | null
+          status: string
+          timestamp: string
+          to_number: string
+          updated_at: string
+          user_id: string | null
+          wa_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          direction: string
+          from_number: string
+          id?: string
+          invoice_id?: string | null
+          media_url?: string | null
+          message_id?: string | null
+          message_type?: string
+          metadata?: Json | null
+          order_id?: string | null
+          status?: string
+          timestamp?: string
+          to_number: string
+          updated_at?: string
+          user_id?: string | null
+          wa_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          direction?: string
+          from_number?: string
+          id?: string
+          invoice_id?: string | null
+          media_url?: string | null
+          message_id?: string | null
+          message_type?: string
+          metadata?: Json | null
+          order_id?: string | null
+          status?: string
+          timestamp?: string
+          to_number?: string
+          updated_at?: string
+          user_id?: string | null
+          wa_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_templates: {
+        Row: {
+          button_text: string | null
+          button_type: string | null
+          category: string
+          created_at: string
+          footer_text: string | null
+          header_content: string | null
+          header_type: string | null
+          id: string
+          language: string
+          name: string
+          status: string
+          template_body: string
+          updated_at: string
+        }
+        Insert: {
+          button_text?: string | null
+          button_type?: string | null
+          category: string
+          created_at?: string
+          footer_text?: string | null
+          header_content?: string | null
+          header_type?: string | null
+          id?: string
+          language?: string
+          name: string
+          status?: string
+          template_body: string
+          updated_at?: string
+        }
+        Update: {
+          button_text?: string | null
+          button_type?: string | null
+          category?: string
+          created_at?: string
+          footer_text?: string | null
+          header_content?: string | null
+          header_type?: string | null
+          id?: string
+          language?: string
+          name?: string
+          status?: string
+          template_body?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1691,7 +1863,7 @@ export type Database = {
     Functions: {
       auto_cancel_expired_orders: {
         Args: Record<PropertyKey, never>
-        Returns: number
+        Returns: undefined
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
