@@ -91,6 +91,14 @@ import ExportCustomsPolicy from "./pages/policies/ExportCustomsPolicy";
 
 // Service pages
 import ServicePage from "./pages/services/ServicePage";
+import CompliancePackages from './pages/services/CompliancePackages';
+import TaxReturns from './pages/services/TaxReturns';
+import BusinessPlans from './pages/services/BusinessPlans';
+import OneTimeServices from './pages/services/OneTimeServices';
+import AccountingServices from './pages/services/AccountingServices';
+import TaxationServices from './pages/services/TaxationServices';
+import PayrollServices from './pages/services/PayrollServices';
+import SecretarialServices from './pages/services/SecretarialServices';
 
 import "./App.css";
 
@@ -105,6 +113,7 @@ function App() {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <WhatsAppChat />
               <Routes>
                 {/* Public routes with Layout */}
                 <Route path="/" element={<Layout><Index /></Layout>} />
@@ -137,6 +146,18 @@ function App() {
 
                 {/* Service routes with Layout */}
                 <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />
+                
+                {/* New Service Category Pages */}
+                <Route path="/services/accounting" element={<Layout><AccountingServices /></Layout>} />
+                <Route path="/services/taxation" element={<Layout><TaxationServices /></Layout>} />
+                <Route path="/services/payroll" element={<Layout><PayrollServices /></Layout>} />
+                <Route path="/services/secretarial" element={<Layout><SecretarialServices /></Layout>} />
+                
+                {/* Service Package Pages */}
+                <Route path="/services/compliance-packages" element={<Layout><CompliancePackages /></Layout>} />
+                <Route path="/services/tax-returns" element={<Layout><TaxReturns /></Layout>} />
+                <Route path="/services/business-plans" element={<Layout><BusinessPlans /></Layout>} />
+                <Route path="/services/one-time-services" element={<Layout><OneTimeServices /></Layout>} />
 
                 {/* Dashboard routes with DashboardLayout only (no Layout wrapper) */}
                 <Route path="/dashboard" element={
