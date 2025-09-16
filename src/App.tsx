@@ -344,14 +344,6 @@ function App() {
                   </DashboardLayout>
                 } />
 
-                <Route path="/tax-calculator" element={<TaxCalculator />} />
-
-                <Route path="/dashboard/secretarial" element={
-                  <DashboardLayout>
-                    <SecretarialSoftware />
-                  </DashboardLayout>
-                } />
-
                 {/* Payment routes with Layout */}
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/payment-cancel" element={<PaymentCancel />} />
