@@ -100,6 +100,14 @@ import TaxationServices from './pages/services/TaxationServices';
 import PayrollServices from './pages/services/PayrollServices';
 import SecretarialServices from './pages/services/SecretarialServices';
 
+// ClerkIQ pages
+import ClerkIQ from './pages/ClerkIQ';
+import ClerkIQPricing from './pages/ClerkIQPricing';
+import BankStatements from './pages/clerkiq/BankStatements';
+import TeamManagement from './pages/clerkiq/features/TeamManagement';
+import BillingCredits from './pages/clerkiq/features/BillingCredits';
+import SecurityMFA from './pages/clerkiq/features/SecurityMFA';
+
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -152,12 +160,24 @@ function App() {
                 <Route path="/services/taxation" element={<Layout><TaxationServices /></Layout>} />
                 <Route path="/services/payroll" element={<Layout><PayrollServices /></Layout>} />
                 <Route path="/services/secretarial" element={<Layout><SecretarialServices /></Layout>} />
+
+                {/* ClerkIQ Routes */}
+                <Route path="/clerkiq" element={<Layout><ClerkIQ /></Layout>} />
+                <Route path="/clerkiq/pricing" element={<Layout><ClerkIQPricing /></Layout>} />
+                <Route path="/clerkiq/bank-statements" element={<Layout><BankStatements /></Layout>} />
+                <Route path="/clerkiq/features/bank-statements" element={<Layout><BankStatements /></Layout>} />
+                <Route path="/clerkiq/features/team-management" element={<Layout><TeamManagement /></Layout>} />
+                <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
+                <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
                 
                 {/* Service Package Pages */}
                 <Route path="/services/compliance-packages" element={<Layout><CompliancePackages /></Layout>} />
                 <Route path="/services/tax-returns" element={<Layout><TaxReturns /></Layout>} />
                 <Route path="/services/business-plans" element={<Layout><BusinessPlans /></Layout>} />
                 <Route path="/services/one-time-services" element={<Layout><OneTimeServices /></Layout>} />
+                
+                {/* ClerkIQ Bank Statement Processing */}
+                <Route path="/clerkiq/bank-statements/:paymentSuccess" element={<Layout><BankStatements /></Layout>} />
 
                 {/* Dashboard routes with DashboardLayout only (no Layout wrapper) */}
                 <Route path="/dashboard" element={
@@ -343,6 +363,15 @@ function App() {
                     <SecretarialSoftware />
                   </DashboardLayout>
                 } />
+
+                {/* ClerkIQ Routes */}
+                <Route path="/clerkiq" element={<Layout><ClerkIQ /></Layout>} />
+                <Route path="/clerkiq/pricing" element={<Layout><ClerkIQPricing /></Layout>} />
+                <Route path="/clerkiq/bank-statements" element={<Layout><BankStatements /></Layout>} />
+                <Route path="/clerkiq/features/bank-statements" element={<Layout><BankStatements /></Layout>} />
+                <Route path="/clerkiq/features/team-management" element={<Layout><TeamManagement /></Layout>} />
+                <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
+                <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
 
                 {/* Payment routes with Layout */}
                 <Route path="/payment-success" element={<PaymentSuccess />} />

@@ -53,6 +53,54 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_statements: {
+        Row: {
+          created_at: string
+          credits_used: number
+          extracted_data: Json | null
+          file_path: string | null
+          filename: string
+          id: string
+          pages_processed: number
+          processing_completed_at: string | null
+          processing_started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          verification_results: Json | null
+        }
+        Insert: {
+          created_at?: string
+          credits_used?: number
+          extracted_data?: Json | null
+          file_path?: string | null
+          filename: string
+          id?: string
+          pages_processed?: number
+          processing_completed_at?: string | null
+          processing_started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verification_results?: Json | null
+        }
+        Update: {
+          created_at?: string
+          credits_used?: number
+          extracted_data?: Json | null
+          file_path?: string | null
+          filename?: string
+          id?: string
+          pages_processed?: number
+          processing_completed_at?: string | null
+          processing_started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verification_results?: Json | null
+        }
+        Relationships: []
+      }
       board_meetings: {
         Row: {
           action_items: Json | null
@@ -599,6 +647,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      clerkiq_credits: {
+        Row: {
+          created_at: string
+          credits_purchased: number
+          credits_remaining: number
+          credits_used: number
+          id: string
+          payment_id: string | null
+          price_paid: number | null
+          purchase_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_purchased?: number
+          credits_remaining?: number
+          credits_used?: number
+          id?: string
+          payment_id?: string | null
+          price_paid?: number | null
+          purchase_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_purchased?: number
+          credits_remaining?: number
+          credits_used?: number
+          id?: string
+          payment_id?: string | null
+          price_paid?: number | null
+          purchase_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       company_directors: {
         Row: {
@@ -1547,6 +1634,72 @@ export type Database = {
           subject?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          permissions: Json | null
+          role: string
+          status: string
+          team_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: string
+          status?: string
+          team_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: string
+          status?: string
+          team_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
