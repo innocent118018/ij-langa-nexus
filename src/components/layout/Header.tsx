@@ -96,19 +96,51 @@ export const Header = () => {
               About
             </Link>
             
-            {/* Service Categories as Direct Links */}
-            <Link to="/services/accounting" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Accounting Services
-            </Link>
-            <Link to="/services/taxation" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Taxation Services
-            </Link>
-            <Link to="/services/payroll" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Payroll Services
-            </Link>
-            <Link to="/services/secretarial" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Secretarial Services
-            </Link>
+            {/* Services Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                className="text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+                onClick={() => setIsServicesDropdownOpen(!isServicesDropdownOpen)}
+              >
+                Services
+                <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isServicesDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                  <div className="py-2">
+                    <Link
+                      to="/services/accounting"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsServicesDropdownOpen(false)}
+                    >
+                      Accounting Services
+                    </Link>
+                    <Link
+                      to="/services/taxation"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsServicesDropdownOpen(false)}
+                    >
+                      Taxation Services
+                    </Link>
+                    <Link
+                      to="/services/payroll"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsServicesDropdownOpen(false)}
+                    >
+                      Payroll Services
+                    </Link>
+                    <Link
+                      to="/services/secretarial"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsServicesDropdownOpen(false)}
+                    >
+                      Secretarial Services
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <Link to="/pricing" className="text-gray-600 hover:text-blue-600 transition-colors">
               Pricing
@@ -162,35 +194,60 @@ export const Header = () => {
                 About
               </Link>
               
-              {/* Mobile Service Categories */}
-              <Link
-                to="/services/accounting"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Accounting Services
-              </Link>
-              <Link
-                to="/services/taxation"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Taxation Services
-              </Link>
-              <Link
-                to="/services/payroll"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Payroll Services
-              </Link>
-              <Link
-                to="/services/secretarial"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Secretarial Services
-              </Link>
+              {/* Mobile Services Menu */}
+              <div>
+                <button
+                  className="text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1 w-full text-left"
+                  onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
+                >
+                  Services
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isMobileServicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isMobileServicesOpen && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <Link
+                      to="/services/accounting"
+                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Accounting Services
+                    </Link>
+                    <Link
+                      to="/services/taxation"
+                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Taxation Services
+                    </Link>
+                    <Link
+                      to="/services/payroll"
+                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Payroll Services
+                    </Link>
+                    <Link
+                      to="/services/secretarial"
+                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Secretarial Services
+                    </Link>
+                  </div>
+                )}
+              </div>
 
               <Link
                 to="/pricing"
