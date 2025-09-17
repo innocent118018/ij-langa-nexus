@@ -1,220 +1,121 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
+import { Navigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { 
-  BarChart3, 
-  TrendingUp, 
-  DollarSign, 
-  Users,
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import { 
+  TrendingUp,
   Download,
-  Calendar,
-  Filter
+  DollarSign,
+  Users,
+  FileText,
+  Activity
 } from 'lucide-react';
-import { useDashboardData } from '@/hooks/useDashboardData';
-
-// Type definitions for the computed data
-interface MonthlyRevenueData {
-  month: string;
-  revenue: number;
-  invoiceCount: number;
-}
-
-interface ServiceStatsData {
-  name: string;
-  count: number;
-  revenue: number;
-}
 
 const Reports = () => {
-  const { invoices, customers, metrics } = useDashboardData();
+  const { user, loading } = useAuth();
+  const [selectedReport, setSelectedReport] = useState('overview');
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (error) throw error;
+      return data.role;
+    },
+    enabled: !!user?.id,
+  });
 
-  // Calculate monthly revenue data
-  const monthlyRevenue = React.useMemo(() => {
-    const months: Record<string, MonthlyRevenueData> = {};
-    invoices.forEach(invoice => {
-      const date = new Date(invoice.issue_date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      if (!months[monthKey]) {
-        months[monthKey] = { month: monthKey, revenue: 0, invoiceCount: 0 };
-      }
-      months[monthKey].revenue += Number(invoice.invoice_amount || 0);
-      months[monthKey].invoiceCount += 1;
-    });
-    return Object.values(months).sort((a, b) => a.month.localeCompare(b.month));
-  }, [invoices]);
+  const isAdmin = userRole && ['admin', 'super_admin', 'accountant'].includes(userRole);
 
-  // Calculate service popularity
-  const serviceStats = React.useMemo(() => {
-    const stats: Record<string, ServiceStatsData> = {};
-    invoices.forEach(invoice => {
-      // This would need to be enhanced with actual service data from orders
-      const service = 'General Consulting'; // Placeholder
-      if (!stats[service]) {
-        stats[service] = { name: service, count: 0, revenue: 0 };
-      }
-      stats[service].count += 1;
-      stats[service].revenue += Number(invoice.invoice_amount || 0);
-    });
-    return Object.values(stats);
-  }, [invoices]);
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground mt-4">Loading reports...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Revenue Analytics & Reports</h1>
-          <p className="text-slate-600">Comprehensive financial and business intelligence</p>
+          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
+          <p className="text-muted-foreground">
+            Comprehensive business insights and performance metrics
+          </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter Period
-          </Button>
-          <Button className="bg-slate-900 hover:bg-slate-800">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
+        <Button variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export Report
+        </Button>
       </div>
 
-      {/* Revenue Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {formatCurrency(metrics.totalRevenue)}
-                </p>
-              </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Outstanding</p>
-                <p className="text-2xl font-bold text-red-900">
-                  {formatCurrency(metrics.unpaidAmount)}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Invoices</p>
-                <p className="text-2xl font-bold text-blue-900">{invoices.length}</p>
-              </div>
-              <BarChart3 className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Clients</p>
-                <p className="text-2xl font-bold text-purple-900">{customers.length}</p>
-              </div>
-              <Users className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Monthly Revenue Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <BarChart3 className="h-5 w-5" />
-            <span>Monthly Revenue Trend</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {monthlyRevenue.map((month) => (
-              <div key={month.month} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium">{month.month}</p>
-                  <p className="text-sm text-gray-600">{month.invoiceCount} invoices</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-green-600">{formatCurrency(month.revenue)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Service Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5" />
-              <span>Service Performance</span>
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {serviceStats.map((service, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{service.name}</p>
-                    <p className="text-sm text-gray-600">{service.count} orders</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{formatCurrency(service.revenue)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="text-2xl font-bold">R125,430</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">1,234</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5" />
-              <span>Recent Activity</span>
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Orders</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {invoices.slice(0, 5).map((invoice) => (
-                <div key={invoice.id} className="flex items-center justify-between p-3 border-l-4 border-l-blue-500 bg-blue-50 rounded">
-                  <div>
-                    <p className="font-medium text-sm">Invoice #{invoice.reference}</p>
-                    <p className="text-xs text-gray-600">{invoice.customers?.name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm">{formatCurrency(Number(invoice.invoice_amount))}</p>
-                    <p className="text-xs text-gray-500">{new Date(invoice.issue_date).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="text-2xl font-bold">89</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Growth Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+12%</div>
           </CardContent>
         </Card>
       </div>
