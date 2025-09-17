@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -50,6 +92,57 @@ export type Database = {
           table_name?: string
           user_agent?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      bank_statement_processing_history: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          credits_used: number | null
+          error_message: string | null
+          extracted_data: Json | null
+          file_name: string
+          file_size: number | null
+          id: string
+          pages_processed: number | null
+          processing_status: string | null
+          started_at: string | null
+          team_id: string | null
+          user_id: string
+          validation_results: Json | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          pages_processed?: number | null
+          processing_status?: string | null
+          started_at?: string | null
+          team_id?: string | null
+          user_id: string
+          validation_results?: Json | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          pages_processed?: number | null
+          processing_status?: string | null
+          started_at?: string | null
+          team_id?: string | null
+          user_id?: string
+          validation_results?: Json | null
         }
         Relationships: []
       }
@@ -648,6 +741,48 @@ export type Database = {
           },
         ]
       }
+      clerkiq_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string | null
+          session_id: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       clerkiq_credits: {
         Row: {
           created_at: string
@@ -682,6 +817,54 @@ export type Database = {
           payment_id?: string | null
           price_paid?: number | null
           purchase_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clerkiq_security_settings: {
+        Row: {
+          created_at: string
+          failed_login_count: number | null
+          id: string
+          ip_whitelist: unknown[] | null
+          last_login: string | null
+          locked_until: string | null
+          login_attempts: number | null
+          mfa_enabled: boolean | null
+          mfa_secret: string | null
+          recovery_codes: string[] | null
+          session_timeout: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_login_count?: number | null
+          id?: string
+          ip_whitelist?: unknown[] | null
+          last_login?: string | null
+          locked_until?: string | null
+          login_attempts?: number | null
+          mfa_enabled?: boolean | null
+          mfa_secret?: string | null
+          recovery_codes?: string[] | null
+          session_timeout?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          failed_login_count?: number | null
+          id?: string
+          ip_whitelist?: unknown[] | null
+          last_login?: string | null
+          locked_until?: string | null
+          login_attempts?: number | null
+          mfa_enabled?: boolean | null
+          mfa_secret?: string | null
+          recovery_codes?: string[] | null
+          session_timeout?: number | null
           updated_at?: string
           user_id?: string
         }
