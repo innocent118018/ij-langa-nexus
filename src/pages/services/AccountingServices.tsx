@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -83,8 +82,7 @@ const AccountingServices = () => {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
         {/* Hero Section */}
         <div className="bg-primary text-primary-foreground py-16">
           <div className="container mx-auto px-4 text-center">
@@ -226,7 +224,6 @@ const AccountingServices = () => {
           </div>
         </div>
       </div>
-    </Layout>
   );
 };
 
