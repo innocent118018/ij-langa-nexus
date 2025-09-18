@@ -1626,24 +1626,33 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          method: string | null
           phone: string
+          template_used: string | null
           username: string | null
+          verification_url: string | null
         }
         Insert: {
           code: string
           created_at?: string
           expires_at: string
           id?: string
+          method?: string | null
           phone: string
+          template_used?: string | null
           username?: string | null
+          verification_url?: string | null
         }
         Update: {
           code?: string
           created_at?: string
           expires_at?: string
           id?: string
+          method?: string | null
           phone?: string
+          template_used?: string | null
           username?: string | null
+          verification_url?: string | null
         }
         Relationships: []
       }
@@ -2205,6 +2214,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_dashboard_metrics: {
+        Args: { user_uuid: string }
+        Returns: Json
+      }
       get_user_companies: {
         Args: { user_uuid: string }
         Returns: {
@@ -2213,6 +2226,10 @@ export type Database = {
           registration_number: string
           status: string
         }[]
+      }
+      get_user_profile_with_activity: {
+        Args: { user_uuid: string }
+        Returns: Json
       }
       get_user_recent_activity: {
         Args: { limit_count?: number; user_uuid: string }
