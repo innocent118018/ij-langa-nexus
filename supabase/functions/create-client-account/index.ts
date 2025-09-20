@@ -66,38 +66,75 @@ serve(async (req) => {
       throw signUpError;
     }
 
-    // Update the user profile with additional business information
-    const { error: updateError } = await supabaseClient
-      .from('users')
-      .update({
-        full_name: clientData.full_name,
-        company_name: clientData.company_name,
-        phone: clientData.phone,
-        id_number: clientData.id_number,
-        company_registration: clientData.company_registration,
-        role: 'client'
-      })
-      .eq('id', newUser.user.id);
+    // Background task for database updates and notifications
+    const backgroundUpdates = async () => {
+      try {
+        // Parallel database operations for better performance
+        const [userUpdateResult, customerResult] = await Promise.allSettled([
+          supabaseClient
+            .from('users')
+            .update({
+              full_name: clientData.full_name,
+              company_name: clientData.company_name,
+              phone: clientData.phone,
+              id_number: clientData.id_number,
+              company_registration: clientData.company_registration,
+              role: 'client'
+            })
+            .eq('id', newUser.user.id),
+          
+          supabaseClient
+            .from('customers')
+            .insert({
+              name: clientData.company_name || clientData.full_name,
+              email: clientData.email,
+              phone: clientData.phone,
+              address: clientData.address,
+              status: 'Active'
+            })
+        ]);
 
-    if (updateError) {
-      throw updateError;
+        // Log any errors but don't fail the main response
+        if (userUpdateResult.status === 'rejected') {
+          console.error('User update failed:', userUpdateResult.reason);
+        }
+        if (customerResult.status === 'rejected') {
+          console.warn('Customer creation failed:', customerResult.reason);
+        }
+
+        // Send notification email in background
+        try {
+          await supabaseClient.functions.invoke('send-notification-email', {
+            body: {
+              to: clientData.email,
+              subject: 'Welcome to IJ Langa Consulting',
+              html: `
+                <h2>Account Created Successfully</h2>
+                <p>Dear ${clientData.full_name},</p>
+                <p>Your client account has been created successfully.</p>
+                <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+                <p>Please login and change your password immediately.</p>
+                <p>Best regards,<br>IJ Langa Consulting Team</p>
+              `
+            }
+          });
+        } catch (emailError) {
+          console.error('Welcome email failed:', emailError);
+        }
+      } catch (error) {
+        console.error('Background updates failed:', error);
+      }
+    };
+
+    // Start background task without awaiting
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+      EdgeRuntime.waitUntil(backgroundUpdates());
+    } else {
+      // Fallback: run in background
+      backgroundUpdates();
     }
 
-    // Create a customer record
-    const { error: customerError } = await supabaseClient
-      .from('customers')
-      .insert({
-        name: clientData.company_name || clientData.full_name,
-        email: clientData.email,
-        phone: clientData.phone,
-        address: clientData.address,
-        status: 'Active'
-      });
-
-    if (customerError) {
-      console.warn('Customer creation failed:', customerError);
-    }
-
+    // Return immediate response for better user experience
     return new Response(JSON.stringify({ 
       success: true, 
       message: 'Client account created successfully',

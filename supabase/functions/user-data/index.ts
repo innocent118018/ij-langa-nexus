@@ -97,21 +97,48 @@ serve(async (req) => {
         break;
 
       case 'dashboard-metrics':
-        // Get dashboard metrics for the user
+        // Optimized dashboard metrics with parallel queries and selective fields
         const [
           { data: userOrders },
           { data: userNotifications },
           { data: userInvoices }
         ] = await Promise.all([
-          supabaseClient.from('orders').select('*').eq('user_id', user.id),
-          supabaseClient.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
-          supabaseClient.from('invoices').select('*, customers(name)').eq('customers.email', user.email)
+          supabaseClient
+            .from('orders')
+            .select('id, status, total_amount, created_at, customer_name')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(50),
+          supabaseClient
+            .from('notifications')
+            .select('id, title, message, type, is_read, created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(10),
+          supabaseClient
+            .from('invoices')
+            .select('id, reference, invoice_amount, balance_due, status, issue_date, days_overdue, customers(name)')
+            .eq('customers.email', user.email)
+            .order('issue_date', { ascending: false })
+            .limit(20)
         ]);
 
-        const activeServices = userOrders?.filter(order => order.status === 'completed' || order.status === 'processing').length || 0;
-        const pendingOrders = userOrders?.filter(order => order.status === 'pending' || order.status === 'processing').length || 0;
-        const unpaidInvoices = userInvoices?.filter(inv => inv.status === 'Unpaid' || inv.balance_due > 0) || [];
-        const totalPendingAmount = unpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.balance_due || 0), 0);
+        // Pre-calculate metrics to reduce client-side computation
+        const activeServices = userOrders?.filter(order => 
+          order.status === 'completed' || order.status === 'processing'
+        ).length || 0;
+        
+        const pendingOrders = userOrders?.filter(order => 
+          order.status === 'pending' || order.status === 'processing'
+        ).length || 0;
+        
+        const unpaidInvoices = userInvoices?.filter(inv => 
+          inv.status === 'Unpaid' || (inv.balance_due && Number(inv.balance_due) > 0)
+        ) || [];
+        
+        const totalPendingAmount = unpaidInvoices.reduce((sum, invoice) => 
+          sum + Number(invoice.balance_due || 0), 0
+        );
 
         response = {
           orders: userOrders || [],
