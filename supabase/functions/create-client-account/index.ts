@@ -32,17 +32,31 @@ serve(async (req) => {
     }
 
     // Check if user is admin
-    const { data: userRole } = await supabaseClient
+    const { data: userRole, error: roleError } = await supabaseClient
       .from('users')
       .select('role')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (!userRole || !['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole.role)) {
-      throw new Error('Insufficient permissions');
+    if (roleError) {
+      console.error('Role check error:', roleError);
+      throw new Error('Failed to verify user permissions');
     }
 
-    const { clientData } = await req.json();
+    if (!userRole || !['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole.role)) {
+      throw new Error('Insufficient permissions - admin access required');
+    }
+
+    const body = await req.json();
+    const { clientData } = body;
+
+    if (!clientData) {
+      throw new Error('Client data is required');
+    }
+
+    if (!clientData.email || !clientData.full_name) {
+      throw new Error('Email and full name are required fields');
+    }
 
     // Create the user account with a temporary password
     const tempPassword = `TempPass${Math.random().toString(36).substring(7)}!`;

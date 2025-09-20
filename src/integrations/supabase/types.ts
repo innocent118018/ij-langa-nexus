@@ -1350,6 +1350,77 @@ export type Database = {
           },
         ]
       }
+      invoice_line_items: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          line_total: number
+          quantity: number
+          tax_amount: number | null
+          tax_code: string | null
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          line_total?: number
+          quantity?: number
+          tax_amount?: number | null
+          tax_code?: string | null
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          line_total?: number
+          quantity?: number
+          tax_amount?: number | null
+          tax_code?: string | null
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_templates: {
+        Row: {
+          created_at: string
+          html_template: string
+          id: string
+          is_active: boolean
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_template: string
+          id?: string
+          is_active?: boolean
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_template?: string
+          id?: string
+          is_active?: boolean
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           balance_due: number
@@ -1357,12 +1428,17 @@ export type Database = {
           customer_id: string | null
           days_overdue: number | null
           days_to_due_date: number | null
+          due_date: string | null
           id: string
           invoice_amount: number
+          invoice_type: string | null
           issue_date: string
+          line_items: Json | null
           reference: string
           status: string | null
+          subtotal: number | null
           updated_at: string
+          vat_amount: number | null
         }
         Insert: {
           balance_due: number
@@ -1370,12 +1446,17 @@ export type Database = {
           customer_id?: string | null
           days_overdue?: number | null
           days_to_due_date?: number | null
+          due_date?: string | null
           id?: string
           invoice_amount: number
+          invoice_type?: string | null
           issue_date: string
+          line_items?: Json | null
           reference: string
           status?: string | null
+          subtotal?: number | null
           updated_at?: string
+          vat_amount?: number | null
         }
         Update: {
           balance_due?: number
@@ -1383,12 +1464,17 @@ export type Database = {
           customer_id?: string | null
           days_overdue?: number | null
           days_to_due_date?: number | null
+          due_date?: string | null
           id?: string
           invoice_amount?: number
+          invoice_type?: string | null
           issue_date?: string
+          line_items?: Json | null
           reference?: string
           status?: string | null
+          subtotal?: number | null
           updated_at?: string
+          vat_amount?: number | null
         }
         Relationships: [
           {
