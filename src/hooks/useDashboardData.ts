@@ -33,7 +33,7 @@ export const useDashboardData = () => {
 
   return {
     invoices: dashboardData?.invoices || [],
-    customers: [], // Users don't need customer data
+    customers: dashboardData?.customers || [], // Now includes customer data for admins
     orders: dashboardData?.orders || [],
     services,
     notifications: dashboardData?.notifications || [],
