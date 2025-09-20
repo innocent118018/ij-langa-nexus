@@ -129,9 +129,23 @@ const CreateClientModal = ({ isOpen, onClose, onSuccess }: CreateClientModalProp
 
     } catch (error: any) {
       console.error('Error creating client:', error);
+      
+      let errorMessage = "Failed to create client account";
+      
+      // Handle different error types
+      if (error.message?.includes('rate limit') || error.status === 429) {
+        errorMessage = "Rate limit exceeded. Please wait a few minutes before trying again.";
+      } else if (error.message?.includes('already exists') || error.status === 409) {
+        errorMessage = "A user with this email already exists.";
+      } else if (error.message?.includes('Invalid email')) {
+        errorMessage = "Please provide a valid email address.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to create client account",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

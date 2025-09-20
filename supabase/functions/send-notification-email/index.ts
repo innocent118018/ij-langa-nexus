@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: 'order' | 'billing' | 'contact' | 'payment';
+  type: 'order' | 'billing' | 'contact' | 'payment' | 'client_welcome';
   data: any;
   customerEmail?: string;
 }
@@ -87,6 +87,49 @@ serve(async (req) => {
           <p><strong>Payment Method:</strong> ${data.payment_method || 'N/A'}</p>
           <p><strong>Customer:</strong> ${customerEmail}</p>
           <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+        `;
+        break;
+
+      case 'client_welcome':
+        emailTo = [data.email];
+        subject = 'Welcome to IJ Langa Consulting';
+        htmlContent = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #2563eb;">Welcome to IJ Langa Consulting</h1>
+            </div>
+            
+            <h2>Account Created Successfully</h2>
+            <p>Dear ${data.client_name},</p>
+            
+            <p>Your client account has been created successfully. You can now access your client portal to manage your services, view invoices, and communicate with our team.</p>
+            
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #dc2626;">Login Credentials</h3>
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Temporary Password:</strong> ${data.temp_password}</p>
+              <p style="color: #dc2626; font-weight: bold;">⚠️ Please login and change your password immediately for security.</p>
+            </div>
+            
+            ${data.company_name ? `<p><strong>Company:</strong> ${data.company_name}</p>` : ''}
+            
+            <div style="margin: 30px 0;">
+              <h3>What's Next?</h3>
+              <ol>
+                <li>Login to your client portal</li>
+                <li>Change your password</li>
+                <li>Complete your profile information</li>
+                <li>Upload any required documents</li>
+              </ol>
+            </div>
+            
+            <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+            
+            <p>Best regards,<br>
+            <strong>IJ Langa Consulting Team</strong><br>
+            Email: info@ijlanga.co.za<br>
+            Phone: +27 11 234 5678</p>
+          </div>
         `;
         break;
 

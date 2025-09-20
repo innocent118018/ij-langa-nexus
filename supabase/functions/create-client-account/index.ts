@@ -116,24 +116,22 @@ serve(async (req) => {
           console.warn('Customer creation failed:', customerResult.reason);
         }
 
-        // Send notification email in background
+        // Send welcome email to client
         try {
           await supabaseClient.functions.invoke('send-notification-email', {
             body: {
-              to: clientData.email,
-              subject: 'Welcome to IJ Langa Consulting',
-              html: `
-                <h2>Account Created Successfully</h2>
-                <p>Dear ${clientData.full_name},</p>
-                <p>Your client account has been created successfully.</p>
-                <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-                <p>Please login and change your password immediately.</p>
-                <p>Best regards,<br>IJ Langa Consulting Team</p>
-              `
+              type: 'client_welcome',
+              data: {
+                client_name: clientData.full_name,
+                email: clientData.email,
+                temp_password: tempPassword,
+                company_name: clientData.company_name
+              }
             }
           });
         } catch (emailError) {
           console.error('Welcome email failed:', emailError);
+          // Don't fail the whole request if email fails
         }
       } catch (error) {
         console.error('Background updates failed:', error);
@@ -160,8 +158,27 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in create-client-account function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+    
+    // Handle specific error types
+    let status = 400;
+    let message = error.message;
+    
+    if (error.message?.includes('rate limit')) {
+      status = 429;
+      message = 'Rate limit exceeded. Please try again in a few minutes.';
+    } else if (error.message?.includes('User already registered')) {
+      status = 409;
+      message = 'A user with this email already exists.';
+    } else if (error.message?.includes('Invalid email')) {
+      status = 400;
+      message = 'Please provide a valid email address.';
+    }
+    
+    return new Response(JSON.stringify({ 
+      error: message,
+      code: status 
+    }), {
+      status: status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
