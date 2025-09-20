@@ -18,6 +18,7 @@ interface ServiceData {
   price: number;
   category: string;
   is_active: boolean;
+  is_popular: boolean;
   processing_time?: string;
   requirements?: string;
 }
@@ -184,6 +185,105 @@ const Pricing = () => {
             Pay one amount per month and know that all basic required returns are taken care of when they come due during the year.
           </p>
           
+          {/* Company Registration Popular Packages */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Company Registration Popular Packages</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {services.filter(service => service.category === 'company-registration-packages').map((service, index) => (
+                <Card key={service.id} className={`relative border-2 shadow-lg h-full ${service.is_popular ? 'border-primary bg-primary/5' : 'border-primary/20'}`}>
+                  {service.is_popular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                      </span>
+                    </div>
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg font-bold">{service.name.replace('Company Registration Package - ', '')}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      {service.price > 0 ? `R${Math.round(service.price * 1.15).toLocaleString()}` : 'Custom Quote'}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                      {service.processing_time && (
+                        <p className="text-xs text-muted-foreground mb-2">Processing: {service.processing_time}</p>
+                      )}
+                    </div>
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full mt-auto"
+                      size="sm"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      {service.price > 0 ? 'Order Now' : 'Get Quote'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Industry Packages */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Industry Specific Packages</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {services.filter(service => service.category === 'industry-packages').map((service) => (
+                <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg font-bold">{service.name.replace('Company Registration Package - ', '')}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      R{Math.round(service.price * 1.15).toLocaleString()}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                    {service.processing_time && (
+                      <p className="text-xs text-muted-foreground mb-4">Processing: {service.processing_time}</p>
+                    )}
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full"
+                      size="sm"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Order Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Company Registrations */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Company Registrations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {services.filter(service => service.category === 'company-registrations').map((service) => (
+                <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-md font-bold">{service.name}</CardTitle>
+                    <div className="text-xl font-bold text-primary">
+                      From R{Math.round(service.price * 1.15).toLocaleString()}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs text-muted-foreground mb-3">{service.processing_time}</p>
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full"
+                      size="sm"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Order Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
           {/* Compliance Packages */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-6 text-center">For All Companies (2026 Financial Year)</h3>
@@ -263,7 +363,7 @@ const Pricing = () => {
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-6 text-center">Individual Tax Returns</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {services.filter(service => service.category === 'individual-tax').map((service) => (
+              {services.filter(service => service.category === 'individual-tax-returns').map((service) => (
                 <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
                   <CardHeader className="text-center">
                     <CardTitle className="text-xl font-bold">{service.name}</CardTitle>
@@ -287,33 +387,25 @@ const Pricing = () => {
             </div>
           </div>
 
-          {/* Business Growth Plans */}
+          {/* Company Amendments */}
           <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-6 text-center">Run & Grow Your Business</h3>
-            <p className="text-center text-muted-foreground mb-8">
-              Select the plan that's right for your business. You can always upgrade or downgrade anytime.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {services.filter(service => service.category === 'business-growth').map((service, index) => (
-                <Card key={service.id} className="border-2 border-primary/20 shadow-lg">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-xl font-bold">
-                      {service.name.replace(' Business Plan', '')}
-                    </CardTitle>
-                    <div className="text-3xl font-bold text-primary">
-                      R{Math.round(service.price * 1.15).toLocaleString()}
-                      <span className="text-sm font-normal text-muted-foreground">/month</span>
+            <h3 className="text-2xl font-bold mb-6 text-center">Company Amendments</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.filter(service => service.category === 'company-amendments').slice(0, 6).map((service) => (
+                <Card key={service.id} className="border border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-sm">{service.name}</h4>
+                      <span className="text-sm font-bold text-primary">R{Math.round(service.price * 1.15)}</span>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{service.processing_time}</p>
                     <Button
-                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
+                      onClick={() => handleAddToCart(service)}
                       className="w-full"
-                      size="lg"
+                      size="sm"
+                      variant="outline"
                     >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Join Now - Monthly Subscription
+                      Order
                     </Button>
                   </CardContent>
                 </Card>
@@ -321,162 +413,97 @@ const Pricing = () => {
             </div>
           </div>
 
-          {/* Comparison Table */}
+          {/* SARS Registrations */}
           <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-6 text-center">Compare Our Plans</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300 bg-white rounded-lg shadow-lg">
-                <thead>
-                  <tr className="bg-primary text-primary-foreground">
-                    <th className="border border-gray-300 p-4 text-left font-semibold">Services</th>
-                    <th className="border border-gray-300 p-4 text-center font-semibold">
-                      <div>STARTS</div>
-                      <div className="text-sm font-normal mt-2">
-                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                          Select Plan →
-                        </Button>
-                      </div>
-                    </th>
-                    <th className="border border-gray-300 p-4 text-center font-semibold">
-                      <div>ACCURATE</div>
-                      <div className="text-sm font-normal mt-2">
-                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                          Select Plan →
-                        </Button>
-                      </div>
-                    </th>
-                    <th className="border border-gray-300 p-4 text-center font-semibold">
-                      <div>GO BRAVE</div>
-                      <div className="text-sm font-normal mt-2">
-                        <Button variant="outline" size="sm" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                          Select Plan →
-                        </Button>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="bg-gray-50">
-                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">CIPC Services</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">CIPC Annual Return reminders</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">CIPC Beneficial Ownership register</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Company Changes/Updates</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Tax Services</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Submit Company Income Tax Return (ITR14)</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">VAT return (VAT201) review and submission</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-yellow-600">R500 per return</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">PAYE return (EMP201) review and submission</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-yellow-600">R300 per return</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Accounting Services</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Xero Accounting Software</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Monthly bookkeeping by experts</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-yellow-600">Limited to 20 transactions</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Payroll Services</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">SimplePay payroll software</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Monthly Payroll Processing</td>
-                    <td className="border border-gray-300 p-3 text-center text-red-500">❌</td>
-                    <td className="border border-gray-300 p-3 text-center text-yellow-600">Limited to 3 employees</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td colSpan={4} className="border border-gray-300 p-3 font-semibold bg-gray-100">Funding Services</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-gray-300 p-3">Pre-approved purchase order facility</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                    <td className="border border-gray-300 p-3 text-center text-green-500">✅</td>
-                  </tr>
-                </tbody>
-              </table>
+            <h3 className="text-2xl font-bold mb-6 text-center">SARS Registrations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {services.filter(service => service.category === 'sars-registrations').map((service) => (
+                <Card key={service.id} className="border border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-sm">{service.name}</h4>
+                      <span className="text-sm font-bold text-primary">R{Math.round(service.price * 1.15)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">{service.processing_time}</p>
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full"
+                      size="sm"
+                      variant="outline"
+                    >
+                      Order
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Professional Rates */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold mb-6 text-center">Professional Hourly Rates</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {services.filter(service => service.category === 'professional-rates').map((service) => (
+                <Card key={service.id} className="border border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-semibold text-sm">{service.name}</h4>
+                      <span className="text-sm font-bold text-primary">R{Math.round(service.price * 1.15)}/hr</span>
+                    </div>
+                    <Button
+                      onClick={() => handleAddToCart(service)}
+                      className="w-full"
+                      size="sm"
+                      variant="outline"
+                    >
+                      Book Consultation
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Tabs for Services and Products */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="monthly" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Monthly Plans
-            </TabsTrigger>
-            <TabsTrigger value="services" className="flex items-center gap-2">
-              <Wrench className="h-4 w-4" />
-              One-time Services
-            </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Products
-            </TabsTrigger>
-          </TabsList>
+        {/* Tabs for browsing all services */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-8">
+          <div className="flex justify-center mb-6">
+            <TabsList className="grid w-full max-w-md grid-cols-3">
+              <TabsTrigger value="monthly" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Monthly Plans
+              </TabsTrigger>
+              <TabsTrigger value="services" className="flex items-center gap-2">
+                <Wrench className="h-4 w-4" />
+                All Services
+              </TabsTrigger>
+              <TabsTrigger value="products" className="flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Products
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          {/* Search and Filter */}
-          <div className="bg-card rounded-lg shadow p-6 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
+          {/* Search and Filter Controls */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
               <Input
-                placeholder={`Search ${activeTab}...`}
+                placeholder="Search services or products..."
                 value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
               />
-              <Select value={selectedCategory} onValueChange={(value) => { setSelectedCategory(value); setCurrentPage(1); }}>
+            </div>
+            <div className="md:w-64">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category} className="capitalize">
-                      {category.replace(/-/g, ' ')}
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -484,151 +511,130 @@ const Pricing = () => {
             </div>
           </div>
 
+          {/* Tab Content */}
           <TabsContent value="monthly">
-            <div className="text-center text-muted-foreground">
-              Monthly services are displayed in the featured section above.
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentItems.map((item: any, index) => (
+                <Card key={item.id} className="border shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      R{Math.round((item.price || 0) * 1.15).toLocaleString()}/month
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {item.description?.substring(0, 100)}...
+                    </p>
+                    <Button
+                      onClick={() => handleAddToCart(item)}
+                      className="w-full"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Subscribe Monthly
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
 
           <TabsContent value="services">
-            {currentItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {currentItems.map((service) => (
-                  <Card key={service.id} className="h-full flex flex-col">
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold line-clamp-2">{service.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground capitalize">{service.category.replace(/-/g, ' ')}</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col">
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
-                        {service.description}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentItems.map((item: any) => (
+                <Card key={item.id} className="border shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      R{Math.round((item.price || 0) * 1.15).toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Category: {item.category?.replace('-', ' ')}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {item.description?.substring(0, 100)}...
+                    </p>
+                    {item.processing_time && (
+                      <p className="text-xs text-muted-foreground mb-4">
+                        Processing Time: {item.processing_time}
                       </p>
-                      <div className="flex justify-between items-center mt-auto">
-                        {service.price ? (
-                          <div>
-                            <span className="text-lg font-bold text-primary">
-                              R{Math.round(service.price * 1.15).toLocaleString()}
-                            </span>
-                            <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
-                          </div>
-                        ) : (
-                          <span className="text-amber-600 font-medium">Quote Required</span>
-                        )}
-                        {service.price && (
-                          <Button size="sm" onClick={() => handleAddToCart(service)}>
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-12">
-                No services found matching your criteria.
-              </div>
-            )}
+                    )}
+                    <Button
+                      onClick={() => handleAddToCart(item)}
+                      className="w-full"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add to Cart
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="products">
-            {currentItems.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {currentItems.map((item) => {
-                  const product = item as ProductData;
-                  return (
-                    <Card key={product.id} className="h-full flex flex-col">
-                      <CardHeader>
-                        {product.image_url && (
-                          <div className="w-full h-32 bg-muted rounded-md mb-4 flex items-center justify-center">
-                            <Package className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        )}
-                        <CardTitle className="text-lg font-semibold line-clamp-2">{product.name}</CardTitle>
-                        <p className="text-sm text-muted-foreground capitalize">{product.category.replace(/-/g, ' ')}</p>
-                      </CardHeader>
-                      <CardContent className="flex-1 flex flex-col">
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-1">
-                          {product.description}
-                        </p>
-                        <div className="flex justify-between items-center mt-auto">
-                          {product.price ? (
-                            <div>
-                              <span className="text-lg font-bold text-primary">
-                                R{Math.round(product.price * 1.15).toLocaleString()}
-                              </span>
-                              <p className="text-xs text-muted-foreground">incl. 15% VAT</p>
-                            </div>
-                          ) : (
-                            <span className="text-amber-600 font-medium">Quote Required</span>
-                          )}
-                          {product.price && (
-                            <Button size="sm" onClick={() => handleAddToCart(product)}>
-                              <ShoppingCart className="h-4 w-4 mr-2" />
-                              Add
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-12">
-                No products found matching your criteria.
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentItems.map((item: any) => (
+                <Card key={item.id} className="border shadow-lg">
+                  <CardHeader>
+                    {item.image_url && (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-48 object-cover rounded-md mb-4"
+                      />
+                    )}
+                    <CardTitle className="text-lg">{item.name}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      R{Math.round((item.price || 0) * 1.15).toLocaleString()}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {item.description?.substring(0, 100)}...
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Stock: {item.stock_quantity || 0}
+                    </p>
+                    <Button
+                      onClick={() => handleAddToCart(item)}
+                      className="w-full"
+                      disabled={!item.stock_quantity}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add to Cart
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="mx-4">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </Tabs>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 mt-12">
-            <Button 
-              onClick={() => setCurrentPage(currentPage - 1)} 
-              disabled={currentPage === 1} 
-              variant="outline" 
-              size="sm"
-            >
-              Previous
-            </Button>
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) pageNum = i + 1;
-              else if (currentPage <= 3) pageNum = i + 1;
-              else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-              else pageNum = currentPage - 2 + i;
-
-              return (
-                <Button 
-                  key={pageNum} 
-                  onClick={() => setCurrentPage(pageNum)} 
-                  variant={currentPage === pageNum ? "default" : "outline"} 
-                  size="sm"
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-            <Button 
-              onClick={() => setCurrentPage(currentPage + 1)} 
-              disabled={currentPage === totalPages} 
-              variant="outline" 
-              size="sm"
-            >
-              Next
-            </Button>
-          </div>
-        )}
-
-        {filteredData.length > 0 && (
-          <div className="text-center text-muted-foreground text-sm mt-4">
-            Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length} {activeTab}
-            {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
-          </div>
-        )}
       </div>
     </div>
   );
