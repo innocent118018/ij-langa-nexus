@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShoppingCart, Package, Wrench } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
+import PurchaseForm from '@/components/forms/PurchaseForm';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -211,14 +212,23 @@ const Pricing = () => {
                         <p className="text-xs text-muted-foreground mb-2">Processing: {service.processing_time}</p>
                       )}
                     </div>
-                    <Button
-                      onClick={() => handleAddToCart(service)}
-                      className="w-full mt-auto"
-                      size="sm"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      {service.price > 0 ? 'Order Now' : 'Get Quote'}
-                    </Button>
+                    {service.price > 0 ? (
+                      <Button
+                        onClick={() => handleAddToCart(service)}
+                        className="w-full mt-auto"
+                        size="sm"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Order Now
+                      </Button>
+                    ) : (
+                      <PurchaseForm service={service} isQuote={true}>
+                        <Button className="w-full mt-auto" size="sm">
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Add to Quote
+                        </Button>
+                      </PurchaseForm>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -242,14 +252,15 @@ const Pricing = () => {
                     {service.processing_time && (
                       <p className="text-xs text-muted-foreground mb-4">Processing: {service.processing_time}</p>
                     )}
-                    <Button
-                      onClick={() => handleAddToCart(service)}
-                      className="w-full"
-                      size="sm"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Order Now
-                    </Button>
+                    <PurchaseForm service={service} isQuote={false}>
+                      <Button
+                        className="w-full"
+                        size="sm"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Order Now
+                      </Button>
+                    </PurchaseForm>
                   </CardContent>
                 </Card>
               ))}
@@ -270,14 +281,15 @@ const Pricing = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-xs text-muted-foreground mb-3">{service.processing_time}</p>
-                    <Button
-                      onClick={() => handleAddToCart(service)}
-                      className="w-full"
-                      size="sm"
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Order Now
-                    </Button>
+                    <PurchaseForm service={service} isQuote={false}>
+                      <Button
+                        className="w-full"
+                        size="sm"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Order Now
+                      </Button>
+                    </PurchaseForm>
                   </CardContent>
                 </Card>
               ))}
