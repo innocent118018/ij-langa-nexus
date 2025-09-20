@@ -30,5 +30,11 @@ verify_jwt = false
 [functions.send-form-email]
 verify_jwt = false
 
+[functions.send-purchase-form]
+verify_jwt = false
+
+[functions.send-notification-email]
+verify_jwt = false
+
 [functions.create-order]
 verify_jwt = false
