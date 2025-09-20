@@ -40,14 +40,16 @@ const Support = () => {
     setIsSubmitting(true);
 
     try {
-      // Submit to contact forms (users can insert into this table)
+      // Submit to support_tickets table (proper support system)
       const { error } = await supabase
-        .from('contact_forms')
+        .from('support_tickets')
         .insert([{
-          name: user.user_metadata?.full_name || 'User',
-          email: user.email!,
-          message: `[Support Request - ${formData.priority.toUpperCase()}]\nSubject: ${formData.subject}\n\n${formData.message}`,
-          service_type: 'Support Request'
+          user_id: user.id,
+          subject: formData.subject,
+          description: formData.message,
+          priority: formData.priority,
+          status: 'open',
+          category: 'general'
         }]);
 
       if (error) throw error;

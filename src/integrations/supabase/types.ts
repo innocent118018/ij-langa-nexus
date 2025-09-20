@@ -95,6 +95,42 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_flows: {
+        Row: {
+          actions: Json
+          created_at: string
+          description: string | null
+          flow_type: string
+          id: string
+          is_active: boolean
+          name: string
+          trigger_conditions: Json
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          created_at?: string
+          description?: string | null
+          flow_type: string
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          created_at?: string
+          description?: string | null
+          flow_type?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bank_statement_processing_history: {
         Row: {
           completed_at: string | null
@@ -1154,6 +1190,54 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_contacts: {
+        Row: {
+          birthday: string | null
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          is_subscribed: boolean
+          last_name: string | null
+          phone: string | null
+          subscribed_at: string
+          tags: string[] | null
+          unsubscribed_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          birthday?: string | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          is_subscribed?: boolean
+          last_name?: string | null
+          phone?: string | null
+          subscribed_at?: string
+          tags?: string[] | null
+          unsubscribed_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          birthday?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_subscribed?: boolean
+          last_name?: string | null
+          phone?: string | null
+          subscribed_at?: string
+          tags?: string[] | null
+          unsubscribed_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           accounts_receivable: number | null
@@ -1289,6 +1373,84 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_active: boolean
+          merge_tags: string[] | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_active?: boolean
+          merge_tags?: string[] | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          merge_tags?: string[] | null
+          name?: string
+          subject?: string
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      flow_executions: {
+        Row: {
+          contact_id: string
+          executed_at: string
+          execution_data: Json | null
+          flow_id: string
+          id: string
+          status: string
+        }
+        Insert: {
+          contact_id: string
+          executed_at?: string
+          execution_data?: Json | null
+          flow_id: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          contact_id?: string
+          executed_at?: string
+          execution_data?: Json | null
+          flow_id?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_executions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "customer_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flow_executions_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_flows"
             referencedColumns: ["id"]
           },
         ]

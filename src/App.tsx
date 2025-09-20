@@ -31,6 +31,8 @@ import Documents from "./pages/dashboard/Documents";
 import Profile from "./pages/dashboard/Profile";
 import Settings from "./pages/dashboard/Settings";
 import Support from "./pages/dashboard/Support";
+import AdminSupport from "./pages/dashboard/AdminSupport";
+import AutomationFlows from "./pages/dashboard/AutomationFlows";
 import Notifications from "./pages/dashboard/Notifications";
 import UserManagement from "./pages/dashboard/UserManagement";
 import AdminClientPortalView from "./pages/dashboard/AdminClientPortalView";
@@ -295,6 +297,18 @@ function App() {
                   </DashboardLayout>
                 } />
                 
+                <Route path="/dashboard/admin-support" element={
+                  <DashboardLayout>
+                    <AdminSupport />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/automation-flows" element={
+                  <DashboardLayout>
+                    <AutomationFlows />
+                  </DashboardLayout>
+                } />
+
                 
                 <Route path="/dashboard/content" element={
                   <DashboardLayout>

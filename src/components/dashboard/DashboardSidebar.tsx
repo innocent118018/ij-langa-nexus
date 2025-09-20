@@ -30,7 +30,9 @@ import {
   FileOutput,
   ChevronLeft,
   ChevronRight,
-  Bell
+  Bell,
+  Headphones,
+  Activity
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -75,6 +77,16 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
       title: 'Document Generation',
       url: '/dashboard/document-generation',
       icon: FileOutput
+    },
+    {
+      title: 'Admin Support',
+      url: '/dashboard/admin-support',
+      icon: Headphones
+    },
+    {
+      title: 'Automation Flows',
+      url: '/dashboard/automation-flows',
+      icon: Activity
     },
     {
       title: 'Legal Escalations',
