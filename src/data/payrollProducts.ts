@@ -4,6 +4,7 @@ export interface PayrollProduct {
   name: string;
   price?: number;
   category: string;
+  subcategory?: string;
   description?: string;
   processing_time?: string;
   requirements?: string[];
@@ -11,12 +12,14 @@ export interface PayrollProduct {
 }
 
 export const payrollProducts: PayrollProduct[] = [
+  // EMPLOYEE TAX
   {
-    id: "emp101",
+    id: "emp101-payroll",
     code: "EMP101",
     name: "Registration of an Employer - Employer Tax, Skills Development Levy and UIF",
     price: 1850,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Complete employer registration with SARS for PAYE, SDL and UIF",
     processing_time: "5-7 Working Days",
     requirements: [
@@ -34,11 +37,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "emp123t", 
+    id: "emp123t-payroll", 
     code: "EMP123T",
     name: "Cancellation of Registration as Employer",
     price: 1200,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Cancel employer registration with SARS",
     processing_time: "3-5 Working Days",
     requirements: [
@@ -55,11 +59,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "irp3",
+    id: "irp3-payroll",
     code: "IRP3", 
     name: "Request for Tax Deduction Directive",
     price: 850,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Apply for tax deduction directive from SARS",
     processing_time: "10-15 Working Days",
     requirements: [
@@ -76,11 +81,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "irp5-it3",
+    id: "irp5-it3-payroll",
     code: "IRP5/IT3",
     name: "Employees Tax Certificates/General Information Returns and Computation",
     price: 375,
     category: "payroll", 
+    subcategory: "Employee Tax",
     description: "Prepare and issue employee tax certificates",
     processing_time: "Monthly/Annually",
     requirements: [
@@ -97,11 +103,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "emp501",
+    id: "emp501-payroll",
     code: "EMP501",
     name: "Employee's Tax Reconciliation", 
     price: 750,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Annual employee tax reconciliation submission",
     processing_time: "Annually - September",
     requirements: [
@@ -118,11 +125,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "emp201",
+    id: "emp201-payroll",
     code: "EMP201", 
     name: "Employee's Tax/SDL and UIF Remittance Return",
     price: 650,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Monthly PAYE, SDL and UIF returns",
     processing_time: "Monthly by 7th",
     requirements: [
@@ -139,11 +147,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "tadmin",
+    id: "tadmin-payroll",
     code: "TADMIN",
     name: "Preparation of updating bank details/admin, changes at SARS",
     price: 375,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Update employer administrative details with SARS", 
     processing_time: "3-5 Working Days",
     requirements: [
@@ -160,11 +169,12 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   },
   {
-    id: "empsa",
+    id: "empsa-payroll",
     code: "EMPSA",
     name: "Payroll Taxes - Objection and Reconstruction", 
     price: 850,
     category: "payroll",
+    subcategory: "Employee Tax",
     description: "Handle payroll tax disputes and reconstructions",
     processing_time: "15-30 Working Days",
     requirements: [
@@ -181,3 +191,5 @@ export const payrollProducts: PayrollProduct[] = [
     ]
   }
 ];
+
+export const allPayrollProducts = payrollProducts;

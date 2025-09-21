@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProductGrid } from '@/components/ui/ProductGrid';
-import { bookkeepingProducts } from '@/data/bookkeepingProducts';
+import { allBookkeepingProducts } from '@/data/bookkeepingProducts';
 import { 
   BookOpen, 
   Calculator, 
@@ -231,7 +231,7 @@ const BookkeepingServicesLanding = () => {
           </div>
 
           <ProductGrid 
-            products={bookkeepingProducts}
+            products={allBookkeepingProducts}
             category="bookkeeping"
             itemsPerPage={30}
           />

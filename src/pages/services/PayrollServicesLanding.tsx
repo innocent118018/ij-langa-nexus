@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProductGrid } from '@/components/ui/ProductGrid';
-import { payrollProducts } from '@/data/payrollProducts';
+import { allPayrollProducts } from '@/data/payrollProducts';
 import { 
   Users, 
   Calculator, 
@@ -238,7 +238,7 @@ const PayrollServicesLanding = () => {
           </div>
 
           <ProductGrid 
-            products={payrollProducts}
+            products={allPayrollProducts}
             category="payroll"
             itemsPerPage={30}
           />

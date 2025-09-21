@@ -13,6 +13,7 @@ interface Product {
   description?: string;
   price?: number;
   category: string;
+  subcategory?: string;
   processing_time?: string;
 }
 
@@ -59,9 +60,16 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <Card key={product.id || index} className="h-full flex flex-col hover:shadow-lg transition-all duration-200 border border-border">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <Badge variant="secondary" className="text-xs font-mono">
-                  {product.code}
-                </Badge>
+                <div className="space-y-1">
+                  <Badge variant="secondary" className="text-xs font-mono">
+                    {product.code}
+                  </Badge>
+                  {product.subcategory && (
+                    <Badge variant="outline" className="text-xs">
+                      {product.subcategory}
+                    </Badge>
+                  )}
+                </div>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </div>
               <CardTitle className="text-sm font-semibold line-clamp-2 min-h-[2.5rem]">
