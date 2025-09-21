@@ -1,146 +1,104 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface CustomerAccount {
   id: string;
   customer_name: string;
-  billing_address?: string;
-  delivery_address?: string;
+  billing_address: string;
+  delivery_address: string;
   phone?: string;
   credit_limit: number;
   has_default_due_date_days: boolean;
   default_due_date_days?: number;
   has_default_hourly_rate: boolean;
-  default_hourly_rate?: number;
+  default_hourly_rate?: number;  
   is_primary_account: boolean;
   parent_account_id?: string;
   account_status: string;
-}
-
-interface CustomerSession {
-  id: string;
   email: string;
-  customer_account_id: string;
-  session_token: string;
-  expires_at: string;
-  is_active: boolean;
 }
 
 interface CustomerAuthContextType {
   currentAccount: CustomerAccount | null;
-  availableAccounts: CustomerAccount[];
-  currentSession: CustomerSession | null;
+  sessionToken: string | null;
   isLoading: boolean;
-  getAccountsByEmail: (email: string) => Promise<CustomerAccount[]>;
-  hasActiveSession: (email: string) => Promise<boolean>;
-  signInToAccount: (email: string, accountId: string) => Promise<{ success: boolean; error?: string }>;
+  availableAccounts: CustomerAccount[];
+  login: (account: CustomerAccount, token: string) => void;
+  logout: () => void;
+  switchAccount: (accountId: string) => Promise<void>;
   signOut: () => Promise<void>;
-  switchAccount: (accountId: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const CustomerAuthContext = createContext<CustomerAuthContextType | undefined>(undefined);
 
-export const CustomerAuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState<CustomerAccount | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [availableAccounts, setAvailableAccounts] = useState<CustomerAccount[]>([]);
-  const [currentSession, setCurrentSession] = useState<CustomerSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on load
-    checkExistingSession();
+    // Check for existing customer session on mount
+    const storedAccount = localStorage.getItem('customer_account');
+    const storedToken = localStorage.getItem('customer_session_token');
+    
+    if (storedAccount && storedToken) {
+      try {
+        const account = JSON.parse(storedAccount);
+        setCurrentAccount(account);
+        setSessionToken(storedToken);
+      } catch (error) {
+        console.error('Error parsing stored customer account:', error);
+        localStorage.removeItem('customer_account');
+        localStorage.removeItem('customer_session_token');
+      }
+    }
+    
+    setIsLoading(false);
   }, []);
 
-  const checkExistingSession = async () => {
-    try {
-      const sessionToken = localStorage.getItem('customer_session_token');
-      const email = localStorage.getItem('customer_email');
-      
-      if (sessionToken && email) {
-        // Verify session is still valid
-        const { data: sessionData, error } = await supabase
-          .from('customer_sessions')
-          .select(`
-            *,
-            customer_accounts (*)
-          `)
-          .eq('session_token', sessionToken)
-          .eq('is_active', true)
-          .gt('expires_at', new Date().toISOString())
-          .single();
-
-        if (sessionData && !error) {
-          setCurrentSession(sessionData);
-          setCurrentAccount(sessionData.customer_accounts);
-          
-          // Load available accounts for this email
-          const accounts = await getAccountsByEmail(email);
-          setAvailableAccounts(accounts);
-        } else {
-          // Session expired or invalid
-          localStorage.removeItem('customer_session_token');
-          localStorage.removeItem('customer_email');
-        }
-      }
-    } catch (error) {
-      console.error('Error checking existing session:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const login = (account: CustomerAccount, token: string) => {
+    setCurrentAccount(account);
+    setSessionToken(token);
+    localStorage.setItem('customer_account', JSON.stringify(account));
+    localStorage.setItem('customer_session_token', token);
+    
+    // Fetch available accounts for the same email
+    fetchAccountsByEmail(account.email);
   };
 
-  const getAccountsByEmail = async (email: string): Promise<CustomerAccount[]> => {
+  const fetchAccountsByEmail = async (email: string) => {
     try {
       const { data, error } = await supabase.rpc('get_customer_accounts_by_email', {
         customer_email: email
       });
-
+      
       if (error) throw error;
-      return data || [];
+      
+      // Add email to each account since the function doesn't return it
+      const accountsWithEmail = (data || []).map(account => ({
+        ...account,
+        email: email
+      }));
+      
+      setAvailableAccounts(accountsWithEmail);
     } catch (error) {
-      console.error('Error fetching accounts:', error);
-      return [];
+      console.error('Error fetching available accounts:', error);
+      setAvailableAccounts([]);
     }
   };
 
-  const hasActiveSession = async (email: string): Promise<boolean> => {
+  const switchAccount = async (accountId: string) => {
+    if (!currentAccount) return;
+    
+    const targetAccount = availableAccounts.find(acc => acc.id === accountId);
+    if (!targetAccount) return;
+
     try {
-      const { data, error } = await supabase.rpc('has_active_customer_session', {
-        customer_email: email
-      });
-
-      if (error) throw error;
-      return data || false;
-    } catch (error) {
-      console.error('Error checking active session:', error);
-      return false;
-    }
-  };
-
-  const generateSessionToken = (): string => {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
-  };
-
-  const signInToAccount = async (
-    email: string, 
-    accountId: string
-  ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      setIsLoading(true);
-
-      // Check if email already has active session
-      const hasActive = await hasActiveSession(email);
-      if (hasActive) {
-        return { success: false, error: 'This email already has an active session. Please sign out first.' };
-      }
-
-      // Generate session token
-      const sessionToken = generateSessionToken();
-
-      // Create session
-      const { data: sessionId, error: sessionError } = await supabase.rpc('create_customer_session', {
-        customer_email: email,
+      // Create new session for the target account
+      const sessionToken = crypto.randomUUID();
+      const { error } = await supabase.rpc('create_customer_session', {
+        customer_email: currentAccount.email,
         account_id: accountId,
         session_token: sessionToken,
         client_ip: null,
@@ -148,133 +106,54 @@ export const CustomerAuthProvider = ({ children }: { children: React.ReactNode }
         session_duration_hours: 24
       });
 
-      if (sessionError) throw sessionError;
+      if (error) throw error;
 
-      // Get account details
-      const { data: accountData, error: accountError } = await supabase
-        .from('customer_accounts')
-        .select('*')
-        .eq('id', accountId)
-        .single();
-
-      if (accountError) throw accountError;
-
-      // Get session details
-      const { data: sessionData, error: getSessionError } = await supabase
-        .from('customer_sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-
-      if (getSessionError) throw getSessionError;
-
-      // Store session locally
+      // Update current account and session
+      setCurrentAccount(targetAccount);
+      setSessionToken(sessionToken);
+      localStorage.setItem('customer_account', JSON.stringify(targetAccount));
       localStorage.setItem('customer_session_token', sessionToken);
-      localStorage.setItem('customer_email', email);
-
-      // Update state
-      setCurrentAccount(accountData);
-      setCurrentSession(sessionData);
-      
-      // Load all accounts for this email
-      const accounts = await getAccountsByEmail(email);
-      setAvailableAccounts(accounts);
-
-      toast.success(`Signed in as ${accountData.customer_name}`);
-      return { success: true };
-
-    } catch (error: any) {
-      console.error('Sign in error:', error);
-      return { success: false, error: error.message || 'Failed to sign in' };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const switchAccount = async (accountId: string): Promise<{ success: boolean; error?: string }> => {
-    if (!currentSession) {
-      return { success: false, error: 'No active session' };
-    }
-
-    try {
-      setIsLoading(true);
-
-      // Get new account details
-      const { data: accountData, error: accountError } = await supabase
-        .from('customer_accounts')
-        .select('*')
-        .eq('id', accountId)
-        .eq('email', currentSession.email)
-        .single();
-
-      if (accountError) throw accountError;
-
-      // Update current session to point to new account
-      const { error: updateError } = await supabase
-        .from('customer_sessions')
-        .update({ customer_account_id: accountId })
-        .eq('id', currentSession.id);
-
-      if (updateError) throw updateError;
-
-      // Update state
-      setCurrentAccount(accountData);
-      setCurrentSession({ ...currentSession, customer_account_id: accountId });
-
-      toast.success(`Switched to ${accountData.customer_name}`);
-      return { success: true };
-
-    } catch (error: any) {
-      console.error('Switch account error:', error);
-      return { success: false, error: error.message || 'Failed to switch account' };
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error('Error switching account:', error);
+      throw error;
     }
   };
 
   const signOut = async () => {
-    try {
-      if (currentSession) {
-        // End the session
-        await supabase
-          .from('customer_sessions')
-          .update({ 
-            is_active: false, 
-            ended_at: new Date().toISOString() 
-          })
-          .eq('id', currentSession.id);
-      }
-
-      // Clear local storage
-      localStorage.removeItem('customer_session_token');
-      localStorage.removeItem('customer_email');
-
-      // Clear state
-      setCurrentAccount(null);
-      setCurrentSession(null);
-      setAvailableAccounts([]);
-
-      toast.success('Signed out successfully');
-    } catch (error) {
-      console.error('Sign out error:', error);
-      toast.error('Error signing out');
-    }
+    await logout();
   };
 
-  const value: CustomerAuthContextType = {
-    currentAccount,
-    availableAccounts,
-    currentSession,
-    isLoading,
-    getAccountsByEmail,
-    hasActiveSession,
-    signInToAccount,
-    signOut,
-    switchAccount,
+  const logout = async () => {
+    if (sessionToken) {
+      try {
+        // End the session in the database
+        await supabase
+          .from('customer_sessions')
+          .update({ is_active: false, ended_at: new Date().toISOString() })
+          .eq('session_token', sessionToken);
+      } catch (error) {
+        console.error('Error ending session:', error);
+      }
+    }
+    
+    setCurrentAccount(null);
+    setSessionToken(null);
+    setAvailableAccounts([]);
+    localStorage.removeItem('customer_account');
+    localStorage.removeItem('customer_session_token');
   };
 
   return (
-    <CustomerAuthContext.Provider value={value}>
+    <CustomerAuthContext.Provider value={{
+      currentAccount,
+      sessionToken,
+      isLoading,
+      availableAccounts,
+      login,
+      logout,
+      switchAccount,
+      signOut
+    }}>
       {children}
     </CustomerAuthContext.Provider>
   );

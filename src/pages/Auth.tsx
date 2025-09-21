@@ -13,12 +13,14 @@ import { CustomerLogin } from '@/components/auth/CustomerLogin';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { Users, Shield } from 'lucide-react';
 
+type AuthType = 'admin' | 'customer';
+
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [authType, setAuthType] = useState<'admin' | 'customer'>('admin');
+  const [authType, setAuthType] = useState<AuthType>('admin');
   const navigate = useNavigate();
   const { currentAccount } = useCustomerAuth();
 
@@ -108,7 +110,7 @@ export default function Auth() {
               Admin Portal
             </Button>
             <Button
-              variant={authType === 'customer' ? 'default' : 'outline'}
+              variant={(authType as string) === 'customer' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setAuthType('customer')}
               className="flex-1 gap-2"
