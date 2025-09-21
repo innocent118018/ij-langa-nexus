@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
 import { WhatsAppChat } from '@/components/whatsapp/WhatsAppChat';
 import { Layout } from "@/components/layout/Layout";
@@ -182,11 +183,12 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
               <WhatsAppChat />
               <Routes>
                 {/* Public routes with Layout */}
@@ -720,6 +722,7 @@ function App() {
             </BrowserRouter>
           </TooltipProvider>
         </CartProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
