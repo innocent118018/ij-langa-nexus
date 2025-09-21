@@ -13,6 +13,10 @@ interface SystemMonitoringData {
   total_records: number;
   records_last_24h: number;
   records_last_7d: number;
+  potential_duplicates: number;
+  unique_emails?: number;
+  unique_users?: number;
+  last_checked: string;
 }
 
 interface DuplicateData {
@@ -148,7 +152,7 @@ export const SystemMonitoring = () => {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center justify-between">
                 <span className="capitalize">{table.table_name.replace('_', ' ')}</span>
-                {table.potential_duplicates > 0 ? (
+                {((table as any).potential_duplicates || 0) > 0 ? (
                   <AlertTriangle className="h-5 w-5 text-amber-500" />
                 ) : (
                   <CheckCircle className="h-5 w-5 text-green-500" />
@@ -162,26 +166,26 @@ export const SystemMonitoring = () => {
                   <Badge variant="outline">{table.total_records}</Badge>
                 </div>
                 
-                {table.unique_emails && (
+                {(table as any).unique_emails && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Unique Emails:</span>
-                    <Badge variant="outline">{table.unique_emails}</Badge>
+                    <Badge variant="outline">{(table as any).unique_emails}</Badge>
                   </div>
                 )}
                 
-                {table.unique_users && (
+                {(table as any).unique_users && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Unique Users:</span>
-                    <Badge variant="outline">{table.unique_users}</Badge>
+                    <Badge variant="outline">{(table as any).unique_users}</Badge>
                   </div>
                 )}
                 
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Potential Duplicates:</span>
                   <Badge 
-                    variant={table.potential_duplicates > 0 ? "destructive" : "default"}
+                    variant={((table as any).potential_duplicates || 0) > 0 ? "destructive" : "default"}
                   >
-                    {table.potential_duplicates}
+                    {(table as any).potential_duplicates || 0}
                   </Badge>
                 </div>
                 
@@ -196,7 +200,7 @@ export const SystemMonitoring = () => {
                     Check Duplicates
                   </Button>
                   
-                  {table.potential_duplicates > 0 && (
+                  {((table as any).potential_duplicates || 0) > 0 && (
                     <Button 
                       variant="destructive" 
                       size="sm" 
@@ -212,7 +216,7 @@ export const SystemMonitoring = () => {
               </div>
               
               <div className="text-xs text-muted-foreground mt-3">
-                Last checked: {formatDate(table.last_checked)}
+                Last checked: {(table as any).last_checked ? formatDate((table as any).last_checked) : 'Never'}
               </div>
             </CardContent>
           </Card>
