@@ -190,27 +190,17 @@ export const Header = () => {
                 {isMobileServicesOpen && (
                   <div className="ml-4 mt-2 space-y-2">
                     <Link
-                      to="/services/accounting"
+                      to="/services/secretarial-services"
                       className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
                       onClick={() => {
                         setIsMenuOpen(false);
                         setIsMobileServicesOpen(false);
                       }}
                     >
-                      Accounting Services
+                      Secretarial Services
                     </Link>
                     <Link
-                      to="/services/taxation"
-                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setIsMobileServicesOpen(false);
-                      }}
-                    >
-                      Taxation Services
-                    </Link>
-                    <Link
-                      to="/services/payroll"
+                      to="/services/payroll-services"
                       className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -220,14 +210,24 @@ export const Header = () => {
                       Payroll Services
                     </Link>
                     <Link
-                      to="/services/secretarial"
+                      to="/services/bookkeeping-services"
                       className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
                       onClick={() => {
                         setIsMenuOpen(false);
                         setIsMobileServicesOpen(false);
                       }}
                     >
-                      Secretarial Services
+                      Bookkeeping Services
+                    </Link>
+                    <Link
+                      to="/services/taxation-services"
+                      className="block text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsMobileServicesOpen(false);
+                      }}
+                    >
+                      Taxation Services
                     </Link>
                   </div>
                 )}

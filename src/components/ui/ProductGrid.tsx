@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, ShoppingCart, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PaymentButton } from '@/components/payments/PaymentButton';
+
 
 interface Product {
   id: string;
@@ -91,11 +91,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               
               <div className="space-y-2 mt-4">
                 {product.price ? (
-                  <PaymentButton
-                    amount={product.price}
-                    description={product.name}
-                    className="w-full"
-                  />
+                  <Link to="/contact" className="w-full">
+                    <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Order {formatCurrency(product.price)}
+                    </Button>
+                  </Link>
                 ) : (
                   <Link to="/contact" className="w-full">
                     <Button variant="outline" size="sm" className="w-full">
