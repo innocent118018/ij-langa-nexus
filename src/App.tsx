@@ -75,6 +75,7 @@ import InventoryTransfers from "./pages/dashboard/InventoryTransfers";
 import InventoryWriteoffs from "./pages/dashboard/InventoryWriteoffs";
 import ProductionOrders from "./pages/dashboard/ProductionOrders";
 import Projects from "./pages/dashboard/Projects";
+import Employees from "./pages/dashboard/Employees";
 import Payslips from "./pages/dashboard/Payslips";
 import Investments from "./pages/dashboard/Investments";
 import FixedAssets from "./pages/dashboard/FixedAssets";
@@ -471,6 +472,229 @@ function App() {
                 <Route path="/dashboard/system-settings" element={
                   <DashboardLayout>
                     <SystemSettings />
+                  </DashboardLayout>
+                } />
+
+                {/* All Accounting System Routes */}
+                <Route path="/dashboard/bank-cash-accounts" element={
+                  <DashboardLayout>
+                    <BankCashAccounts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/receipts" element={
+                  <DashboardLayout>
+                    <Receipts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/payments" element={
+                  <DashboardLayout>
+                    <Payments />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/inter-account-transfers" element={
+                  <DashboardLayout>
+                    <InterAccountTransfers />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/bank-reconciliations" element={
+                  <DashboardLayout>
+                    <BankReconciliations />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/expense-claims" element={
+                  <DashboardLayout>
+                    <ExpenseClaims />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/customers" element={
+                  <DashboardLayout>
+                    <Customers />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/sales-quotes" element={
+                  <DashboardLayout>
+                    <SalesQuotes />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/sales-orders" element={
+                  <DashboardLayout>
+                    <SalesOrders />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/sales-invoices" element={
+                  <DashboardLayout>
+                    <SalesInvoices />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/credit-notes" element={
+                  <DashboardLayout>
+                    <CreditNotes />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/late-payment-fees" element={
+                  <DashboardLayout>
+                    <LatePaymentFees />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/delivery-notes" element={
+                  <DashboardLayout>
+                    <DeliveryNotes />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/billable-time" element={
+                  <DashboardLayout>
+                    <BillableTime />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/withholding-tax-receipts" element={
+                  <DashboardLayout>
+                    <WithholdingTaxReceipts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/suppliers" element={
+                  <DashboardLayout>
+                    <Suppliers />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/purchase-quotes" element={
+                  <DashboardLayout>
+                    <PurchaseQuotes />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/purchase-orders" element={
+                  <DashboardLayout>
+                    <PurchaseOrders />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/purchase-invoices" element={
+                  <DashboardLayout>
+                    <PurchaseInvoices />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/debit-notes" element={
+                  <DashboardLayout>
+                    <DebitNotes />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/goods-receipts" element={
+                  <DashboardLayout>
+                    <GoodsReceipts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/inventory-items" element={
+                  <DashboardLayout>
+                    <InventoryItems />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/inventory-transfers" element={
+                  <DashboardLayout>
+                    <InventoryTransfers />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/inventory-writeoffs" element={
+                  <DashboardLayout>
+                    <InventoryWriteoffs />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/production-orders" element={
+                  <DashboardLayout>
+                    <ProductionOrders />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/projects" element={
+                  <DashboardLayout>
+                    <Projects />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/employees" element={
+                  <DashboardLayout>
+                    <Employees />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/payslips" element={
+                  <DashboardLayout>
+                    <Payslips />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/investments" element={
+                  <DashboardLayout>
+                    <Investments />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/fixed-assets" element={
+                  <DashboardLayout>
+                    <FixedAssets />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/depreciation-entries" element={
+                  <DashboardLayout>
+                    <DepreciationEntries />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/intangible-assets" element={
+                  <DashboardLayout>
+                    <IntangibleAssets />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/amortization-entries" element={
+                  <DashboardLayout>
+                    <AmortizationEntries />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/capital-accounts" element={
+                  <DashboardLayout>
+                    <CapitalAccounts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/special-accounts" element={
+                  <DashboardLayout>
+                    <SpecialAccounts />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/journal-entries" element={
+                  <DashboardLayout>
+                    <JournalEntries />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/folders" element={
+                  <DashboardLayout>
+                    <Folders />
                   </DashboardLayout>
                 } />
 
