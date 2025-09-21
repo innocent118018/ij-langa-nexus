@@ -2316,6 +2316,51 @@ export type Database = {
           },
         ]
       }
+      localizations: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          currency_code: string | null
+          currency_name: string | null
+          currency_symbol: string | null
+          date_format: string | null
+          decimal_places: number | null
+          id: string
+          is_active: boolean
+          locale_code: string
+          time_format: string | null
+          updated_at: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          currency_code?: string | null
+          currency_name?: string | null
+          currency_symbol?: string | null
+          date_format?: string | null
+          decimal_places?: number | null
+          id?: string
+          is_active?: boolean
+          locale_code: string
+          time_format?: string | null
+          updated_at?: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          currency_code?: string | null
+          currency_name?: string | null
+          currency_symbol?: string | null
+          date_format?: string | null
+          decimal_places?: number | null
+          id?: string
+          is_active?: boolean
+          locale_code?: string
+          time_format?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_urls: string[] | null
@@ -2395,6 +2440,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      number_formats: {
+        Row: {
+          created_at: string
+          decimal_separator: string
+          group_separator: string
+          group_sizes: number[]
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decimal_separator: string
+          group_separator: string
+          group_sizes?: number[]
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decimal_separator?: string
+          group_separator?: string
+          group_sizes?: number[]
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -3289,6 +3367,36 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          setting_key: string
+          setting_value: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key: string
+          setting_value?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key?: string
+          setting_value?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           created_at: string
@@ -3351,6 +3459,42 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      translations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          language_code: string
+          language_name_english: string
+          language_name_native: string
+          translation_key: string
+          translation_value: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language_code: string
+          language_name_english: string
+          language_name_native: string
+          translation_key: string
+          translation_value: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language_code?: string
+          language_name_english?: string
+          language_name_native?: string
+          translation_key?: string
+          translation_value?: string
           updated_at?: string
         }
         Relationships: []

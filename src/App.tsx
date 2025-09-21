@@ -85,6 +85,7 @@ import CapitalAccounts from "./pages/dashboard/CapitalAccounts";
 import SpecialAccounts from "./pages/dashboard/SpecialAccounts";
 import Folders from "./pages/dashboard/Folders";
 import JournalEntries from "./pages/dashboard/JournalEntries";
+import SystemSettings from "./pages/dashboard/SystemSettings";
 
 // Individual Service Pages
 import Services from "./pages/Services";
@@ -464,6 +465,12 @@ function App() {
                 <Route path="/dashboard/secretarial-software" element={
                   <DashboardLayout>
                     <SecretarialSoftware />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/system-settings" element={
+                  <DashboardLayout>
+                    <SystemSettings />
                   </DashboardLayout>
                 } />
 
