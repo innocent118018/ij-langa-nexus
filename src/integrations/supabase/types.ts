@@ -1625,6 +1625,7 @@ export type Database = {
           phone: string | null
           status: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           accounts_receivable?: number | null
@@ -1636,6 +1637,7 @@ export type Database = {
           phone?: string | null
           status?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           accounts_receivable?: number | null
@@ -1647,6 +1649,7 @@ export type Database = {
           phone?: string | null
           status?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
