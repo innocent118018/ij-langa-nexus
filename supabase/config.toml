@@ -41,3 +41,9 @@ verify_jwt = false
 
 [functions.admin-localization]
 verify_jwt = true
+
+[functions.process-notifications]
+verify_jwt = false
+
+[functions.notification-cron]
+verify_jwt = false

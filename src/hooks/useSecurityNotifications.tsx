@@ -36,7 +36,10 @@ export const useSecurityNotifications = () => {
           .limit(100);
 
         if (error) throw error;
-        setNotifications(data as SecurityNotification[] || []);
+        setNotifications((data || []).map(item => ({
+          ...item,
+          status: item.status as 'pending' | 'sent' | 'failed'
+        })));
       } catch (error) {
         console.error('Error fetching security notifications:', error);
       } finally {
@@ -57,7 +60,10 @@ export const useSecurityNotifications = () => {
           table: 'security_notifications'
         },
         (payload) => {
-          const newNotification = payload.new as SecurityNotification;
+          const newNotification = {
+            ...payload.new,
+            status: payload.new.status as 'pending' | 'sent' | 'failed'
+          } as SecurityNotification;
           setNotifications(prev => [newNotification, ...prev]);
         }
       )
@@ -69,7 +75,10 @@ export const useSecurityNotifications = () => {
           table: 'security_notifications'
         },
         (payload) => {
-          const updatedNotification = payload.new as SecurityNotification;
+          const updatedNotification = {
+            ...payload.new,
+            status: payload.new.status as 'pending' | 'sent' | 'failed'
+          } as SecurityNotification;
           setNotifications(prev => 
             prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
           );

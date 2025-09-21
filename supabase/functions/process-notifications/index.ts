@@ -34,7 +34,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Get pending notifications
     const { data: notifications, error: fetchError } = await supabaseClient
-      .from('notifications')
+      .from('security_notifications')
       .select('*')
       .eq('status', 'pending')
       .order('created_at', { ascending: true })
@@ -71,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           // Update notification status to failed
           await supabaseClient
-            .from('notifications')
+            .from('security_notifications')
             .update({
               status: 'failed',
               error_message: error.message,
@@ -144,7 +144,7 @@ async function sendEmail(notification: Notification): Promise<void> {
 
   // Update notification status
   await supabaseClient
-    .from('notifications')
+    .from('security_notifications')
     .update({
       status: 'sent',
       sent_at: new Date().toISOString()
@@ -191,7 +191,7 @@ async function sendWhatsApp(notification: Notification): Promise<void> {
 
   // Update notification status
   await supabaseClient
-    .from('notifications')
+    .from('security_notifications')
     .update({
       status: 'sent',
       sent_at: new Date().toISOString()

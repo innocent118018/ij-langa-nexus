@@ -47,7 +47,7 @@ export const useNotifications = () => {
 
     // Subscribe to real-time notifications
     const channel = supabase
-      .channel('user-notifications')
+      .channel('notifications')
       .on(
         'postgres_changes',
         {
