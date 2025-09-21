@@ -3362,6 +3362,7 @@ export type Database = {
         Row: {
           created_at: string | null
           customer_id: string | null
+          customer_name: string | null
           description: string | null
           expiry_date: string | null
           id: string
@@ -3380,6 +3381,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           customer_id?: string | null
+          customer_name?: string | null
           description?: string | null
           expiry_date?: string | null
           id?: string
@@ -3398,6 +3400,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           customer_id?: string | null
+          customer_name?: string | null
           description?: string | null
           expiry_date?: string | null
           id?: string

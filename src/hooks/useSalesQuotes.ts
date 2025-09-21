@@ -28,22 +28,11 @@ export const useSalesQuotes = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('sales_quotes')
-        .select(`
-          *,
-          customers (
-            id,
-            name
-          )
-        `)
+        .select('*')
         .order('issue_date', { ascending: false });
       
       if (error) throw error;
-      
-      // Transform data to include customer_name from joined customers table
-      return data.map((quote: any) => ({
-        ...quote,
-        customer_name: quote.customers?.name || 'Unknown Customer'
-      }));
+      return data;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes cache
