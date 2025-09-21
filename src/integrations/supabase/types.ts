@@ -3042,6 +3042,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       purchase_invoices: {
         Row: {
           balance_due: number
@@ -4294,6 +4321,10 @@ export type Database = {
         Args: { invoice_num: string; invoice_user_id: string }
         Returns: boolean
       }
+      check_user_permission: {
+        Args: { required_role: string }
+        Returns: boolean
+      }
       cleanup_duplicates: {
         Args: { target_table: string }
         Returns: {
@@ -4368,6 +4399,17 @@ export type Database = {
           id: string
           registration_number: string
           status: string
+        }[]
+      }
+      get_user_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          created_at: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string
         }[]
       }
       get_user_profile_with_activity: {
