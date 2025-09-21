@@ -47,6 +47,17 @@ import MyInvoices from "./pages/dashboard/MyInvoices";
 import Messages from "./pages/dashboard/Messages";
 import SecretarialSoftware from "./pages/dashboard/SecretarialSoftware";
 
+// New ERP/Accounting pages
+import Summary from "./pages/dashboard/Summary";
+import BankCashAccounts from "./pages/dashboard/BankCashAccounts";
+import Receipts from "./pages/dashboard/Receipts";
+import Payments from "./pages/dashboard/Payments";
+import InterAccountTransfers from "./pages/dashboard/InterAccountTransfers";
+import BankReconciliations from "./pages/dashboard/BankReconciliations";
+import ExpenseClaims from "./pages/dashboard/ExpenseClaims";
+import Customers from "./pages/dashboard/Customers";
+import SalesQuotes from "./pages/dashboard/SalesQuotes";
+
 // Individual Service Pages
 import Services from "./pages/Services";
 import BookkeepingTrialBalance from "./pages/services/accounting/BookkeepingTrialBalance";

@@ -32,7 +32,35 @@ import {
   ChevronRight,
   Bell,
   Headphones,
-  Activity
+  Activity,
+  Landmark,
+  Receipt,
+  CreditCard,
+  ArrowLeftRight,
+  CheckSquare,
+  Wallet,
+  UserCheck,
+  FileX,
+  FileEdit,
+  Minus,
+  Clock,
+  FileCheck,
+  ShoppingCart,
+  ClipboardList,
+  Truck,
+  Package,
+  ArrowUpDown,
+  PackageX,
+  Factory,
+  Briefcase as ProjectIcon,
+  UserIcon,
+  Banknote,
+  TrendingUp,
+  Building2,
+  Calendar,
+  Calculator,
+  FolderOpen,
+  SettingsIcon
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -47,87 +75,46 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
   const collapsed = sidebarState === 'collapsed';
 
   const adminMenuItems = [
-    {
-      title: 'Overview',
-      url: '/dashboard',
-      icon: LayoutDashboard,
-      exact: true
-    },
-    {
-      title: 'User Management',
-      url: '/dashboard/users',
-      icon: Users
-    },
-    {
-      title: 'Clients',
-      url: '/dashboard/clients',
-      icon: Users
-    },
-    {
-      title: 'Orders & Projects',
-      url: '/dashboard/orders',
-      icon: Briefcase
-    },
-    {
-      title: 'Invoices & Payments',
-      url: '/dashboard/invoices',
-      icon: DollarSign
-    },
-    {
-      title: 'Document Generation',
-      url: '/dashboard/document-generation',
-      icon: FileOutput
-    },
-    {
-      title: 'Admin Support',
-      url: '/dashboard/admin-support',
-      icon: Headphones
-    },
-    {
-      title: 'Automation Flows',
-      url: '/dashboard/automation-flows',
-      icon: Activity
-    },
-    {
-      title: 'Legal Escalations',
-      url: '/dashboard/legal',
-      icon: Gavel
-    },
-    {
-      title: 'Refunds & Cancellations',
-      url: '/dashboard/refunds',
-      icon: RotateCcw
-    },
-    {
-      title: 'Reports & Analytics',
-      url: '/dashboard/reports',
-      icon: BarChart3
-    },
-    {
-      title: 'Service Management',
-      url: '/dashboard/services',
-      icon: Building
-    },
-    {
-      title: 'Content Management',
-      url: '/dashboard/content',
-      icon: FileText
-    },
-    {
-      title: 'Support & Messages',
-      url: '/dashboard/support',
-      icon: MessageSquare
-    },
-    {
-      title: 'Notifications',
-      url: '/dashboard/notifications',
-      icon: Bell
-    },
-    {
-      title: 'Settings',
-      url: '/dashboard/settings',
-      icon: Settings
-    }
+    { title: 'Summary', url: '/dashboard', icon: LayoutDashboard, exact: true },
+    { title: 'Bank and Cash Accounts', url: '/dashboard/bank-cash-accounts', icon: Landmark },
+    { title: 'Receipts', url: '/dashboard/receipts', icon: Receipt },
+    { title: 'Payments', url: '/dashboard/payments', icon: CreditCard },
+    { title: 'Inter Account Transfers', url: '/dashboard/inter-account-transfers', icon: ArrowLeftRight },
+    { title: 'Bank Reconciliations', url: '/dashboard/bank-reconciliations', icon: CheckSquare },
+    { title: 'Expense Claims', url: '/dashboard/expense-claims', icon: Wallet },
+    { title: 'Customers', url: '/dashboard/customers', icon: UserCheck },
+    { title: 'Sales Quotes', url: '/dashboard/sales-quotes', icon: FileEdit },
+    { title: 'Sales Orders', url: '/dashboard/sales-orders', icon: ShoppingCart },
+    { title: 'Sales Invoices', url: '/dashboard/sales-invoices', icon: FileText },
+    { title: 'Credit Notes', url: '/dashboard/credit-notes', icon: FileX },
+    { title: 'Late Payment Fees', url: '/dashboard/late-payment-fees', icon: Clock },
+    { title: 'Delivery Notes', url: '/dashboard/delivery-notes', icon: Truck },
+    { title: 'Billable Time', url: '/dashboard/billable-time', icon: Clock },
+    { title: 'Withholding Tax Receipts', url: '/dashboard/withholding-tax-receipts', icon: Receipt },
+    { title: 'Suppliers', url: '/dashboard/suppliers', icon: Building },
+    { title: 'Purchase Quotes', url: '/dashboard/purchase-quotes', icon: ClipboardList },
+    { title: 'Purchase Orders', url: '/dashboard/purchase-orders', icon: ShoppingCart },
+    { title: 'Purchase Invoices', url: '/dashboard/purchase-invoices', icon: FileText },
+    { title: 'Debit Notes', url: '/dashboard/debit-notes', icon: Minus },
+    { title: 'Goods Receipts', url: '/dashboard/goods-receipts', icon: Package },
+    { title: 'Inventory Items', url: '/dashboard/inventory-items', icon: Package },
+    { title: 'Inventory Transfers', url: '/dashboard/inventory-transfers', icon: ArrowUpDown },
+    { title: 'Inventory Write-offs', url: '/dashboard/inventory-writeoffs', icon: PackageX },
+    { title: 'Production Orders', url: '/dashboard/production-orders', icon: Factory },
+    { title: 'Projects', url: '/dashboard/projects', icon: ProjectIcon },
+    { title: 'Employees', url: '/dashboard/employees', icon: Users },
+    { title: 'Payslips', url: '/dashboard/payslips', icon: FileCheck },
+    { title: 'Investments', url: '/dashboard/investments', icon: TrendingUp },
+    { title: 'Fixed Assets', url: '/dashboard/fixed-assets', icon: Building2 },
+    { title: 'Depreciation Entries', url: '/dashboard/depreciation-entries', icon: Calendar },
+    { title: 'Intangible Assets', url: '/dashboard/intangible-assets', icon: Shield },
+    { title: 'Amortization Entries', url: '/dashboard/amortization-entries', icon: Calendar },
+    { title: 'Capital Accounts', url: '/dashboard/capital-accounts', icon: Banknote },
+    { title: 'Special Accounts', url: '/dashboard/special-accounts', icon: Landmark },
+    { title: 'Journal Entries', url: '/dashboard/journal-entries', icon: FileEdit },
+    { title: 'Folders', url: '/dashboard/folders', icon: FolderOpen },
+    { title: 'Reports', url: '/dashboard/reports', icon: BarChart3 },
+    { title: 'Settings', url: '/dashboard/settings', icon: SettingsIcon }
   ];
 
   const userMenuItems = [
@@ -214,7 +201,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
 
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-foreground/70 text-xs uppercase tracking-wider px-4 py-2">
-              {!collapsed && (isAdmin ? 'Administration' : 'Client Portal')}
+              {!collapsed && (isAdmin ? 'Accounting System' : 'Client Portal')}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
