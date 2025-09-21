@@ -10,9 +10,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
 import { CustomerLogin } from '@/components/auth/CustomerLogin';
-import { AdminSignup } from '@/components/auth/AdminSignup';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
-import { Users, Shield } from 'lucide-react';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import { Users, Shield, Fingerprint } from 'lucide-react';
 
 type AuthType = 'admin' | 'customer';
 
@@ -22,8 +22,16 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [authType, setAuthType] = useState<AuthType>('admin');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [useBiometric, setUseBiometric] = useState(false);
   const navigate = useNavigate();
   const { currentAccount } = useCustomerAuth();
+  const { 
+    isSupported: isBiometricSupported, 
+    savePassword, 
+    authenticateWithBiometric, 
+    hasSavedCredential 
+  } = useBiometricAuth();
 
   useEffect(() => {
     // Check if admin user is already authenticated
@@ -42,6 +50,34 @@ export default function Auth() {
     checkUser();
   }, [navigate, currentAccount]);
 
+  const handleBiometricAuth = async () => {
+    if (!email) {
+      toast.error('Please enter your email first');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const savedPassword = await authenticateWithBiometric(email);
+      if (savedPassword) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password: savedPassword
+        });
+        
+        if (error) throw error;
+        navigate('/dashboard');
+        toast.success('Signed in successfully with biometrics!');
+      } else {
+        toast.error('No saved credentials found for this email');
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -58,6 +94,16 @@ export default function Auth() {
         
         if (error) throw error;
         toast.success('Check your email for the confirmation link');
+        
+        // Offer to save password with biometrics
+        if (isBiometricSupported && rememberMe) {
+          try {
+            await savePassword(email, password);
+            toast.success('Credentials saved for biometric login!');
+          } catch (error) {
+            console.error('Failed to save biometric credential:', error);
+          }
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -65,6 +111,17 @@ export default function Auth() {
         });
         
         if (error) throw error;
+        
+        // Save password with biometrics if requested
+        if (isBiometricSupported && rememberMe && !hasSavedCredential(email)) {
+          try {
+            await savePassword(email, password);
+            toast.success('Credentials saved for biometric login!');
+          } catch (error) {
+            console.error('Failed to save biometric credential:', error);
+          }
+        }
+        
         navigate('/dashboard');
       }
     } catch (error: any) {
@@ -130,9 +187,8 @@ export default function Auth() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="email" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="email">Login</TabsTrigger>
-              <TabsTrigger value="admin-setup">Admin Setup</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="email">Email Login</TabsTrigger>
               <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
             </TabsList>
             
@@ -160,6 +216,37 @@ export default function Auth() {
                     required
                   />
                 </div>
+                
+                {/* Biometric Authentication */}
+                {isBiometricSupported && hasSavedCredential(email) && !isSignUp && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mb-4"
+                    onClick={handleBiometricAuth}
+                    disabled={isLoading}
+                  >
+                    <Fingerprint className="h-4 w-4 mr-2" />
+                    Sign in with Biometrics
+                  </Button>
+                )}
+
+                {/* Remember Me / Save Password */}
+                {isBiometricSupported && (
+                  <div className="flex items-center space-x-2 mb-4">
+                    <input
+                      type="checkbox"
+                      id="rememberMe"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="rounded"
+                    />
+                    <Label htmlFor="rememberMe" className="text-sm">
+                      {isSignUp ? 'Save for biometric login' : 'Remember me with biometrics'}
+                    </Label>
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
                 </Button>
@@ -174,9 +261,6 @@ export default function Auth() {
               </form>
             </TabsContent>
             
-            <TabsContent value="admin-setup">
-              <AdminSignup />
-            </TabsContent>
             
             <TabsContent value="whatsapp">
               <WhatsAppOTPLogin />
