@@ -12,7 +12,7 @@ import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
 import { CustomerLogin } from '@/components/auth/CustomerLogin';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
-import { useAuthProfile } from '@/hooks/useAuthProfile';
+import { useAuth } from '@/hooks/useAuthWithProfiles';
 import { Users, Shield, Fingerprint } from 'lucide-react';
 
 type AuthType = 'admin' | 'customer';
@@ -27,7 +27,7 @@ export default function Auth() {
   const [useBiometric, setUseBiometric] = useState(false);
   const navigate = useNavigate();
   const { currentAccount } = useCustomerAuth();
-  const { profile } = useAuthProfile();
+  const { signIn, signUp, user, profile } = useAuth();
   const { 
     isSupported: isBiometricSupported, 
     savePassword, 
@@ -37,20 +37,16 @@ export default function Auth() {
 
   useEffect(() => {
     // Check if admin user is already authenticated
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && profile) {
-        navigate('/dashboard');
-        return;
-      }
-      
-      // Check if customer is already authenticated
-      if (currentAccount) {
-        navigate('/dashboard');
-      }
-    };
-    checkUser();
-  }, [navigate, currentAccount, profile]);
+    if (user && profile) {
+      navigate('/dashboard');
+      return;
+    }
+    
+    // Check if customer is already authenticated
+    if (currentAccount) {
+      navigate('/dashboard');
+    }
+  }, [user, profile, navigate, currentAccount]);
 
   const handleBiometricAuth = async () => {
     if (!email) {
@@ -62,10 +58,7 @@ export default function Auth() {
     try {
       const savedPassword = await authenticateWithBiometric(email);
       if (savedPassword) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password: savedPassword
-        });
+        const { error } = await signIn(email, savedPassword);
         
         if (error) throw error;
         navigate('/dashboard');
@@ -86,13 +79,7 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
-          }
-        });
+        const { error } = await signUp(email, password);
         
         if (error) throw error;
         toast.success('Check your email for the confirmation link');
@@ -107,10 +94,7 @@ export default function Auth() {
           }
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+        const { error } = await signIn(email, password);
         
         if (error) throw error;
         
