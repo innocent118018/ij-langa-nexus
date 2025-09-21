@@ -1,5 +1,5 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { EnhancedAdminDashboard } from '@/components/admin/EnhancedAdminDashboard';
 import { LazyClientDashboard } from '@/components/dashboard/LazyComponents';
@@ -12,7 +12,7 @@ const Dashboard = () => {
   const { user, loading } = useAuth();
 
   // Fetch user role from database - optimized with caching
-  const { data: userRole, isLoading: roleLoading } = useQuery({
+  const { data: userRole, isLoading: roleLoading, error } = useQuery({
     queryKey: ['user-role', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -29,10 +29,16 @@ const Dashboard = () => {
     enabled: !!user?.id,
     staleTime: 10 * 60 * 1000, // 10 minutes - role doesn't change often
     gcTime: 30 * 60 * 1000, // 30 minutes cache
+    retry: 1, // Faster failure for better UX
   });
 
+  // Memoize admin check for performance
+  const isAdmin = useMemo(() => {
+    return userRole && ['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole);
+  }, [userRole]);
+
   const LoadingSpinner = () => (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="flex items-center justify-center py-12">
       <div className="text-center">
         <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
         <p className="text-muted-foreground">Loading your dashboard...</p>
@@ -48,8 +54,15 @@ const Dashboard = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if user is admin based on database role
-  const isAdmin = userRole && ['admin', 'super_admin', 'accountant', 'consultant'].includes(userRole);
+  if (error) {
+    console.error('Error loading user role:', error);
+    // Fallback to client dashboard if role fetch fails
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <LazyClientDashboard />
+      </Suspense>
+    );
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
