@@ -1,13 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { usePurchaseQuotes } from '@/hooks/usePurchaseData';
+import { CreatePurchaseQuoteModal } from '@/components/modals/CreatePurchaseQuoteModal';
 
 export default function PurchaseQuotes() {
+  const { quotes, isLoading } = usePurchaseQuotes();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const filteredQuotes = quotes.filter(quote =>
+    quote.quote_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.suppliers?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'secondary';
+      case 'Accepted':
+        return 'default';
+      case 'Cancelled':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-ZA', {
+      style: 'currency',
+      currency: 'ZAR',
+    }).format(amount);
+  };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading purchase quotes...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -18,7 +59,7 @@ export default function PurchaseQuotes() {
               Request and manage supplier quotations for goods and services
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Purchase Quote
           </Button>
@@ -31,7 +72,12 @@ export default function PurchaseQuotes() {
               <div className="flex items-center space-x-2">
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search quotes..." className="pl-8 w-64" />
+                  <Input 
+                    placeholder="Search quotes..." 
+                    className="pl-8 w-64"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
                 <Button variant="outline" size="sm">
                   <Filter className="mr-2 h-4 w-4" />
@@ -47,32 +93,50 @@ export default function PurchaseQuotes() {
                   <TableHead>Quote #</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Supplier</TableHead>
-                  <TableHead>Items</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Total</TableHead>
-                  <TableHead>Valid Until</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">PQ-001</TableCell>
-                  <TableCell>2024-01-15</TableCell>
-                  <TableCell>Tech Solutions Ltd</TableCell>
-                  <TableCell>3</TableCell>
-                  <TableCell>R12,500.00</TableCell>
-                  <TableCell>2024-02-15</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">Pending</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">View</Button>
-                  </TableCell>
-                </TableRow>
+                {filteredQuotes.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      {searchTerm ? 'No quotes found matching your search.' : 'No purchase quotes found. Create your first quote to get started.'}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredQuotes.map((quote) => (
+                    <TableRow key={quote.id}>
+                      <TableCell className="font-medium">{quote.quote_number}</TableCell>
+                      <TableCell>{new Date(quote.request_date || quote.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>{quote.suppliers?.name || 'N/A'}</TableCell>
+                      <TableCell className="max-w-xs truncate">{quote.description || 'No description'}</TableCell>
+                      <TableCell>{formatCurrency(quote.total_amount)}</TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(quote.status)}>
+                          {quote.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm">
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
+
+        <CreatePurchaseQuoteModal
+          open={showCreateModal}
+          onOpenChange={setShowCreateModal}
+        />
       </div>
     </DashboardLayout>
   );
