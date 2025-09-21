@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CustomerAuthProvider } from "@/hooks/useCustomerAuth";
 import { CartProvider } from "@/hooks/useCart";
 import { WhatsAppChat } from '@/components/whatsapp/WhatsAppChat';
 import { Layout } from "@/components/layout/Layout";
@@ -184,7 +185,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <CartProvider>
+        <CustomerAuthProvider>
+          <CartProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
@@ -722,6 +724,7 @@ function App() {
             </BrowserRouter>
           </TooltipProvider>
         </CartProvider>
+        </CustomerAuthProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
