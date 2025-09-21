@@ -1566,6 +1566,71 @@ export type Database = {
           },
         ]
       }
+      customer_accounts: {
+        Row: {
+          account_status: string | null
+          billing_address: string | null
+          created_at: string
+          credit_limit: number | null
+          customer_name: string
+          default_due_date_days: number | null
+          default_hourly_rate: number | null
+          delivery_address: string | null
+          email: string
+          has_default_due_date_days: boolean | null
+          has_default_hourly_rate: boolean | null
+          id: string
+          is_primary_account: boolean | null
+          parent_account_id: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_status?: string | null
+          billing_address?: string | null
+          created_at?: string
+          credit_limit?: number | null
+          customer_name: string
+          default_due_date_days?: number | null
+          default_hourly_rate?: number | null
+          delivery_address?: string | null
+          email: string
+          has_default_due_date_days?: boolean | null
+          has_default_hourly_rate?: boolean | null
+          id?: string
+          is_primary_account?: boolean | null
+          parent_account_id?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_status?: string | null
+          billing_address?: string | null
+          created_at?: string
+          credit_limit?: number | null
+          customer_name?: string
+          default_due_date_days?: number | null
+          default_hourly_rate?: number | null
+          delivery_address?: string | null
+          email?: string
+          has_default_due_date_days?: boolean | null
+          has_default_hourly_rate?: boolean | null
+          id?: string
+          is_primary_account?: boolean | null
+          parent_account_id?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_contacts: {
         Row: {
           birthday: string | null
@@ -1613,6 +1678,97 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      customer_notifications: {
+        Row: {
+          created_at: string
+          customer_account_id: string
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          priority: string | null
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          customer_account_id: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          priority?: string | null
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          customer_account_id?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          priority?: string | null
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notifications_customer_account_id_fkey"
+            columns: ["customer_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_sessions: {
+        Row: {
+          created_at: string
+          customer_account_id: string
+          email: string
+          ended_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          session_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_account_id: string
+          email: string
+          ended_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          session_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_account_id?: string
+          email?: string
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          session_token?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_sessions_customer_account_id_fkey"
+            columns: ["customer_account_id"]
+            isOneToOne: false
+            referencedRelation: "customer_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customers: {
         Row: {
@@ -4144,6 +4300,17 @@ export type Database = {
           cleaned_count: number
         }[]
       }
+      create_customer_session: {
+        Args: {
+          account_id: string
+          client_ip?: unknown
+          client_user_agent?: string
+          customer_email: string
+          session_duration_hours?: number
+          session_token: string
+        }
+        Returns: string
+      }
       detect_duplicates: {
         Args: { target_table?: string }
         Returns: {
@@ -4157,6 +4324,24 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_customer_accounts_by_email: {
+        Args: { customer_email: string }
+        Returns: {
+          account_status: string
+          billing_address: string
+          credit_limit: number
+          customer_name: string
+          default_due_date_days: number
+          default_hourly_rate: number
+          delivery_address: string
+          has_default_due_date_days: boolean
+          has_default_hourly_rate: boolean
+          id: string
+          is_primary_account: boolean
+          parent_account_id: string
+          phone: string
+        }[]
       }
       get_dashboard_metrics: {
         Args: { user_uuid: string }
@@ -4183,6 +4368,10 @@ export type Database = {
           description: string
           related_id: string
         }[]
+      }
+      has_active_customer_session: {
+        Args: { customer_email: string }
+        Returns: boolean
       }
     }
     Enums: {
