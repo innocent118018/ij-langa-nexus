@@ -106,6 +106,26 @@ import PayrollServicesLanding from './pages/services/PayrollServicesLanding';
 import BookkeepingServicesLanding from './pages/services/BookkeepingServicesLanding';
 import TaxationServicesLanding from './pages/services/TaxationServicesLanding';
 
+// Individual Service Pages
+import NameReservation from './pages/services/secretarial/NameReservation';
+import ExtendNameReservation from './pages/services/secretarial/ExtendNameReservation';
+import MemorandumOfIncorporation from './pages/services/secretarial/MemorandumOfIncorporation';
+import DirectorChanges from './pages/services/secretarial/DirectorChanges';
+import MOIAmendments from './pages/services/secretarial/MOIAmendments';
+import RegistrationCertificate from './pages/services/secretarial/RegistrationCertificate';
+import CompanyDeregistration from './pages/services/secretarial/CompanyDeregistration';
+import EmployerRegistration from './pages/services/payroll/EmployerRegistration';
+import TaxDeductionDirective from './pages/services/payroll/TaxDeductionDirective';
+import EmployeeTaxCertificates from './pages/services/payroll/EmployeeTaxCertificates';
+import EmployeeTaxReconciliation from './pages/services/payroll/EmployeeTaxReconciliation';
+import IndividualTaxReturns from './pages/services/taxation/IndividualTaxReturns';
+import CompanyTaxReturns from './pages/services/taxation/CompanyTaxReturns';
+import NoticeOfObjection from './pages/services/taxation/NoticeOfObjection';
+import VATRegistrationService from './pages/services/taxation/VATRegistrationService';
+import PayrollAdministrationService from './pages/services/bookkeeping/PayrollAdministration';
+import AccountingOfficersCertificate from './pages/services/bookkeeping/AccountingOfficersCertificate';
+import EMEQSEAffidavits from './pages/services/bookkeeping/EMEQSEAffidavits';
+
 // ClerkIQ pages
 import ClerkIQ from './pages/ClerkIQ';
 import ClerkIQPricing from './pages/ClerkIQPricing';
@@ -264,6 +284,26 @@ function App() {
                 <Route path="/services/secretarial/bbbee-certificates" element={<Layout><BBBEECertificates /></Layout>} />
                 <Route path="/services/secretarial/credit-checks" element={<Layout><CreditChecks /></Layout>} />
                 <Route path="/services/secretarial/criminal-record-check" element={<Layout><CriminalRecordCheck /></Layout>} />
+                
+                {/* New Individual Service Pages */}
+                <Route path="/services/secretarial/name-reservation" element={<Layout><NameReservation /></Layout>} />
+                <Route path="/services/secretarial/extend-name-reservation" element={<Layout><ExtendNameReservation /></Layout>} />
+                <Route path="/services/secretarial/memorandum-of-incorporation" element={<Layout><MemorandumOfIncorporation /></Layout>} />
+                <Route path="/services/secretarial/director-changes" element={<Layout><DirectorChanges /></Layout>} />
+                <Route path="/services/secretarial/moi-amendments" element={<Layout><MOIAmendments /></Layout>} />
+                <Route path="/services/secretarial/registration-certificate" element={<Layout><RegistrationCertificate /></Layout>} />
+                <Route path="/services/secretarial/company-deregistration" element={<Layout><CompanyDeregistration /></Layout>} />
+                <Route path="/services/payroll/employer-registration" element={<Layout><EmployerRegistration /></Layout>} />
+                <Route path="/services/payroll/tax-deduction-directive" element={<Layout><TaxDeductionDirective /></Layout>} />
+                <Route path="/services/payroll/employee-tax-certificates" element={<Layout><EmployeeTaxCertificates /></Layout>} />
+                <Route path="/services/payroll/employee-tax-reconciliation" element={<Layout><EmployeeTaxReconciliation /></Layout>} />
+                <Route path="/services/taxation/individual-tax-returns" element={<Layout><IndividualTaxReturns /></Layout>} />
+                <Route path="/services/taxation/company-tax-returns" element={<Layout><CompanyTaxReturns /></Layout>} />
+                <Route path="/services/taxation/notice-of-objection" element={<Layout><NoticeOfObjection /></Layout>} />
+                <Route path="/services/taxation/vat-registration-service" element={<Layout><VATRegistrationService /></Layout>} />
+                <Route path="/services/bookkeeping/payroll-administration-service" element={<Layout><PayrollAdministrationService /></Layout>} />
+                <Route path="/services/bookkeeping/accounting-officers-certificate" element={<Layout><AccountingOfficersCertificate /></Layout>} />
+                <Route path="/services/bookkeeping/eme-qse-affidavits" element={<Layout><EMEQSEAffidavits /></Layout>} />
                 
                 <Route path="/dashboard/documents" element={
                   <DashboardLayout>
