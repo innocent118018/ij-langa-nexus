@@ -4429,6 +4429,10 @@ export type Database = {
         Args: { customer_email: string }
         Returns: boolean
       }
+      validate_user_authentication: {
+        Args: { user_email: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

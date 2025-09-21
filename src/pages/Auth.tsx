@@ -12,6 +12,7 @@ import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
 import { CustomerLogin } from '@/components/auth/CustomerLogin';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import { useAuthProfile } from '@/hooks/useAuthProfile';
 import { Users, Shield, Fingerprint } from 'lucide-react';
 
 type AuthType = 'admin' | 'customer';
@@ -26,6 +27,7 @@ export default function Auth() {
   const [useBiometric, setUseBiometric] = useState(false);
   const navigate = useNavigate();
   const { currentAccount } = useCustomerAuth();
+  const { profile } = useAuthProfile();
   const { 
     isSupported: isBiometricSupported, 
     savePassword, 
@@ -37,7 +39,7 @@ export default function Auth() {
     // Check if admin user is already authenticated
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      if (session && profile) {
         navigate('/dashboard');
         return;
       }
@@ -48,7 +50,7 @@ export default function Auth() {
       }
     };
     checkUser();
-  }, [navigate, currentAccount]);
+  }, [navigate, currentAccount, profile]);
 
   const handleBiometricAuth = async () => {
     if (!email) {
