@@ -184,8 +184,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           
           {/* Main Content Area */}
           <main className="flex-1 bg-background">
-            <div className="container mx-auto px-6 py-8 max-w-7xl">
-              {children}
+            <div className="p-2">
+              <div className="flex items-center mb-4">
+                <SidebarTrigger className="mr-4" />
+              </div>
+              <div className="container mx-auto px-6 py-4 max-w-7xl">
+                {children}
+              </div>
             </div>
           </main>
         </SidebarProvider>

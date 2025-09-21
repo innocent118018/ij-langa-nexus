@@ -173,36 +173,34 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
 
   return (
     <TooltipProvider>
-      <Sidebar className={`border-r bg-sidebar text-sidebar-foreground transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+      <Sidebar collapsible="icon" className="border-r">
         <SidebarContent>
           {/* Header with toggle */}
           <div className="p-4 border-b border-sidebar-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 group-data-[collapsible=icon]:justify-center">
                 <Scale className="h-8 w-8 text-sidebar-primary flex-shrink-0" />
-                {!collapsed && (
-                  <div>
-                    <h2 className="text-lg font-bold">
-                      <a href="https://ijlanga.co.za/" target="_blank" rel="noopener noreferrer" className="hover:text-sidebar-primary transition-colors">
-                        IJ Langa
-                      </a>
-                    </h2>
-                    <p className="text-xs text-sidebar-foreground/70">Legal Consulting</p>
-                  </div>
-                )}
+                <div className="group-data-[collapsible=icon]:hidden">
+                  <h2 className="text-lg font-bold">
+                    <a href="https://ijlanga.co.za/" target="_blank" rel="noopener noreferrer" className="hover:text-sidebar-primary transition-colors">
+                      IJ Langa
+                    </a>
+                  </h2>
+                  <p className="text-xs text-sidebar-foreground/70">Legal Consulting</p>
+                </div>
               </div>
               <button
                 onClick={toggleSidebar}
-                className="p-1 hover:bg-sidebar-accent rounded transition-colors"
+                className="p-1 hover:bg-sidebar-accent rounded transition-colors group-data-[collapsible=icon]:hidden"
               >
-                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+                <ChevronLeft className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-foreground/70 text-xs uppercase tracking-wider px-4 py-2">
-              {!collapsed && (isAdmin ? 'Accounting System' : 'Client Portal')}
+              {isAdmin ? 'Accounting System' : 'Client Portal'}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -214,25 +212,17 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
                         <TooltipTrigger asChild>
                           <SidebarMenuButton 
                             asChild
-                            className={`
-                              sidebar-nav-item
-                              ${active 
-                                ? 'sidebar-nav-item active' 
-                                : ''
-                              }
-                            `}
+                            className={active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}
                           >
-                            <NavLink to={item.url} className="flex items-center space-x-3 px-3 py-2">
+                            <NavLink to={item.url} className="flex items-center space-x-3 px-3 py-2 w-full">
                               <item.icon className="h-5 w-5 flex-shrink-0" />
-                              {!collapsed && <span>{item.title}</span>}
+                              <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                             </NavLink>
                           </SidebarMenuButton>
                         </TooltipTrigger>
-                        {collapsed && (
-                          <TooltipContent side="right" className="z-50">
-                            {item.title}
-                          </TooltipContent>
-                        )}
+                        <TooltipContent side="right" className="group-data-[collapsible=expanded]:hidden">
+                          {item.title}
+                        </TooltipContent>
                       </Tooltip>
                     </SidebarMenuItem>
                   );
