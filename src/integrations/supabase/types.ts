@@ -334,6 +334,57 @@ export type Database = {
           },
         ]
       }
+      bank_reconciliations: {
+        Row: {
+          account_id: string
+          book_balance: number
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          difference: number
+          id: string
+          notes: string | null
+          reconciliation_date: string
+          reconciliation_number: string
+          statement_balance: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          book_balance?: number
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          difference?: number
+          id?: string
+          notes?: string | null
+          reconciliation_date?: string
+          reconciliation_number: string
+          statement_balance?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          book_balance?: number
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          difference?: number
+          id?: string
+          notes?: string | null
+          reconciliation_date?: string
+          reconciliation_number?: string
+          statement_balance?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bank_statement_processing_history: {
         Row: {
           completed_at: string | null
@@ -1882,6 +1933,57 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_claims: {
+        Row: {
+          approved_by: string | null
+          approved_date: string | null
+          claim_date: string
+          claim_number: string
+          created_at: string
+          description: string
+          employee_id: string
+          id: string
+          line_items: Json | null
+          reimbursed_date: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          approved_date?: string | null
+          claim_date?: string
+          claim_number: string
+          created_at?: string
+          description: string
+          employee_id: string
+          id?: string
+          line_items?: Json | null
+          reimbursed_date?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          approved_date?: string | null
+          claim_date?: string
+          claim_number?: string
+          created_at?: string
+          description?: string
+          employee_id?: string
+          id?: string
+          line_items?: Json | null
+          reimbursed_date?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       flow_executions: {
         Row: {
           contact_id: string
@@ -2049,6 +2151,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      inter_account_transfers: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          from_account_id: string
+          id: string
+          reference: string | null
+          status: string
+          to_account_id: string
+          transfer_date: string
+          transfer_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          from_account_id: string
+          id?: string
+          reference?: string | null
+          status?: string
+          to_account_id: string
+          transfer_date?: string
+          transfer_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          from_account_id?: string
+          id?: string
+          reference?: string | null
+          status?: string
+          to_account_id?: string
+          transfer_date?: string
+          transfer_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       inventory_items: {
         Row: {
@@ -2974,6 +3121,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      receipts: {
+        Row: {
+          account_id: string
+          amount: number
+          cleared_date: string | null
+          created_at: string
+          customer_id: string | null
+          description: string
+          division_id: string | null
+          id: string
+          payment_method: string | null
+          project_id: string | null
+          receipt_date: string
+          receipt_number: string
+          reference: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount?: number
+          cleared_date?: string | null
+          created_at?: string
+          customer_id?: string | null
+          description: string
+          division_id?: string | null
+          id?: string
+          payment_method?: string | null
+          project_id?: string | null
+          receipt_date?: string
+          receipt_number: string
+          reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          cleared_date?: string | null
+          created_at?: string
+          customer_id?: string | null
+          description?: string
+          division_id?: string | null
+          id?: string
+          payment_method?: string | null
+          project_id?: string | null
+          receipt_date?: string
+          receipt_number?: string
+          reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       sales_invoices: {
         Row: {
