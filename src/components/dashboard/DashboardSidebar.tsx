@@ -76,6 +76,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
 
   const adminMenuItems = [
     { title: 'Summary', url: '/dashboard', icon: LayoutDashboard, exact: true },
+    { title: 'System Monitoring', url: '/dashboard/system-monitoring', icon: Shield },
     { title: 'Bank and Cash Accounts', url: '/dashboard/bank-cash-accounts', icon: Landmark },
     { title: 'Receipts', url: '/dashboard/receipts', icon: Receipt },
     { title: 'Payments', url: '/dashboard/payments', icon: CreditCard },

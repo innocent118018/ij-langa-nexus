@@ -87,6 +87,7 @@ import SpecialAccounts from "./pages/dashboard/SpecialAccounts";
 import Folders from "./pages/dashboard/Folders";
 import JournalEntries from "./pages/dashboard/JournalEntries";
 import SystemSettings from "./pages/dashboard/SystemSettings";
+import SystemMonitoring from "./pages/dashboard/SystemMonitoring";
 
 // Individual Service Pages
 import Services from "./pages/Services";
@@ -468,6 +469,12 @@ function App() {
                 <Route path="/dashboard/system-settings" element={
                   <DashboardLayout>
                     <SystemSettings />
+                  </DashboardLayout>
+                } />
+                
+                <Route path="/dashboard/system-monitoring" element={
+                  <DashboardLayout>
+                    <SystemMonitoring />
                   </DashboardLayout>
                 } />
 
