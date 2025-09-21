@@ -101,6 +101,10 @@ import AccountingServices from './pages/services/AccountingServices';
 import TaxationServices from './pages/services/TaxationServices';
 import PayrollServices from './pages/services/PayrollServices';
 import SecretarialServices from './pages/services/SecretarialServices';
+import SecretarialServicesLanding from './pages/services/SecretarialServicesLanding';
+import PayrollServicesLanding from './pages/services/PayrollServicesLanding';
+import BookkeepingServicesLanding from './pages/services/BookkeepingServicesLanding';
+import TaxationServicesLanding from './pages/services/TaxationServicesLanding';
 
 // ClerkIQ pages
 import ClerkIQ from './pages/ClerkIQ';
@@ -162,6 +166,12 @@ function App() {
                 <Route path="/services/taxation" element={<Layout><TaxationServices /></Layout>} />
                 <Route path="/services/payroll" element={<Layout><PayrollServices /></Layout>} />
                 <Route path="/services/secretarial" element={<Layout><SecretarialServices /></Layout>} />
+                
+                {/* New Service Landing Pages */}
+                <Route path="/services/secretarial-services" element={<Layout><SecretarialServicesLanding /></Layout>} />
+                <Route path="/services/payroll-services" element={<Layout><PayrollServicesLanding /></Layout>} />
+                <Route path="/services/bookkeeping-services" element={<Layout><BookkeepingServicesLanding /></Layout>} />
+                <Route path="/services/taxation-services" element={<Layout><TaxationServicesLanding /></Layout>} />
 
                 {/* ClerkIQ Routes */}
                 <Route path="/clerkiq" element={<Layout><ClerkIQ /></Layout>} />

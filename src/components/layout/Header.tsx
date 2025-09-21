@@ -109,34 +109,18 @@ export const Header = () => {
               {isServicesDropdownOpen && (
                 <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                   <div className="py-2">
-                    <Link
-                      to="/services/accounting"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsServicesDropdownOpen(false)}
-                    >
-                      Accounting Services
-                    </Link>
-                    <Link
-                      to="/services/taxation"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsServicesDropdownOpen(false)}
-                    >
-                      Taxation Services
-                    </Link>
-                    <Link
-                      to="/services/payroll"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsServicesDropdownOpen(false)}
-                    >
-                      Payroll Services
-                    </Link>
-                    <Link
-                      to="/services/secretarial"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsServicesDropdownOpen(false)}
-                    >
-                      Secretarial Services
-                    </Link>
+            <Link to="/services/secretarial-services" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setIsServicesDropdownOpen(false)}>
+              Secretarial Services
+            </Link>
+            <Link to="/services/payroll-services" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setIsServicesDropdownOpen(false)}>
+              Payroll Services  
+            </Link>
+            <Link to="/services/bookkeeping-services" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setIsServicesDropdownOpen(false)}>
+              Bookkeeping Services
+            </Link>
+            <Link to="/services/taxation-services" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setIsServicesDropdownOpen(false)}>
+              Taxation Services
+            </Link>
                   </div>
                 </div>
               )}
