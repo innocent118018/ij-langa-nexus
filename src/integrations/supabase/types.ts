@@ -4117,11 +4117,10 @@ export type Database = {
     Views: {
       system_monitoring: {
         Row: {
-          last_checked: string | null
-          potential_duplicates: number | null
+          records_last_24h: number | null
+          records_last_7d: number | null
           table_name: string | null
           total_records: number | null
-          unique_emails: number | null
         }
         Relationships: []
       }
