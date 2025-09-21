@@ -2708,44 +2708,36 @@ export type Database = {
       }
       notifications: {
         Row: {
-          created_at: string
+          channel: string
+          created_at: string | null
+          error_message: string | null
           id: string
-          is_read: boolean
           message: string
+          recipient: string
           sent_at: string | null
-          title: string
-          type: string
-          user_id: string
+          status: string | null
         }
         Insert: {
-          created_at?: string
+          channel: string
+          created_at?: string | null
+          error_message?: string | null
           id?: string
-          is_read?: boolean
           message: string
+          recipient: string
           sent_at?: string | null
-          title: string
-          type: string
-          user_id: string
+          status?: string | null
         }
         Update: {
-          created_at?: string
+          channel?: string
+          created_at?: string | null
+          error_message?: string | null
           id?: string
-          is_read?: boolean
           message?: string
+          recipient?: string
           sent_at?: string | null
-          title?: string
-          type?: string
-          user_id?: string
+          status?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       number_formats: {
         Row: {
