@@ -3365,6 +3365,84 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          can_create: boolean | null
+          can_delete: boolean | null
+          can_update: boolean | null
+          can_view: boolean | null
+          created_at: string | null
+          id: string
+          resource: string
+          role_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          id?: string
+          resource: string
+          role_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          id?: string
+          resource?: string
+          role_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      role_permissions_audit: {
+        Row: {
+          action_type: string
+          can_create: boolean | null
+          can_delete: boolean | null
+          can_update: boolean | null
+          can_view: boolean | null
+          changed_at: string | null
+          changed_by: string | null
+          id: string
+          resource: string | null
+          role_name: string | null
+          role_permission_id: string | null
+        }
+        Insert: {
+          action_type: string
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          resource?: string | null
+          role_name?: string | null
+          role_permission_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          resource?: string | null
+          role_name?: string | null
+          role_permission_id?: string | null
+        }
+        Relationships: []
+      }
       sales_invoices: {
         Row: {
           acts_as_delivery_note: boolean | null
@@ -4323,6 +4401,14 @@ export type Database = {
       }
       check_user_permission: {
         Args: { required_role: string }
+        Returns: boolean
+      }
+      check_user_resource_permission: {
+        Args: {
+          permission_type: string
+          resource_name: string
+          user_role: string
+        }
         Returns: boolean
       }
       cleanup_duplicates: {
