@@ -252,12 +252,8 @@ function App() {
                 {/* ClerkIQ Bank Statement Processing */}
                 <Route path="/clerkiq/bank-statements/:paymentSuccess" element={<Layout><BankStatements /></Layout>} />
 
-                {/* Dashboard routes with DashboardLayout only (no Layout wrapper) */}
-                <Route path="/dashboard" element={
-                  <DashboardLayout>
-                    <Dashboard />
-                  </DashboardLayout>
-                } />
+                {/* Dashboard routes - main dashboard handles its own layout */}
+                <Route path="/dashboard" element={<Dashboard />} />
                 
                 <Route path="/dashboard/clients" element={
                   <DashboardLayout>
