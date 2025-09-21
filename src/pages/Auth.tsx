@@ -24,10 +24,11 @@ export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [authType, setAuthType] = useState<AuthType>('admin');
   const [rememberMe, setRememberMe] = useState(false);
-  const [useBiometric, setUseBiometric] = useState(false);
   const navigate = useNavigate();
+  
+  const { user, profile } = useAuth();
   const { currentAccount } = useCustomerAuth();
-  const { signIn, signUp, user, profile } = useAuth();
+  const { signIn, signUp } = useAuth();
   const { 
     isSupported: isBiometricSupported, 
     savePassword, 
@@ -246,7 +247,6 @@ export default function Auth() {
                 </Button>
               </form>
             </TabsContent>
-            
             
             <TabsContent value="whatsapp">
               <WhatsAppOTPLogin />
