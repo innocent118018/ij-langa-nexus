@@ -28,7 +28,7 @@ export const useNotifications = () => {
     const fetchNotifications = async () => {
       try {
         const { data, error } = await supabase
-          .from('notifications')
+          .from('user_notifications')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
@@ -47,13 +47,13 @@ export const useNotifications = () => {
 
     // Subscribe to real-time notifications
     const channel = supabase
-      .channel('notifications')
+      .channel('user-notifications')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notifications',
+          table: 'user_notifications',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
@@ -66,7 +66,7 @@ export const useNotifications = () => {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'notifications',
+          table: 'user_notifications',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
@@ -86,7 +86,7 @@ export const useNotifications = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from('user_notifications')
         .update({ is_read: true })
         .eq('id', notificationId);
 
@@ -105,7 +105,7 @@ export const useNotifications = () => {
 
     try {
       const { error } = await supabase
-        .from('notifications')
+        .from('user_notifications')
         .update({ is_read: true })
         .eq('user_id', user.id)
         .eq('is_read', false);

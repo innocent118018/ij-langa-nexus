@@ -98,7 +98,7 @@ const AdminClientPortalView = () => {
 
       // Get client notifications
       const { data: notificationsData, error: notificationsError } = await supabase
-        .from('notifications')
+        .from('user_notifications')
         .select('*')
         .eq('user_id', clientId)
         .order('created_at', { ascending: false })

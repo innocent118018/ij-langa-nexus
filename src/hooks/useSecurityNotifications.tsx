@@ -30,13 +30,13 @@ export const useSecurityNotifications = () => {
     const fetchNotifications = async () => {
       try {
         const { data, error } = await supabase
-          .from('notifications')
+          .from('security_notifications')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(100);
 
         if (error) throw error;
-        setNotifications(data || []);
+        setNotifications(data as SecurityNotification[] || []);
       } catch (error) {
         console.error('Error fetching security notifications:', error);
       } finally {
@@ -54,7 +54,7 @@ export const useSecurityNotifications = () => {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notifications'
+          table: 'security_notifications'
         },
         (payload) => {
           const newNotification = payload.new as SecurityNotification;
@@ -66,7 +66,7 @@ export const useSecurityNotifications = () => {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'notifications'
+          table: 'security_notifications'
         },
         (payload) => {
           const updatedNotification = payload.new as SecurityNotification;
