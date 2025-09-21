@@ -2706,39 +2706,6 @@ export type Database = {
         }
         Relationships: []
       }
-      notifications: {
-        Row: {
-          channel: string
-          created_at: string | null
-          error_message: string | null
-          id: string
-          message: string
-          recipient: string
-          sent_at: string | null
-          status: string | null
-        }
-        Insert: {
-          channel?: string
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          message: string
-          recipient: string
-          sent_at?: string | null
-          status?: string | null
-        }
-        Update: {
-          channel?: string
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          message?: string
-          recipient?: string
-          sent_at?: string | null
-          status?: string | null
-        }
-        Relationships: []
-      }
       number_formats: {
         Row: {
           created_at: string
@@ -3674,6 +3641,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_notifications: {
+        Row: {
+          channel: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          message: string
+          recipient: string
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          channel?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          recipient: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          recipient?: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           category: string
@@ -4050,6 +4050,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
