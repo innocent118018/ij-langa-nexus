@@ -11,10 +11,8 @@ import { toast } from 'sonner';
 interface SystemMonitoringData {
   table_name: string;
   total_records: number;
-  unique_emails?: number;
-  unique_users?: number;
-  potential_duplicates: number;
-  last_checked: string;
+  records_last_24h: number;
+  records_last_7d: number;
 }
 
 interface DuplicateData {
@@ -49,7 +47,7 @@ export const SystemMonitoring = () => {
         .select('*');
       
       if (error) throw error;
-      return data as SystemMonitoringData[];
+      return data;
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });

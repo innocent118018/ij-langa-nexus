@@ -1,7 +1,8 @@
 
 import React, { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { LazyAdminDashboard, LazyClientDashboard } from '@/components/dashboard/LazyComponents';
+import { EnhancedAdminDashboard } from '@/components/admin/EnhancedAdminDashboard';
+import { LazyClientDashboard } from '@/components/dashboard/LazyComponents';
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,7 +53,7 @@ const Dashboard = () => {
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      {isAdmin ? <LazyAdminDashboard /> : <LazyClientDashboard />}
+      {isAdmin ? <EnhancedAdminDashboard /> : <LazyClientDashboard />}
     </Suspense>
   );
 };
