@@ -2718,7 +2718,7 @@ export type Database = {
           status: string | null
         }
         Insert: {
-          channel: string
+          channel?: string
           created_at?: string | null
           error_message?: string | null
           id?: string
