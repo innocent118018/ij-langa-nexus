@@ -3574,6 +3574,48 @@ export type Database = {
         }
         Relationships: []
       }
+      system_audit_log: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          operation: string
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          operation: string
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          operation?: string
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           created_at: string
@@ -4070,12 +4112,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      system_monitoring: {
+        Row: {
+          last_checked: string | null
+          potential_duplicates: number | null
+          table_name: string | null
+          total_records: number | null
+          unique_emails: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_cancel_expired_orders: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      check_customer_duplicate: {
+        Args: { customer_email: string }
+        Returns: boolean
+      }
+      check_invoice_duplicate: {
+        Args: { invoice_num: string; invoice_user_id: string }
+        Returns: boolean
+      }
+      cleanup_duplicates: {
+        Args: { target_table: string }
+        Returns: {
+          cleaned_count: number
+        }[]
+      }
+      detect_duplicates: {
+        Args: { target_table?: string }
+        Returns: {
+          duplicate_field: string
+          duplicate_value: string
+          record_count: number
+          record_ids: string[]
+          table_name: string
+        }[]
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
