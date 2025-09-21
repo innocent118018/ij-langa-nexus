@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
 import { CustomerLogin } from '@/components/auth/CustomerLogin';
+import { AdminSignup } from '@/components/auth/AdminSignup';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { Users, Shield } from 'lucide-react';
 
@@ -129,8 +130,9 @@ export default function Auth() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="email" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="email">Login</TabsTrigger>
+              <TabsTrigger value="admin-setup">Admin Setup</TabsTrigger>
               <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
             </TabsList>
             
@@ -170,6 +172,10 @@ export default function Auth() {
                   {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
                 </Button>
               </form>
+            </TabsContent>
+            
+            <TabsContent value="admin-setup">
+              <AdminSignup />
             </TabsContent>
             
             <TabsContent value="whatsapp">
