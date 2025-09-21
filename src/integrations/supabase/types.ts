@@ -230,6 +230,63 @@ export type Database = {
         }
         Relationships: []
       }
+      billable_time: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          description: string
+          division_id: string | null
+          employee_id: string | null
+          hourly_rate: number
+          hours_worked: number
+          id: string
+          invoice_date: string | null
+          project_id: string | null
+          status: string
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          work_date: string
+          write_off_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          description: string
+          division_id?: string | null
+          employee_id?: string | null
+          hourly_rate: number
+          hours_worked: number
+          id?: string
+          invoice_date?: string | null
+          project_id?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string | null
+          user_id: string
+          work_date?: string
+          write_off_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          description?: string
+          division_id?: string | null
+          employee_id?: string | null
+          hourly_rate?: number
+          hours_worked?: number
+          id?: string
+          invoice_date?: string | null
+          project_id?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          work_date?: string
+          write_off_date?: string | null
+        }
+        Relationships: []
+      }
       board_meetings: {
         Row: {
           action_items: Json | null
@@ -1190,6 +1247,71 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_notes: {
+        Row: {
+          cost_of_sales: number | null
+          created_at: string | null
+          credit_note_number: string
+          customer_id: string | null
+          description: string
+          id: string
+          issue_date: string
+          line_items: Json | null
+          reason: string | null
+          sales_invoice_id: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          vat_amount: number
+        }
+        Insert: {
+          cost_of_sales?: number | null
+          created_at?: string | null
+          credit_note_number: string
+          customer_id?: string | null
+          description: string
+          id?: string
+          issue_date?: string
+          line_items?: Json | null
+          reason?: string | null
+          sales_invoice_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id: string
+          vat_amount?: number
+        }
+        Update: {
+          cost_of_sales?: number | null
+          created_at?: string | null
+          credit_note_number?: string
+          customer_id?: string | null
+          description?: string
+          id?: string
+          issue_date?: string
+          line_items?: Json | null
+          reason?: string | null
+          sales_invoice_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_sales_invoice_id_fkey"
+            columns: ["sales_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "sales_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_contacts: {
         Row: {
           birthday: string | null
@@ -1273,6 +1395,81 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      delivery_notes: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          delivery_address: string | null
+          delivery_date: string
+          delivery_note_number: string
+          description: string | null
+          id: string
+          inventory_location_id: string | null
+          invoice_number: string | null
+          line_items: Json | null
+          order_number: string | null
+          qty_delivered: number | null
+          sales_invoice_id: string | null
+          sales_order_id: string | null
+          special_instructions: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          delivery_address?: string | null
+          delivery_date?: string
+          delivery_note_number: string
+          description?: string | null
+          id?: string
+          inventory_location_id?: string | null
+          invoice_number?: string | null
+          line_items?: Json | null
+          order_number?: string | null
+          qty_delivered?: number | null
+          sales_invoice_id?: string | null
+          sales_order_id?: string | null
+          special_instructions?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          delivery_address?: string | null
+          delivery_date?: string
+          delivery_note_number?: string
+          description?: string | null
+          id?: string
+          inventory_location_id?: string | null
+          invoice_number?: string | null
+          line_items?: Json | null
+          order_number?: string | null
+          qty_delivered?: number | null
+          sales_invoice_id?: string | null
+          sales_order_id?: string | null
+          special_instructions?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_notes_sales_invoice_id_fkey"
+            columns: ["sales_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "sales_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_notes_sales_order_id_fkey"
+            columns: ["sales_order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       document_templates: {
         Row: {
@@ -1648,6 +1845,62 @@ export type Database = {
           },
         ]
       }
+      late_payment_fees: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          days_overdue: number
+          fee_amount: number
+          fee_date: string
+          fee_number: string
+          fee_percentage: number | null
+          id: string
+          notes: string | null
+          sales_invoice_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          days_overdue: number
+          fee_amount: number
+          fee_date?: string
+          fee_number: string
+          fee_percentage?: number | null
+          id?: string
+          notes?: string | null
+          sales_invoice_id: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          days_overdue?: number
+          fee_amount?: number
+          fee_date?: string
+          fee_number?: string
+          fee_percentage?: number | null
+          id?: string
+          notes?: string | null
+          sales_invoice_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "late_payment_fees_sales_invoice_id_fkey"
+            columns: ["sales_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "sales_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachment_urls: string[] | null
@@ -1990,6 +2243,307 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_quotes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          line_items: Json | null
+          notes: string | null
+          quote_number: string
+          request_date: string
+          status: string
+          subtotal: number
+          supplier_id: string
+          terms_conditions: string | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          valid_until: string | null
+          vat_amount: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          line_items?: Json | null
+          notes?: string | null
+          quote_number: string
+          request_date?: string
+          status?: string
+          subtotal?: number
+          supplier_id: string
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id: string
+          valid_until?: string | null
+          vat_amount?: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          line_items?: Json | null
+          notes?: string | null
+          quote_number?: string
+          request_date?: string
+          status?: string
+          subtotal?: number
+          supplier_id?: string
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          valid_until?: string | null
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_quotes_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_invoices: {
+        Row: {
+          acts_as_delivery_note: boolean | null
+          balance_due: number
+          cost_of_sales: number | null
+          created_at: string | null
+          customer_id: string | null
+          days_overdue: number | null
+          days_to_due_date: number | null
+          description: string | null
+          discount_amount: number | null
+          division_id: string | null
+          due_date: string | null
+          id: string
+          inventory_location_id: string | null
+          invoice_number: string
+          issue_date: string
+          line_items: Json | null
+          project_id: string | null
+          sales_order_id: string | null
+          sales_quote_id: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          vat_amount: number
+          withholding_tax: number | null
+        }
+        Insert: {
+          acts_as_delivery_note?: boolean | null
+          balance_due?: number
+          cost_of_sales?: number | null
+          created_at?: string | null
+          customer_id?: string | null
+          days_overdue?: number | null
+          days_to_due_date?: number | null
+          description?: string | null
+          discount_amount?: number | null
+          division_id?: string | null
+          due_date?: string | null
+          id?: string
+          inventory_location_id?: string | null
+          invoice_number: string
+          issue_date?: string
+          line_items?: Json | null
+          project_id?: string | null
+          sales_order_id?: string | null
+          sales_quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id: string
+          vat_amount?: number
+          withholding_tax?: number | null
+        }
+        Update: {
+          acts_as_delivery_note?: boolean | null
+          balance_due?: number
+          cost_of_sales?: number | null
+          created_at?: string | null
+          customer_id?: string | null
+          days_overdue?: number | null
+          days_to_due_date?: number | null
+          description?: string | null
+          discount_amount?: number | null
+          division_id?: string | null
+          due_date?: string | null
+          id?: string
+          inventory_location_id?: string | null
+          invoice_number?: string
+          issue_date?: string
+          line_items?: Json | null
+          project_id?: string | null
+          sales_order_id?: string | null
+          sales_quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          vat_amount?: number
+          withholding_tax?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_invoices_sales_order_id_fkey"
+            columns: ["sales_order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_invoices_sales_quote_id_fkey"
+            columns: ["sales_quote_id"]
+            isOneToOne: false
+            referencedRelation: "sales_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_orders: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          delivery_date: string | null
+          delivery_status: string
+          description: string | null
+          id: string
+          invoice_status: string
+          invoiced_amount: number
+          is_cancelled: boolean | null
+          line_items: Json | null
+          order_date: string
+          order_number: string
+          qty_reserved: number | null
+          sales_quote_id: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          vat_amount: number
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          delivery_date?: string | null
+          delivery_status?: string
+          description?: string | null
+          id?: string
+          invoice_status?: string
+          invoiced_amount?: number
+          is_cancelled?: boolean | null
+          line_items?: Json | null
+          order_date?: string
+          order_number: string
+          qty_reserved?: number | null
+          sales_quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id: string
+          vat_amount?: number
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          delivery_date?: string | null
+          delivery_status?: string
+          description?: string | null
+          id?: string
+          invoice_status?: string
+          invoiced_amount?: number
+          is_cancelled?: boolean | null
+          line_items?: Json | null
+          order_date?: string
+          order_number?: string
+          qty_reserved?: number | null
+          sales_quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          vat_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_orders_sales_quote_id_fkey"
+            columns: ["sales_quote_id"]
+            isOneToOne: false
+            referencedRelation: "sales_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_quotes: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          description: string | null
+          expiry_date: string | null
+          id: string
+          issue_date: string
+          line_items: Json | null
+          notes: string | null
+          quote_number: string
+          status: string
+          subtotal: number
+          terms_conditions: string | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+          vat_amount: number
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string
+          line_items?: Json | null
+          notes?: string | null
+          quote_number: string
+          status?: string
+          subtotal?: number
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id: string
+          vat_amount?: number
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string
+          line_items?: Json | null
+          notes?: string | null
+          quote_number?: string
+          status?: string
+          subtotal?: number
+          terms_conditions?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+          vat_amount?: number
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           category: string
@@ -2032,6 +2586,75 @@ export type Database = {
           requirements?: string | null
           updated_at?: string
           vat_rate?: number
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          accounts_payable: number | null
+          address: string | null
+          contact_person: string | null
+          control_account_id: string | null
+          created_at: string | null
+          credit_limit: number | null
+          division_id: string | null
+          email: string | null
+          id: string
+          name: string
+          payment_terms: string | null
+          phone: string | null
+          postal_address: string | null
+          registration_number: string | null
+          status: string
+          supplier_code: string | null
+          tax_number: string | null
+          updated_at: string | null
+          user_id: string
+          withholding_tax_payable: number | null
+        }
+        Insert: {
+          accounts_payable?: number | null
+          address?: string | null
+          contact_person?: string | null
+          control_account_id?: string | null
+          created_at?: string | null
+          credit_limit?: number | null
+          division_id?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          payment_terms?: string | null
+          phone?: string | null
+          postal_address?: string | null
+          registration_number?: string | null
+          status?: string
+          supplier_code?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          user_id: string
+          withholding_tax_payable?: number | null
+        }
+        Update: {
+          accounts_payable?: number | null
+          address?: string | null
+          contact_person?: string | null
+          control_account_id?: string | null
+          created_at?: string | null
+          credit_limit?: number | null
+          division_id?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          payment_terms?: string | null
+          phone?: string | null
+          postal_address?: string | null
+          registration_number?: string | null
+          status?: string
+          supplier_code?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          user_id?: string
+          withholding_tax_payable?: number | null
         }
         Relationships: []
       }
@@ -2448,6 +3071,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      withholding_tax_receipts: {
+        Row: {
+          certificate_number: string | null
+          created_at: string | null
+          customer_id: string
+          description: string | null
+          id: string
+          invoice_amount: number
+          receipt_date: string
+          receipt_number: string
+          sales_invoice_id: string | null
+          tax_rate: number
+          tax_withheld: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string | null
+          customer_id: string
+          description?: string | null
+          id?: string
+          invoice_amount: number
+          receipt_date?: string
+          receipt_number: string
+          sales_invoice_id?: string | null
+          tax_rate: number
+          tax_withheld: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string | null
+          customer_id?: string
+          description?: string | null
+          id?: string
+          invoice_amount?: number
+          receipt_date?: string
+          receipt_number?: string
+          sales_invoice_id?: string | null
+          tax_rate?: number
+          tax_withheld?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withholding_tax_receipts_sales_invoice_id_fkey"
+            columns: ["sales_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "sales_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
