@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileEdit, Plus, Search, Eye, Edit, Send, Download } from 'lucide-react';
+import { Edit2, Eye, ChevronRight, Search, Plus } from 'lucide-react';
+import { useSalesQuotes } from '@/hooks/useSalesQuotes';
 
 const SalesQuotes = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { quotes, isLoading } = useSalesQuotes();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -16,183 +18,132 @@ const SalesQuotes = () => {
     }).format(amount);
   };
 
-  const quotes = [
-    {
-      id: 'QUO-2025-001',
-      date: '2025-01-20',
-      customer: 'ABC Company Ltd',
-      amount: 25750.00,
-      validUntil: '2025-02-20',
-      status: 'Sent',
-      description: 'Legal consultation services'
-    },
-    {
-      id: 'QUO-2025-002',
-      date: '2025-01-19',
-      customer: 'XYZ Corporation',
-      amount: 18500.50,
-      validUntil: '2025-02-19',
-      status: 'Draft',
-      description: 'Company registration package'
-    },
-    {
-      id: 'QUO-2025-003',
-      date: '2025-01-18',
-      customer: 'DEF Enterprises',
-      amount: 32200.75,
-      validUntil: '2025-02-18',
-      status: 'Accepted',
-      description: 'Annual compliance services'
-    }
-  ];
-
-  const getStatusBadge = (status: string) => {
-    const statusColors = {
-      Draft: 'bg-gray-100 text-gray-800 border-gray-200',
-      Sent: 'bg-blue-100 text-blue-800 border-blue-200',
-      Accepted: 'bg-green-100 text-green-800 border-green-200',
-      Rejected: 'bg-red-100 text-red-800 border-red-200',
-      Expired: 'bg-orange-100 text-orange-800 border-orange-200'
-    };
-    return <Badge className={statusColors[status as keyof typeof statusColors] || statusColors.Draft}>{status}</Badge>;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB');
   };
 
+  const getStatusBadge = (status: string) => {
+    const statusStyles = {
+      Active: 'bg-green-500 text-white',
+      Accepted: 'bg-blue-500 text-white', 
+      Expired: 'bg-red-500 text-white'
+    };
+    return (
+      <Badge className={`${statusStyles[status as keyof typeof statusStyles] || 'bg-gray-500 text-white'} px-3 py-1 rounded`}>
+        {status}
+      </Badge>
+    );
+  };
+
+  const filteredQuotes = quotes.filter(quote =>
+    quote.quote_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Loading sales quotes...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Sales Quotes</h1>
-          <p className="text-slate-600">Create and manage sales quotations</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Quote
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Quote Value</p>
-                <p className="text-2xl font-bold text-blue-900">{formatCurrency(76451.25)}</p>
-                <p className="text-xs text-gray-500 mt-1">Active quotes</p>
-              </div>
-              <FileEdit className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending Quotes</p>
-                <p className="text-2xl font-bold text-yellow-900">1</p>
-                <p className="text-xs text-gray-500 mt-1">Awaiting response</p>
-              </div>
-              <FileEdit className="h-8 w-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Accepted Quotes</p>
-                <p className="text-2xl font-bold text-green-900">1</p>
-                <p className="text-xs text-gray-500 mt-1">{formatCurrency(32200.75)} value</p>
-              </div>
-              <FileEdit className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
-                <p className="text-2xl font-bold text-purple-900">33%</p>
-                <p className="text-xs text-gray-500 mt-1">Quote to order</p>
-              </div>
-              <FileEdit className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input 
-              placeholder="Search quotes..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-semibold text-gray-800">Sales Quotes</h1>
+            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+              {filteredQuotes.length}
+            </Badge>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              New Sales Quote
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" className="text-gray-600">
+              <ChevronRight className="h-4 w-4 mr-1" />
+              Advanced Queries
+            </Button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input 
+                placeholder="Search" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-64"
+              />
+            </div>
+            <Button className="bg-gray-600 hover:bg-gray-700 text-white">
+              Search
+            </Button>
+          </div>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quote Management</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="text-left p-4 font-medium text-gray-900">Quote ID</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Date</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Customer</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Description</th>
-                  <th className="text-right p-4 font-medium text-gray-900">Amount</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Valid Until</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotes.map((quote) => (
-                  <tr key={quote.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4 font-medium">{quote.id}</td>
-                    <td className="p-4">{quote.date}</td>
-                    <td className="p-4">{quote.customer}</td>
-                    <td className="p-4">{quote.description}</td>
-                    <td className="p-4 text-right font-medium">{formatCurrency(quote.amount)}</td>
-                    <td className="p-4">{quote.validUntil}</td>
-                    <td className="p-4">{getStatusBadge(quote.status)}</td>
-                    <td className="p-4">
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-gray-50 px-6 py-3 border-b">
+            <div className="grid grid-cols-7 gap-4 text-sm font-medium text-gray-600">
+              <div>Issue date</div>
+              <div>Reference</div>
+              <div>Customer</div>
+              <div>Description</div>
+              <div className="text-right">Amount</div>
+              <div>Status</div>
+              <div className="text-center">Actions</div>
+            </div>
+          </div>
+          
+          <div className="divide-y divide-gray-200">
+            {filteredQuotes.length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-500">
+                {searchTerm ? 'No quotes found matching your search.' : 'No sales quotes found.'}
+              </div>
+            ) : (
+              filteredQuotes.map((quote) => (
+                <div key={quote.id} className="px-6 py-4 hover:bg-gray-50">
+                  <div className="grid grid-cols-7 gap-4 items-center">
+                    <div className="text-sm text-gray-900">
+                      {formatDate(quote.issue_date)}
+                    </div>
+                    <div className="text-sm text-gray-900 font-mono">
+                      {quote.quote_number}
+                    </div>
+                    <div className="text-sm text-gray-900">
+                      {quote.customer_name}
+                    </div>
+                    <div className="text-sm text-gray-900 max-w-xs truncate" title={quote.description}>
+                      {quote.description}
+                    </div>
+                    <div className="text-sm text-gray-900 text-right font-medium">
+                      {formatCurrency(quote.total_amount)}
+                    </div>
+                    <div>
+                      {getStatusBadge(quote.status)}
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                          <Edit2 className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
                           <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Send className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Download className="h-4 w-4" />
+                          <span className="sr-only">View</span>
                         </Button>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
