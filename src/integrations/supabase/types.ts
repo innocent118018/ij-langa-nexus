@@ -4311,6 +4311,20 @@ export type Database = {
         }
         Returns: string
       }
+      create_customer_with_auth: {
+        Args: {
+          billing_address?: string
+          credit_limit_amount?: number
+          customer_email: string
+          customer_name: string
+          default_due_days?: number
+          delivery_address?: string
+          hourly_rate?: number
+          phone_number?: string
+          send_invite?: boolean
+        }
+        Returns: string
+      }
       detect_duplicates: {
         Args: { target_table?: string }
         Returns: {
