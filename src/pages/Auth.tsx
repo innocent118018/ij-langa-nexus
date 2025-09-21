@@ -12,7 +12,7 @@ import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
 import { CustomerLogin } from '@/components/auth/CustomerLogin';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
-import { useAuth } from '@/hooks/useAuthWithProfiles';
+import { useAuth } from '@/hooks/useAuth';
 import { Users, Shield, Fingerprint } from 'lucide-react';
 
 type AuthType = 'admin' | 'customer';
@@ -26,7 +26,7 @@ export default function Auth() {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { currentAccount } = useCustomerAuth();
   const { signIn, signUp } = useAuth();
   const { 
@@ -38,7 +38,7 @@ export default function Auth() {
 
   useEffect(() => {
     // Check if admin user is already authenticated
-    if (user && profile) {
+    if (user) {
       navigate('/dashboard');
       return;
     }
@@ -47,7 +47,7 @@ export default function Auth() {
     if (currentAccount) {
       navigate('/dashboard');
     }
-  }, [user, profile, navigate, currentAccount]);
+  }, [user, navigate, currentAccount]);
 
   const handleBiometricAuth = async () => {
     if (!email) {
@@ -80,7 +80,7 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, {});
         
         if (error) throw error;
         toast.success('Check your email for the confirmation link');
