@@ -22,6 +22,13 @@ import Contact from "./pages/Contact";
 import TestCheckout from "./pages/TestCheckout";
 import TaxCalculator from "./pages/TaxCalculator";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
 import Orders from "./pages/dashboard/Orders";
@@ -715,6 +722,14 @@ function App() {
                 <Route path="/clerkiq/features/team-management" element={<Layout><TeamManagement /></Layout>} />
                 <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
                 <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
+
+                {/* Admin Dashboard Routes */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/system-settings" element={<AdminSettings />} />
+                <Route path="/admin/sales-quotes" element={<DashboardLayout><SalesQuotes /></DashboardLayout>} />
 
                 {/* Payment routes with Layout */}
                 <Route path="/payment-success" element={<PaymentSuccess />} />
