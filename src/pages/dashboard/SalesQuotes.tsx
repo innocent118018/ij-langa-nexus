@@ -4,10 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Edit2, Eye, ChevronRight, Search, Plus } from 'lucide-react';
-import { useSalesQuotes } from '@/hooks/useSalesQuotes';
+import { useSalesQuotes, SalesQuote } from '@/hooks/useSalesQuotes';
+import { CreateSalesQuoteModal } from '@/components/modals/CreateSalesQuoteModal';
+import { EditSalesQuoteModal } from '@/components/modals/EditSalesQuoteModal';
+import { ViewSalesQuoteModal } from '@/components/modals/ViewSalesQuoteModal';
 
 const SalesQuotes = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedQuote, setSelectedQuote] = useState<SalesQuote | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
   const { quotes, isLoading } = useSalesQuotes();
 
   const formatCurrency = (amount: number) => {
@@ -35,6 +41,21 @@ const SalesQuotes = () => {
     );
   };
 
+  const handleEditQuote = (quote: SalesQuote) => {
+    setSelectedQuote(quote);
+    setEditModalOpen(true);
+  };
+
+  const handleViewQuote = (quote: SalesQuote) => {
+    setSelectedQuote(quote);
+    setViewModalOpen(true);
+  };
+
+  const handleUpdateQuote = (quoteId: string, updatedQuote: Partial<SalesQuote>) => {
+    // This would typically call a mutation to update the quote
+    console.log('Update quote:', quoteId, updatedQuote);
+  };
+
   const filteredQuotes = quotes.filter(quote =>
     quote.quote_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     quote.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,9 +81,12 @@ const SalesQuotes = () => {
             <Badge variant="secondary" className="bg-gray-100 text-gray-600">
               {filteredQuotes.length}
             </Badge>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              New Sales Quote
-            </Button>
+            <CreateSalesQuoteModal>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                New Sales Quote
+              </Button>
+            </CreateSalesQuoteModal>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="outline" className="text-gray-600">
@@ -126,11 +150,21 @@ const SalesQuotes = () => {
                     </div>
                     <div className="text-center">
                       <div className="flex items-center justify-center space-x-1">
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-400 hover:text-gray-600"
+                          onClick={() => handleEditQuote(quote)}
+                        >
                           <Edit2 className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-400 hover:text-gray-600"
+                          onClick={() => handleViewQuote(quote)}
+                        >
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View</span>
                         </Button>
@@ -143,6 +177,20 @@ const SalesQuotes = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <EditSalesQuoteModal
+        quote={selectedQuote}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onUpdate={handleUpdateQuote}
+      />
+      
+      <ViewSalesQuoteModal
+        quote={selectedQuote}
+        open={viewModalOpen}
+        onOpenChange={setViewModalOpen}
+      />
     </DashboardLayout>
   );
 };
