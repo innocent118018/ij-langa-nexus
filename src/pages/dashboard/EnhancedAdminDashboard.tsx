@@ -386,3 +386,5 @@ export const EnhancedAdminDashboard: React.FC = () => {
     </div>
   );
 };
+
+export default EnhancedAdminDashboard;
