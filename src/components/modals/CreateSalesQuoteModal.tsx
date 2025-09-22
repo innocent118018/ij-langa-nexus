@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2 } from 'lucide-react';
 import { useCreateSalesQuote } from '@/hooks/useSalesQuotes';
+import { useCustomers } from '@/hooks/useCustomers';
 import { toast } from 'sonner';
 
 interface LineItem {
@@ -28,12 +29,15 @@ interface CreateSalesQuoteModalProps {
 export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const createQuote = useCreateSalesQuote();
+  const { data: customers = [], isLoading: customersLoading } = useCustomers();
   
   const [formData, setFormData] = useState({
     issueDate: new Date().toISOString().split('T')[0],
     expiryDays: 7,
     reference: '',
+    customerId: '',
     customer: '',
+    customerEmail: '',
     billingAddress: '',
     description: '',
     amountsTaxInclusive: false,
@@ -114,11 +118,13 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
 
   const handleSubmit = async () => {
     try {
+      const selectedCustomer = customers.find(c => c.id === formData.customerId);
       const quoteData = {
         quote_number: formData.reference || `QUO-${Date.now()}`,
         issue_date: formData.issueDate,
         expiry_date: new Date(new Date(formData.issueDate).getTime() + formData.expiryDays * 24 * 60 * 60 * 1000).toISOString(),
-        customer_name: formData.customer,
+        customer_id: formData.customerId || null,
+        customer_name: selectedCustomer?.customer_name || formData.customer,
         description: formData.description,
         subtotal: calculateSubtotal(),
         vat_amount: calculateTotalTax(),
@@ -137,7 +143,9 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
         issueDate: new Date().toISOString().split('T')[0],
         expiryDays: 7,
         reference: '',
+        customerId: '',
         customer: '',
+        customerEmail: '',
         billingAddress: '',
         description: '',
         amountsTaxInclusive: false,
@@ -222,14 +230,32 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="customer">Customer</Label>
-              <Select value={formData.customer} onValueChange={(value) => setFormData({ ...formData, customer: value })}>
+              <Select 
+                value={formData.customerId} 
+                onValueChange={(value) => {
+                  const selectedCustomer = customers.find(c => c.id === value);
+                  setFormData({ 
+                    ...formData, 
+                    customerId: value,
+                    customer: selectedCustomer?.customer_name || '',
+                    customerEmail: selectedCustomer?.email || '',
+                    billingAddress: selectedCustomer?.billing_address || ''
+                  });
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a customer" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="customer1">Customer 1</SelectItem>
-                  <SelectItem value="customer2">Customer 2</SelectItem>
-                  <SelectItem value="customer3">Customer 3</SelectItem>
+                  {customersLoading ? (
+                    <SelectItem value="" disabled>Loading customers...</SelectItem>
+                  ) : (
+                    customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.customer_name} ({customer.email})
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

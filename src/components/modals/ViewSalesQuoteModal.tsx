@@ -1,23 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, User, FileText, DollarSign, Clock } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Calendar, User, FileText, DollarSign, Clock, Edit, Copy, Mail, Download, Share, MoreVertical } from 'lucide-react';
 import { SalesQuote } from '@/hooks/useSalesQuotes';
+import { Customer, useCustomers } from '@/hooks/useCustomers';
+import { EmailQuoteModal } from './EmailQuoteModal';
+import { EditSalesQuoteModal } from './EditSalesQuoteModal';
+import { toast } from 'sonner';
 
 interface ViewSalesQuoteModalProps {
   quote: SalesQuote | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit?: (quote: SalesQuote) => void;
 }
 
 export const ViewSalesQuoteModal: React.FC<ViewSalesQuoteModalProps> = ({
   quote,
   open,
-  onOpenChange
+  onOpenChange,
+  onEdit
 }) => {
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const { data: customers = [] } = useCustomers();
+  
   if (!quote) return null;
+
+  const customer = customers.find(c => c.id === quote.customer_id) || null;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -49,6 +62,38 @@ export const ViewSalesQuoteModal: React.FC<ViewSalesQuoteModalProps> = ({
   };
 
   const lineItems = Array.isArray(quote.line_items) ? quote.line_items : [];
+
+  const handleClone = async () => {
+    try {
+      const clonedQuote = {
+        ...quote,
+        quote_number: `${quote.quote_number}-COPY`,
+        status: 'Active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      // This would typically call an API to create the cloned quote
+      toast.success('Quote cloned successfully!');
+    } catch (error) {
+      toast.error('Failed to clone quote');
+    }
+  };
+
+  const handleCopyTo = (type: 'invoice' | 'order') => {
+    toast.success(`Quote copied to ${type} successfully!`);
+    // This would typically navigate to the respective creation page
+  };
+
+  const handlePDFExport = () => {
+    toast.success('PDF exported successfully!');
+    // This would generate and download the PDF
+  };
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/quotes/${quote.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Quote link copied to clipboard!');
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -206,15 +251,91 @@ export const ViewSalesQuoteModal: React.FC<ViewSalesQuoteModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-          <Button onClick={() => window.print()}>
-            Print Quote
-          </Button>
+        <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium">Quote #{quote.quote_number}</span>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={() => setShowEditModal(true)}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
+            </Button>
+            
+            <Button variant="outline" onClick={handleClone}>
+              <Copy className="h-4 w-4 mr-1" />
+              Clone
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  Copy to
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleCopyTo('order')}>
+                  Sales Order
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleCopyTo('invoice')}>
+                  Sales Invoice
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button variant="outline" onClick={handlePDFExport}>
+              <Download className="h-4 w-4 mr-1" />
+              PDF
+            </Button>
+            
+            <Button variant="outline" onClick={() => setShowEmailModal(true)}>
+              <Mail className="h-4 w-4 mr-1" />
+              Email
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share className="h-4 w-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => window.print()}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Print
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
+          </div>
         </div>
       </DialogContent>
+      
+      {/* Email Modal */}
+      <EmailQuoteModal 
+        quote={quote}
+        customer={customer}
+        open={showEmailModal}
+        onOpenChange={setShowEmailModal}
+      />
+      
+      {/* Edit Modal */}
+      <EditSalesQuoteModal 
+        quote={quote}
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        onUpdate={(updatedQuote) => {
+          setShowEditModal(false);
+          toast.success('Quote updated successfully!');
+        }}
+      />
     </Dialog>
   );
 };

@@ -3,18 +3,22 @@ import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Edit2, Eye, ChevronRight, Search, Plus } from 'lucide-react';
+import { Edit2, Eye, ChevronRight, Search, Plus, Mail } from 'lucide-react';
 import { useSalesQuotes, SalesQuote } from '@/hooks/useSalesQuotes';
+import { useCustomers } from '@/hooks/useCustomers';
 import { CreateSalesQuoteModal } from '@/components/modals/CreateSalesQuoteModal';
 import { EditSalesQuoteModal } from '@/components/modals/EditSalesQuoteModal';
 import { ViewSalesQuoteModal } from '@/components/modals/ViewSalesQuoteModal';
+import { EmailQuoteModal } from '@/components/modals/EmailQuoteModal';
 
 const SalesQuotes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuote, setSelectedQuote] = useState<SalesQuote | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const { quotes, isLoading } = useSalesQuotes();
+  const { data: customers = [] } = useCustomers();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -49,6 +53,11 @@ const SalesQuotes = () => {
   const handleViewQuote = (quote: SalesQuote) => {
     setSelectedQuote(quote);
     setViewModalOpen(true);
+  };
+
+  const handleEmailQuote = (quote: SalesQuote) => {
+    setSelectedQuote(quote);
+    setEmailModalOpen(true);
   };
 
   const handleUpdateQuote = (quoteId: string, updatedQuote: Partial<SalesQuote>) => {
@@ -168,6 +177,15 @@ const SalesQuotes = () => {
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">View</span>
                         </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-400 hover:text-gray-600"
+                          onClick={() => handleEmailQuote(quote)}
+                        >
+                          <Mail className="h-4 w-4" />
+                          <span className="sr-only">Email</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -190,6 +208,14 @@ const SalesQuotes = () => {
         quote={selectedQuote}
         open={viewModalOpen}
         onOpenChange={setViewModalOpen}
+        onEdit={handleEditQuote}
+      />
+
+      <EmailQuoteModal 
+        quote={selectedQuote}
+        customer={selectedQuote ? customers.find(c => c.id === selectedQuote.customer_id) || null : null}
+        open={emailModalOpen}
+        onOpenChange={setEmailModalOpen}
       />
     </DashboardLayout>
   );
