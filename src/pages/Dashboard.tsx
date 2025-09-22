@@ -2,6 +2,7 @@
 import React, { Suspense, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { EnhancedAdminDashboard } from '@/components/admin/EnhancedAdminDashboard';
+import ComprehensiveAdminDashboard from '@/components/admin/ComprehensiveAdminDashboard';
 import { LazyClientDashboard } from '@/components/dashboard/LazyComponents';
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -66,7 +67,7 @@ const Dashboard = () => {
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      {isAdmin ? <EnhancedAdminDashboard /> : <LazyClientDashboard />}
+      {isAdmin ? <ComprehensiveAdminDashboard /> : <LazyClientDashboard />}
     </Suspense>
   );
 };
