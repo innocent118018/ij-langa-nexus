@@ -49,7 +49,7 @@ serve(async (req) => {
       case 'profile':
         // Get user's own profile data
         const { data: profile, error: profileError } = await supabaseClient
-          .from('users')
+          .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
@@ -83,14 +83,14 @@ serve(async (req) => {
         break;
 
       case 'invoices':
-        // Get invoices for user's customer record - use left join to handle missing customer records
+        // Get invoices for user's customer record - use sales_invoices table
         const { data: invoices, error: invoicesError } = await supabaseClient
-          .from('invoices')
+          .from('sales_invoices')
           .select(`
             *,
-            customers(name)
+            customers:customer_accounts(customer_name)
           `)
-          .eq('customers.email', user.email)
+          .eq('user_id', user.id)
           .order('issue_date', { ascending: false });
         
         response = invoices || [];
@@ -99,7 +99,7 @@ serve(async (req) => {
       case 'dashboard-metrics':
         // Check if user is admin
         const { data: adminUser } = await supabaseClient
-          .from('users')
+          .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single();
@@ -125,14 +125,14 @@ serve(async (req) => {
               .order('created_at', { ascending: false })
               .limit(20),
             supabaseClient
-              .from('invoices')
-              .select('id, reference, invoice_amount, balance_due, status, issue_date, days_overdue, customers(name, email)')
+              .from('sales_invoices')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customers:customer_accounts(customer_name, email)')
               .order('issue_date', { ascending: false })
               .limit(50),
             supabaseClient
-              .from('customers')
-              .select('id, name, email, phone, address, status')
-              .order('name')
+              .from('customer_accounts')
+              .select('id, customer_name, email, phone, billing_address, account_status')
+              .order('customer_name')
           ]);
 
           // Calculate admin metrics
@@ -184,9 +184,9 @@ serve(async (req) => {
               .order('created_at', { ascending: false })
               .limit(10),
             supabaseClient
-              .from('invoices')
-              .select('id, reference, invoice_amount, balance_due, status, issue_date, days_overdue, customers(name)')
-              .eq('customers.email', user.email)
+              .from('sales_invoices')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customers:customer_accounts(customer_name)')
+              .eq('user_id', user.id)
               .order('issue_date', { ascending: false })
               .limit(20)
           ]);

@@ -18,15 +18,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { cartItems, isLoading, updateQuantity, removeFromCart, getTotalAmount } = useCart();
-
-  const calculateVAT = () => {
-    return getTotalAmount() * 0.15;
-  };
-
-  const calculateTotalWithVAT = () => {
-    return getTotalAmount() + calculateVAT();
-  };
+  const { cartItems, isLoading, updateQuantity, removeFromCart, getTotalAmount, getSubtotal, getVATAmount } = useCart();
 
   const formatCategoryName = (category: string) => {
     return category.split('-').map(word => 
@@ -125,15 +117,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>R{getTotalAmount().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+                  <span>R{getSubtotal().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>VAT (15%):</span>
-                  <span>R{calculateVAT().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+                  <span>R{getVATAmount().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>R{calculateTotalWithVAT().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
+                  <span>R{getTotalAmount().toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <Button 
                   className="w-full mt-4" 

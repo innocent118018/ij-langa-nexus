@@ -34,6 +34,8 @@ interface CartContextType {
   clearCart: () => Promise<void>;
   refreshCart: () => Promise<void>;
   getTotalAmount: () => number;
+  getSubtotal: () => number;
+  getVATAmount: () => number;
 }
 
 // Create context
@@ -390,7 +392,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const getTotalAmount = () => {
-    const total = cartItems.reduce((total, item) => {
+    const subtotal = cartItems.reduce((total, item) => {
       const price = item.products?.price || item.services?.price || 0;
       
       if (typeof price !== 'number' || isNaN(price)) {
@@ -401,7 +403,25 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return total + (price * item.quantity);
     }, 0);
     
-    return total;
+    // Add 15% VAT to the subtotal
+    return subtotal * 1.15;
+  };
+
+  const getSubtotal = () => {
+    return cartItems.reduce((total, item) => {
+      const price = item.products?.price || item.services?.price || 0;
+      
+      if (typeof price !== 'number' || isNaN(price)) {
+        console.warn('Invalid price for item:', item);
+        return total;
+      }
+      
+      return total + (price * item.quantity);
+    }, 0);
+  };
+
+  const getVATAmount = () => {
+    return getSubtotal() * 0.15;
   };
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -416,7 +436,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateQuantity,
       clearCart,
       refreshCart,
-      getTotalAmount
+      getTotalAmount,
+      getSubtotal,
+      getVATAmount
     }}>
       {children}
     </CartContext.Provider>

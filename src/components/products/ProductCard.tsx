@@ -76,9 +76,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onCartUpdate 
         <CardTitle className="text-base sm:text-lg leading-tight">{product.name}</CardTitle>
         <div className="flex items-center justify-between flex-wrap gap-2">
           {product.price ? (
-            <span className="text-lg sm:text-2xl font-bold text-primary">
-              R{product.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
-            </span>
+            <div className="text-right">
+              <div className="text-sm text-muted-foreground">
+                Excl. VAT: R{product.price.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+              </div>
+              <span className="text-lg sm:text-2xl font-bold text-primary">
+                R{(product.price * 1.15).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
+              </span>
+              <div className="text-xs text-muted-foreground">Incl. 15% VAT</div>
+            </div>
           ) : (
             <span className="text-base sm:text-lg font-semibold text-orange-600">
               Quote Required

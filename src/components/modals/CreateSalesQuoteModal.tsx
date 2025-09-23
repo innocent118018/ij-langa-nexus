@@ -58,10 +58,10 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
     {
       id: '1',
       description: '',
-      quantity: 0,
+      quantity: 1,
       unitPrice: 0,
       total: 0,
-      taxCode: 'No tax',
+      taxCode: 'VAT 15%',
       taxAmount: 0,
       lineTotal: 0
     }
@@ -71,10 +71,10 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
     const newItem: LineItem = {
       id: Date.now().toString(),
       description: '',
-      quantity: 0,
+      quantity: 1,
       unitPrice: 0,
       total: 0,
-      taxCode: 'No tax',
+      taxCode: 'VAT 15%',
       taxAmount: 0,
       lineTotal: 0
     };
@@ -92,9 +92,20 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
       if (item.id === id) {
         const updatedItem = { ...item, [field]: value };
         
-        // Recalculate totals
+        // Recalculate totals with automatic 15% VAT
         if (field === 'quantity' || field === 'unitPrice') {
           updatedItem.total = updatedItem.quantity * updatedItem.unitPrice;
+          updatedItem.taxAmount = updatedItem.total * 0.15; // Automatic 15% VAT
+          updatedItem.lineTotal = updatedItem.total + updatedItem.taxAmount;
+        }
+        
+        // Update tax amount when tax code changes
+        if (field === 'taxCode') {
+          if (value === 'VAT 15%') {
+            updatedItem.taxAmount = updatedItem.total * 0.15;
+          } else if (value === 'VAT 0%' || value === 'No tax') {
+            updatedItem.taxAmount = 0;
+          }
           updatedItem.lineTotal = updatedItem.total + updatedItem.taxAmount;
         }
         
@@ -165,10 +176,10 @@ export const CreateSalesQuoteModal: React.FC<CreateSalesQuoteModalProps> = ({ ch
       setLineItems([{
         id: '1',
         description: '',
-        quantity: 0,
+        quantity: 1,
         unitPrice: 0,
         total: 0,
-        taxCode: 'No tax',
+        taxCode: 'VAT 15%',
         taxAmount: 0,
         lineTotal: 0
       }]);
