@@ -92,6 +92,9 @@ export const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Home
+            </Link>
             <Link to="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
               About
             </Link>
@@ -170,6 +173,13 @@ export const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <nav className="flex flex-col space-y-4">
+              <Link
+                to="/"
+                className="text-gray-600 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Home
+              </Link>
               <Link
                 to="/about"
                 className="text-gray-600 hover:text-blue-600 transition-colors"
