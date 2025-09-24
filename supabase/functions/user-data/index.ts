@@ -88,7 +88,7 @@ serve(async (req) => {
           .from('sales_invoices')
           .select(`
             *,
-            customers:customer_accounts(customer_name)
+            customer_accounts!customer_id(customer_name, email)
           `)
           .eq('user_id', user.id)
           .order('issue_date', { ascending: false });
@@ -126,7 +126,7 @@ serve(async (req) => {
               .limit(20),
             supabaseClient
               .from('sales_invoices')
-              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customers:customer_accounts(customer_name, email)')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customer_accounts!customer_id(customer_name, email)')
               .order('issue_date', { ascending: false })
               .limit(50),
             supabaseClient
@@ -185,7 +185,7 @@ serve(async (req) => {
               .limit(10),
             supabaseClient
               .from('sales_invoices')
-              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customers:customer_accounts(customer_name)')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customer_accounts!customer_id(customer_name)')
               .eq('user_id', user.id)
               .order('issue_date', { ascending: false })
               .limit(20)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
@@ -50,6 +50,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               {order.status}
             </Badge>
           </DialogTitle>
+          <DialogDescription>
+            View complete order information including customer details, billing summary, and transaction history.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Enhanced order details modal with comprehensive information */}

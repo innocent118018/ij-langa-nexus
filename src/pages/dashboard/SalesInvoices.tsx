@@ -40,7 +40,7 @@ export default function SalesInvoices() {
 
   const filteredInvoices = invoices.filter((invoice: any) =>
     invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (invoice.customers?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (invoice.customer_accounts?.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -143,7 +143,7 @@ export default function SalesInvoices() {
                     </TableCell>
                     <TableCell>{formatDate(invoice.issue_date)}</TableCell>
                     <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
-                    <TableCell>{invoice.customers?.name || 'Unknown Customer'}</TableCell>
+                    <TableCell>{invoice.customer_accounts?.customer_name || 'Unknown Customer'}</TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(invoice.total_amount)}
                     </TableCell>

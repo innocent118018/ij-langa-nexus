@@ -193,6 +193,8 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
               <button
                 onClick={toggleSidebar}
                 className="p-1 hover:bg-sidebar-accent rounded transition-colors group-data-[collapsible=icon]:hidden"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>

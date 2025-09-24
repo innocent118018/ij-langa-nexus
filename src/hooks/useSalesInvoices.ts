@@ -20,8 +20,8 @@ export interface SalesInvoice {
   user_id: string;
   created_at: string;
   updated_at: string;
-  customers?: {
-    name: string;
+  customer_accounts?: {
+    customer_name: string;
   } | null;
 }
 
@@ -33,8 +33,8 @@ export const useSalesInvoices = () => {
         .from('sales_invoices')
         .select(`
           *,
-          customers (
-            name
+          customer_accounts!customer_id (
+            customer_name
           )
         `)
         .order('issue_date', { ascending: false });
