@@ -41,9 +41,9 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     queryFn: async () => {
       if (!user?.id) return null;
 
-      // Get user role from existing users table
+      // Get user role from profiles table
       const { data: userData, error: userError } = await supabase
-        .from('users')
+        .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
