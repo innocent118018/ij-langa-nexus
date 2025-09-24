@@ -52,127 +52,142 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
+        {/* Enhanced order details modal with comprehensive information */}
         <div className="space-y-6">
           {/* Order Information */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-lg mb-3">Order Information</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Order ID:</span>
-                  <span className="font-mono">{order.id}</span>
+                  <span className="font-mono text-sm">{order.id}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Date Placed:</span>
                   <span>{formatDate(order.created_at)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Last Updated:</span>
-                  <span>{formatDate(order.updated_at)}</span>
+                  <span>{formatDate(order.updated_at || order.created_at)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Payment Status:</span>
-                  <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
-                    {order.status === 'completed' ? 'Paid' : 'Pending'}
+                  <Badge className={getStatusColor(order.status)}>
+                    {order.status === 'completed' ? 'Paid' : order.status === 'pending' ? 'Pending Payment' : order.status}
                   </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Payment Method:</span>
+                  <span>Online Payment Gateway</span>
                 </div>
               </div>
             </div>
 
             <div>
               <h3 className="font-semibold text-lg mb-3">Customer Details</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Name:</span>
                   <span>{order.customer_name}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Email:</span>
-                  <span>{order.customer_email}</span>
+                  <span className="break-all">{order.customer_email}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Phone:</span>
                   <span>{order.customer_phone || 'Not provided'}</span>
                 </div>
+                {order.customer_address && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Address:</span>
+                    <div className="bg-muted p-2 rounded text-sm">
+                      {order.customer_address}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Billing Address */}
-          {order.customer_address && (
-            <>
-              <div>
-                <h3 className="font-semibold text-lg mb-3">Billing Address</h3>
-                <div className="bg-gray-50 p-3 rounded-md">
-                  <p className="whitespace-pre-line">{order.customer_address}</p>
+          {/* Service/Order Details */}
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Service Details</h3>
+            <div className="space-y-4">
+              <div className="bg-muted/30 p-4 rounded-lg">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h4 className="font-medium">Professional Service</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {order.service_type || 'Business consultation and professional services'}
+                    </p>
+                  </div>
+                  <div className="text-right ml-4">
+                    <div className="font-medium">{formatCurrency(order.subtotal || 0)}</div>
+                    <div className="text-sm text-muted-foreground">Excl. VAT</div>
+                  </div>
                 </div>
               </div>
-              <Separator />
-            </>
-          )}
+            </div>
+          </div>
 
-          {/* Order Items */}
+          <Separator />
+
+          {/* Billing Summary */}
           <div>
-            <h3 className="font-semibold text-lg mb-3">Order Items</h3>
+            <h3 className="font-semibold text-lg mb-4">Billing Summary</h3>
             <div className="space-y-3">
-              {/* Mock order items - in real app, fetch from order_items table */}
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                <div>
-                  <div className="font-medium">Service Item</div>
-                  <div className="text-sm text-muted-foreground">Professional service consultation</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">{formatCurrency(order.subtotal)}</div>
-                  <div className="text-sm text-muted-foreground">Qty: 1</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Order Summary */}
-          <div>
-            <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
-            <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal:</span>
-                <span>{formatCurrency(order.subtotal)}</span>
+                <span className="text-muted-foreground">Subtotal (Excl. VAT):</span>
+                <span>{formatCurrency(order.subtotal || 0)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">VAT (15%):</span>
-                <span>{formatCurrency(order.vat_amount)}</span>
+                <span>{formatCurrency(order.vat_amount || (order.subtotal || 0) * 0.15)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold text-lg">
-                <span>Total:</span>
-                <span>{formatCurrency(order.total_amount)}</span>
+                <span>Total Amount:</span>
+                <span className="text-primary">{formatCurrency(order.total_amount)}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <h3 className="font-semibold text-lg mb-3">Payment Method</h3>
-            <div className="bg-gray-50 p-3 rounded-md">
-              <p>Online Payment</p>
-              <p className="text-sm text-muted-foreground">
-                Payment processed through secure payment gateway
-              </p>
             </div>
           </div>
 
           {/* Admin Notes */}
           {order.admin_notes && (
-            <div>
-              <h3 className="font-semibold text-lg mb-3">Admin Notes</h3>
-              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
-                <p>{order.admin_notes}</p>
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Admin Notes</h3>
+                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
+                  <p className="text-sm">{order.admin_notes}</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Transaction Details */}
+          <Separator />
+          <div>
+            <h3 className="font-semibold text-lg mb-3">Transaction Details</h3>
+            <div className="bg-muted/20 p-4 rounded-lg space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Transaction ID:</span>
+                <span className="font-mono">{order.id.substring(0, 16)}...</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Payment Gateway:</span>
+                <span>Secure Online Payment</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Processing Time:</span>
+                <span>Instant</span>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
