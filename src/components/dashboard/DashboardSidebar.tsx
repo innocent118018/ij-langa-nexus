@@ -115,8 +115,7 @@ export const DashboardSidebar = ({ isAdmin }: DashboardSidebarProps) => {
     { title: 'Journal Entries', url: '/dashboard/journal-entries', icon: FileEdit },
     { title: 'Folders', url: '/dashboard/folders', icon: FolderOpen },
     { title: 'Reports', url: '/dashboard/reports', icon: BarChart3 },
-    { title: 'Settings', url: '/dashboard/settings', icon: SettingsIcon },
-    { title: 'System Settings', url: '/dashboard/system-settings', icon: Settings }
+    { title: 'Settings', url: '/dashboard/settings', icon: Settings }
   ];
 
   const userMenuItems = [
