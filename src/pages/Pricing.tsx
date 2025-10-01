@@ -9,7 +9,7 @@ import { ShoppingCart, Package, Wrench, CheckCircle } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import PurchaseForm from '@/components/forms/PurchaseForm';
-import { ServiceContractModal } from '@/components/contracts/ServiceContractModal';
+import { ServiceContractModal } from '@/components/contracts';
 
 const ITEMS_PER_PAGE = 12;
 
