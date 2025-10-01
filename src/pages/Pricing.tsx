@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Package, Wrench } from 'lucide-react';
+import { ShoppingCart, Package, Wrench, CheckCircle } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import PurchaseForm from '@/components/forms/PurchaseForm';
+import { ServiceContractModal } from '@/components/contracts/ServiceContractModal';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -35,7 +36,18 @@ interface ProductData {
   stock_quantity: number;
 }
 
+interface MonthlyPackage {
+  id: string;
+  package_name: string;
+  package_tier: string;
+  price: number;
+  description: string;
+  features: string[];
+  is_active: boolean;
+}
+
 const Pricing = () => {
+  const [monthlyPackages, setMonthlyPackages] = useState<MonthlyPackage[]>([]);
   const [monthlyServices, setMonthlyServices] = useState<ServiceData[]>([]);
   const [services, setServices] = useState<ServiceData[]>([]);
   const [products, setProducts] = useState<ProductData[]>([]);
@@ -43,6 +55,8 @@ const Pricing = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('services');
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<MonthlyPackage | null>(null);
 
   const { addToCart } = useCart();
   const { toast } = useToast();
@@ -51,6 +65,23 @@ const Pricing = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch monthly compliance packages
+        const { data: packagesData, error: packagesError } = await supabase
+          .from('monthly_compliance_packages')
+          .select('*')
+          .eq('is_active', true)
+          .order('price', { ascending: true });
+
+        if (packagesError) {
+          console.error('Error fetching packages:', packagesError);
+        } else {
+          const packages = (packagesData || []).map(pkg => ({
+            ...pkg,
+            features: Array.isArray(pkg.features) ? pkg.features as string[] : []
+          }));
+          setMonthlyPackages(packages);
+        }
+
         // Fetch all services
         const { data: servicesData, error: servicesError } = await supabase
           .from('services')
@@ -185,6 +216,132 @@ const Pricing = () => {
           <p className="text-center text-muted-foreground mb-8">
             Pay one amount per month and know that all basic required returns are taken care of when they come due during the year.
           </p>
+
+          {/* New Monthly Service Packages */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6 text-center">Business Support Packages</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {monthlyPackages.filter(pkg => ['base', 'core', 'premium'].includes(pkg.package_tier)).map((pkg, index) => (
+                <Card key={pkg.id} className={`relative border-2 shadow-lg h-full ${index === 1 ? 'border-primary bg-primary/5' : 'border-primary/20'}`}>
+                  {index === 1 && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                        Most Popular
+                      </span>
+                    </div>
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">{pkg.package_name}</CardTitle>
+                    <div className="text-3xl font-bold text-primary">
+                      From R{Math.round(pkg.price * 1.15).toLocaleString()}
+                      <span className="text-sm font-normal text-muted-foreground"> + VAT/Month</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <p className="text-sm text-muted-foreground mb-4">{pkg.description}</p>
+                    <div className="space-y-2 mb-6 flex-1">
+                      {pkg.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSelectedPackage(pkg);
+                        setContractModalOpen(true);
+                      }}
+                      className="w-full mt-auto"
+                    >
+                      Subscribe Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Transaction-Based Packages */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6 text-center">Transaction-Based Packages</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+              {monthlyPackages.filter(pkg => ['basic', 'lite', 'focus', 'active', 'bold'].includes(pkg.package_tier)).map((pkg) => (
+                <Card key={pkg.id} className="border-2 border-primary/20 shadow-lg h-full">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-lg font-bold">{pkg.package_name}</CardTitle>
+                    <div className="text-2xl font-bold text-primary">
+                      R{Math.round(pkg.price * 1.15).toLocaleString()}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="space-y-2 mb-6 flex-1">
+                      {pkg.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs">
+                          <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSelectedPackage(pkg);
+                        setContractModalOpen(true);
+                      }}
+                      className="w-full mt-auto"
+                      size="sm"
+                    >
+                      Subscribe Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Advisory & Strategic Packages */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6 text-center">Advisory & Strategic Packages</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {monthlyPackages.filter(pkg => ['nurture', 'pulse', 'unleash'].includes(pkg.package_tier)).map((pkg, index) => (
+                <Card key={pkg.id} className={`relative border-2 shadow-lg h-full ${index === 2 ? 'border-primary bg-primary/5' : 'border-primary/20'}`}>
+                  {index === 2 && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                        Premium
+                      </span>
+                    </div>
+                  )}
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-bold">{pkg.package_name}</CardTitle>
+                    <div className="text-3xl font-bold text-primary">
+                      R{Math.round(pkg.price * 1.15).toLocaleString()}
+                      <span className="text-sm font-normal text-muted-foreground">/Month</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="space-y-2 mb-6 flex-1">
+                      {pkg.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSelectedPackage(pkg);
+                        setContractModalOpen(true);
+                      }}
+                      className="w-full mt-auto"
+                    >
+                      Subscribe Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
           
           {/* Company Registration Popular Packages */}
           <div className="mb-8">
@@ -647,6 +804,20 @@ const Pricing = () => {
             </div>
           )}
         </Tabs>
+
+        {/* Service Contract Modal */}
+        {selectedPackage && (
+          <ServiceContractModal
+            open={contractModalOpen}
+            onOpenChange={setContractModalOpen}
+            packageData={{
+              id: selectedPackage.id,
+              name: selectedPackage.package_name,
+              price: selectedPackage.price,
+              features: selectedPackage.features,
+            }}
+          />
+        )}
       </div>
     </div>
   );

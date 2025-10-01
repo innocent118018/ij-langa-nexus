@@ -1501,6 +1501,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_documents: {
+        Row: {
+          contract_id: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          uploaded_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          uploaded_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          uploaded_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_documents_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "service_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_notes: {
         Row: {
           cost_of_sales: number | null
@@ -2706,6 +2744,42 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_compliance_packages: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean | null
+          package_name: string
+          package_tier: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean | null
+          package_name: string
+          package_tier: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean | null
+          package_name?: string
+          package_tier?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       number_formats: {
         Row: {
           created_at: string
@@ -3674,6 +3748,130 @@ export type Database = {
         }
         Relationships: []
       }
+      service_applications: {
+        Row: {
+          application_status: string | null
+          business_name: string | null
+          city: string | null
+          contact_number: string
+          contract_id: string | null
+          country: string | null
+          created_at: string | null
+          email: string
+          estimated_revenue: string | null
+          full_name: string
+          id: string
+          industry: string | null
+          is_owner_director: boolean | null
+          main_challenge: string | null
+          operating_duration: string | null
+          selected_package: string | null
+          tax_compliant: boolean | null
+          terms_accepted: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          application_status?: string | null
+          business_name?: string | null
+          city?: string | null
+          contact_number: string
+          contract_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          email: string
+          estimated_revenue?: string | null
+          full_name: string
+          id?: string
+          industry?: string | null
+          is_owner_director?: boolean | null
+          main_challenge?: string | null
+          operating_duration?: string | null
+          selected_package?: string | null
+          tax_compliant?: boolean | null
+          terms_accepted?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          application_status?: string | null
+          business_name?: string | null
+          city?: string | null
+          contact_number?: string
+          contract_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          estimated_revenue?: string | null
+          full_name?: string
+          id?: string
+          industry?: string | null
+          is_owner_director?: boolean | null
+          main_challenge?: string | null
+          operating_duration?: string | null
+          selected_package?: string | null
+          tax_compliant?: boolean | null
+          terms_accepted?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_applications_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "service_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_contracts: {
+        Row: {
+          contract_number: string
+          contract_status: string | null
+          contract_text: string
+          created_at: string | null
+          id: string
+          package_id: string | null
+          signature_ip_address: unknown | null
+          signed_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          contract_number: string
+          contract_status?: string | null
+          contract_text: string
+          created_at?: string | null
+          id?: string
+          package_id?: string | null
+          signature_ip_address?: unknown | null
+          signed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          contract_number?: string
+          contract_status?: string | null
+          contract_text?: string
+          created_at?: string | null
+          id?: string
+          package_id?: string | null
+          signature_ip_address?: unknown | null
+          signed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_contracts_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_compliance_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           category: string
@@ -4476,6 +4674,10 @@ export type Database = {
           record_ids: string[]
           table_name: string
         }[]
+      }
+      generate_contract_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
