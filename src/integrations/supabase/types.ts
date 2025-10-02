@@ -4780,6 +4780,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      is_team_member: {
+        Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
       validate_user_authentication: {
         Args: { user_email: string }
         Returns: Json
