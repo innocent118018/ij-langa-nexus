@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const VerifyOTPSchema = z.object({
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'),
+  otp: z.string().regex(/^\d{6}$/, 'OTP must be 6 digits'),
+  autoRedirect: z.boolean().optional()
+});
 
 interface VerifyOTPRequest {
   phone: string;
@@ -18,7 +26,21 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { phone, otp, autoRedirect = false }: VerifyOTPRequest = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validationResult = VerifyOTPSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Validation failed'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+    
+    const { phone, otp, autoRedirect = false } = validationResult.data;
     
     // Initialize Supabase client
     const supabase = createClient(
@@ -177,7 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.error('Error in verify-whatsapp-otp function:', error);
     return new Response(JSON.stringify({ 
       success: false,
-      error: error.message 
+      error: 'Authentication failed'
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },

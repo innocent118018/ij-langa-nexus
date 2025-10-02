@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const ClientDataSchema = z.object({
+  email: z.string().trim().email('Invalid email address').max(255),
+  full_name: z.string().trim().min(1, 'Name required').max(100),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number').optional(),
+  company_name: z.string().trim().max(200).optional(),
+  id_number: z.string().trim().max(50).optional(),
+  address: z.string().trim().max(500).optional(),
+  company_registration: z.string().trim().max(50).optional()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -48,15 +60,20 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { clientData } = body;
-
-    if (!clientData) {
-      throw new Error('Client data is required');
+    
+    // Validate input
+    const validationResult = ClientDataSchema.safeParse(body.clientData);
+    if (!validationResult.success) {
+      return new Response(JSON.stringify({ 
+        error: 'Validation failed',
+        code: 400 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    if (!clientData.email || !clientData.full_name) {
-      throw new Error('Email and full name are required fields');
-    }
+    
+    const clientData = validationResult.data;
 
     // Create the user account with a temporary password
     const tempPassword = `TempPass${Math.random().toString(36).substring(7)}!`;
@@ -116,7 +133,7 @@ serve(async (req) => {
           console.warn('Customer creation failed:', customerResult.reason);
         }
 
-        // Send welcome email to client
+        // Send welcome email with password to client
         try {
           await supabaseClient.functions.invoke('send-notification-email', {
             body: {
@@ -146,12 +163,11 @@ serve(async (req) => {
       backgroundUpdates();
     }
 
-    // Return immediate response for better user experience
+    // Return immediate response WITHOUT password (security fix)
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Client account created successfully',
-      user_id: newUser.user.id,
-      temp_password: tempPassword
+      message: 'Client account created successfully. Login credentials sent via email.',
+      user_id: newUser.user.id
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
