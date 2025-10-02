@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const OTPRequestSchema = z.object({
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'),
+  method: z.enum(['sms', 'whatsapp']),
+  username: z.string().trim().min(1).max(100).optional()
+});
 
 interface OTPRequest {
   phone: string;
@@ -18,7 +26,21 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { phone, method, username }: OTPRequest = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validationResult = OTPRequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid request format'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+    
+    const { phone, method, username } = validationResult.data;
     
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
