@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 import { Resend } from "npm:resend@2.0.0";
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -9,10 +11,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface AdminActionRequest {
-  action: string;
-  data: any;
-}
+// Validation schemas
+const PasswordResetSchema = z.object({
+  action: z.literal('send-password-reset'),
+  data: z.object({
+    email: z.string().email(),
+    clientName: z.string().max(200)
+  })
+});
+
+const CreateClientSchema = z.object({
+  action: z.literal('create-client'),
+  data: z.object({
+    email: z.string().email(),
+    fullName: z.string().min(1).max(200),
+    phone: z.string().optional(),
+    companyName: z.string().max(200).optional()
+  })
+});
+
+const UploadDocumentSchema = z.object({
+  action: z.literal('upload-client-document'),
+  data: z.object({
+    clientId: z.string().uuid(),
+    fileName: z.string().max(255),
+    fileData: z.object({
+      path: z.string().optional(),
+      mimeType: z.string(),
+      size: z.number()
+    }),
+    documentType: z.string().max(100),
+    description: z.string().max(500).optional()
+  })
+});
+
+const AdminActionSchema = z.discriminatedUnion('action', [
+  PasswordResetSchema,
+  CreateClientSchema,
+  UploadDocumentSchema
+]);
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -21,6 +58,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Check rate limit: 20 requests per hour per user
+    const rateLimit = await checkRateLimit(req, 'admin-actions', {
+      maxRequests: 20,
+      windowMs: 60 * 60 * 1000 // 1 hour
+    });
+
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetAt);
+    }
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -51,7 +98,21 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Insufficient permissions");
     }
 
-    const { action, data }: AdminActionRequest = await req.json();
+    // Parse and validate request body
+    const body = await req.json();
+    const validationResult = AdminActionSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid request format', 
+        details: validationResult.error.issues 
+      }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
+    const { action, data } = validationResult.data;
 
     let result;
 

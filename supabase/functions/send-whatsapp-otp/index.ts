@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +20,28 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { phone, method, username }: OTPRequest = await req.json();
+    // Check rate limit: 5 requests per minute per IP
+    const rateLimit = await checkRateLimit(req, 'send-whatsapp-otp', {
+      maxRequests: 5,
+      windowMs: 60 * 1000
+    });
+
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetAt);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validationResult = OTPRequestSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request format', details: validationResult.error.issues }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    const { phone, method, username }: OTPRequest = validationResult.data;
     
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();

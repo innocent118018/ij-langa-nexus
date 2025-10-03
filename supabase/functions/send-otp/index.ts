@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,6 +27,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Check rate limit: 5 requests per minute per IP
+    const rateLimit = await checkRateLimit(req, 'send-otp', {
+      maxRequests: 5,
+      windowMs: 60 * 1000 // 1 minute
+    });
+
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.resetAt);
+    }
+
     const body = await req.json();
     
     // Validate input

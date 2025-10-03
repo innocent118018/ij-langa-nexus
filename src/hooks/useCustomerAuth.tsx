@@ -38,9 +38,9 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing customer session on mount
-    const storedAccount = localStorage.getItem('customer_account');
-    const storedToken = localStorage.getItem('customer_session_token');
+    // Check for existing customer session on mount (using sessionStorage for better security)
+    const storedAccount = sessionStorage.getItem('customer_account');
+    const storedToken = sessionStorage.getItem('customer_session_token');
     
     if (storedAccount && storedToken) {
       try {
@@ -49,8 +49,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSessionToken(storedToken);
       } catch (error) {
         console.error('Error parsing stored customer account:', error);
-        localStorage.removeItem('customer_account');
-        localStorage.removeItem('customer_session_token');
+        sessionStorage.removeItem('customer_account');
+        sessionStorage.removeItem('customer_session_token');
       }
     }
     
@@ -60,8 +60,9 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const login = (account: CustomerAccount, token: string) => {
     setCurrentAccount(account);
     setSessionToken(token);
-    localStorage.setItem('customer_account', JSON.stringify(account));
-    localStorage.setItem('customer_session_token', token);
+    // Store in sessionStorage (more secure - cleared on tab close, not accessible after XSS)
+    sessionStorage.setItem('customer_account', JSON.stringify(account));
+    sessionStorage.setItem('customer_session_token', token);
     
     // Fetch available accounts for the same email
     fetchAccountsByEmail(account.email);
@@ -111,8 +112,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Update current account and session
       setCurrentAccount(targetAccount);
       setSessionToken(sessionToken);
-      localStorage.setItem('customer_account', JSON.stringify(targetAccount));
-      localStorage.setItem('customer_session_token', sessionToken);
+      sessionStorage.setItem('customer_account', JSON.stringify(targetAccount));
+      sessionStorage.setItem('customer_session_token', sessionToken);
     } catch (error) {
       console.error('Error switching account:', error);
       throw error;
@@ -139,8 +140,8 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setCurrentAccount(null);
     setSessionToken(null);
     setAvailableAccounts([]);
-    localStorage.removeItem('customer_account');
-    localStorage.removeItem('customer_session_token');
+    sessionStorage.removeItem('customer_account');
+    sessionStorage.removeItem('customer_session_token');
   };
 
   return (
