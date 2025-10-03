@@ -135,6 +135,7 @@ import PaymentCancel from "./pages/PaymentCancel";
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
 import TermsConditions from "./pages/policies/TermsConditions";
 import RefundPolicy from "./pages/policies/RefundPolicy";
+import ServiceCancellation from "./pages/policies/ServiceCancellation";
 import ServicesPolicy from "./pages/policies/ServicesPolicy";
 import InvoiceQuotePolicy from "./pages/policies/InvoiceQuotePolicy";
 import SalesOrderPolicy from "./pages/policies/SalesOrderPolicy";
@@ -220,6 +221,7 @@ function App() {
                 <Route path="/policies/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
                 <Route path="/policies/terms-conditions" element={<Layout><TermsConditions /></Layout>} />
                 <Route path="/policies/refund-policy" element={<Layout><RefundPolicy /></Layout>} />
+                <Route path="/policies/service-cancellation" element={<Layout><ServiceCancellation /></Layout>} />
                 <Route path="/policies/services-policy" element={<Layout><ServicesPolicy /></Layout>} />
                 <Route path="/policies/invoice-quote-policy" element={<Layout><InvoiceQuotePolicy /></Layout>} />
                 <Route path="/policies/sales-order-policy" element={<Layout><SalesOrderPolicy /></Layout>} />

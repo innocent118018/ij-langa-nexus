@@ -61,6 +61,9 @@ export const Footer = () => {
               <li><Link to="/policies/refund-policy" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
                 <span className="w-1 h-1 bg-accent rounded-full"></span>Refund Policy
               </Link></li>
+              <li><Link to="/policies/service-cancellation" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
+                <span className="w-1 h-1 bg-accent rounded-full"></span>Service Cancellation
+              </Link></li>
               <li><Link to="/policies/services-policy" className="text-white/80 hover:text-accent transition-colors duration-200 flex items-center gap-2">
                 <span className="w-1 h-1 bg-accent rounded-full"></span>Services Policy
               </Link></li>
