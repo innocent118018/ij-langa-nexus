@@ -41,6 +41,28 @@ export default function Contact() {
     setIsSubmitting(true);
 
     try {
+      // Send email notification
+      const emailResponse = await supabase.functions.invoke('send-notification-email', {
+        body: {
+          type: 'contact',
+          data: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            company: formData.company,
+            service_type: formData.service_type,
+            message: formData.message,
+            budget_range: formData.budget_range,
+            timeline: formData.timeline
+          }
+        }
+      });
+
+      if (emailResponse.error) {
+        console.error('Email error:', emailResponse.error);
+      }
+
+      // Store in database
       const { error } = await supabase
         .from('contact_forms')
         .insert([{
@@ -60,7 +82,7 @@ export default function Contact() {
       setIsSubmitted(true);
       toast({
         title: "Message Sent Successfully",
-        description: "We'll get back to you within 24 hours.",
+        description: "We'll get back to you within 24 hours. A confirmation email has been sent to you.",
       });
 
       // Reset form

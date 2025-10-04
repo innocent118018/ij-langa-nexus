@@ -49,7 +49,7 @@ serve(async (req) => {
       case 'profile':
         // Get user's own profile data
         const { data: profile, error: profileError } = await supabaseClient
-          .from('users')
+          .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
@@ -83,48 +83,144 @@ serve(async (req) => {
         break;
 
       case 'invoices':
-        // Get invoices for user's customer record
+        // Get invoices for user's customer record - use sales_invoices table
         const { data: invoices, error: invoicesError } = await supabaseClient
-          .from('invoices')
+          .from('sales_invoices')
           .select(`
             *,
-            customers!inner(name)
+            customer_accounts!customer_id(customer_name, email)
           `)
-          .eq('customers.email', user.email)
+          .eq('user_id', user.id)
           .order('issue_date', { ascending: false });
         
-        if (invoicesError) throw invoicesError;
-        response = invoices;
+        response = invoices || [];
         break;
 
       case 'dashboard-metrics':
-        // Get dashboard metrics for the user
-        const [
-          { data: userOrders },
-          { data: userNotifications },
-          { data: userInvoices }
-        ] = await Promise.all([
-          supabaseClient.from('orders').select('*').eq('user_id', user.id),
-          supabaseClient.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20),
-          supabaseClient.from('invoices').select('*, customers!inner(name)').eq('customers.email', user.email)
-        ]);
+        // Check if user is admin
+        const { data: adminUser } = await supabaseClient
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
 
-        const activeServices = userOrders?.filter(order => order.status === 'completed' || order.status === 'processing').length || 0;
-        const pendingOrders = userOrders?.filter(order => order.status === 'pending' || order.status === 'processing').length || 0;
-        const unpaidInvoices = userInvoices?.filter(inv => inv.status === 'Unpaid' || inv.balance_due > 0) || [];
-        const totalPendingAmount = unpaidInvoices.reduce((sum, invoice) => sum + Number(invoice.balance_due || 0), 0);
+        const isAdmin = adminUser?.role && ['admin', 'super_admin', 'accountant', 'consultant'].includes(adminUser.role);
 
-        response = {
-          orders: userOrders || [],
-          notifications: userNotifications || [],
-          invoices: userInvoices || [],
-          metrics: {
-            activeServices,
-            pendingOrders,
-            unpaidAmount: totalPendingAmount,
-            pendingInvoices: unpaidInvoices.length
-          }
-        };
+        if (isAdmin) {
+          // Admin dashboard with customer data
+          const [
+            { data: allOrders },
+            { data: adminNotifications },
+            { data: allInvoices },
+            { data: customers }
+          ] = await Promise.all([
+            supabaseClient
+              .from('orders')
+              .select('id, status, total_amount, created_at, customer_name, user_id')
+              .order('created_at', { ascending: false })
+              .limit(100),
+            supabaseClient
+              .from('notifications')
+              .select('id, title, message, type, is_read, created_at')
+              .order('created_at', { ascending: false })
+              .limit(20),
+            supabaseClient
+              .from('sales_invoices')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customer_accounts!customer_id(customer_name, email)')
+              .order('issue_date', { ascending: false })
+              .limit(50),
+            supabaseClient
+              .from('customer_accounts')
+              .select('id, customer_name, email, phone, billing_address, account_status')
+              .order('customer_name')
+          ]);
+
+          // Calculate admin metrics
+          const totalCustomers = customers?.length || 0;
+          const totalRevenue = allOrders?.filter(order => order.status === 'completed')
+            .reduce((sum, order) => sum + Number(order.total_amount || 0), 0) || 0;
+          const pendingOrders = allOrders?.filter(order => 
+            order.status === 'pending' || order.status === 'processing'
+          ).length || 0;
+          const totalUnpaid = allInvoices?.filter(inv => 
+            inv.status === 'Unpaid' || (inv.balance_due && Number(inv.balance_due) > 0)
+          ).reduce((sum, inv) => sum + Number(inv.balance_due || 0), 0) || 0;
+
+          response = {
+            orders: allOrders || [],
+            notifications: adminNotifications || [],
+            invoices: allInvoices || [],
+            customers: customers || [],
+            metrics: {
+              totalCustomers,
+              totalRevenue,
+              pendingOrders,
+              unpaidAmount: totalUnpaid,
+              activeServices: allOrders?.filter(order => 
+                order.status === 'completed' || order.status === 'processing'
+              ).length || 0,
+              pendingInvoices: allInvoices?.filter(inv => 
+                inv.status === 'Unpaid' || (inv.balance_due && Number(inv.balance_due) > 0)
+              ).length || 0
+            }
+          };
+        } else {
+          // Regular user dashboard - optimized for client users
+          const [
+            { data: userOrders },
+            { data: userNotifications },
+            { data: userInvoices }
+          ] = await Promise.all([
+            supabaseClient
+              .from('orders')
+              .select('id, status, total_amount, created_at, customer_name')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false })
+              .limit(50),
+            supabaseClient
+              .from('notifications')
+              .select('id, title, message, type, is_read, created_at')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false })
+              .limit(10),
+            supabaseClient
+              .from('sales_invoices')
+              .select('id, invoice_number, total_amount, balance_due, status, issue_date, days_overdue, customer_accounts!customer_id(customer_name)')
+              .eq('user_id', user.id)
+              .order('issue_date', { ascending: false })
+              .limit(20)
+          ]);
+
+          // Pre-calculate metrics to reduce client-side computation
+          const activeServices = userOrders?.filter(order => 
+            order.status === 'completed' || order.status === 'processing'
+          ).length || 0;
+          
+          const pendingOrders = userOrders?.filter(order => 
+            order.status === 'pending' || order.status === 'processing'
+          ).length || 0;
+          
+          const unpaidInvoices = userInvoices?.filter(inv => 
+            inv.status === 'Unpaid' || (inv.balance_due && Number(inv.balance_due) > 0)
+          ) || [];
+          
+          const totalPendingAmount = unpaidInvoices.reduce((sum, invoice) => 
+            sum + Number(invoice.balance_due || 0), 0
+          );
+
+          response = {
+            orders: userOrders || [],
+            notifications: userNotifications || [],
+            invoices: userInvoices || [],
+            customers: [], // Regular users don't see customer data
+            metrics: {
+              activeServices,
+              pendingOrders,
+              unpaidAmount: totalPendingAmount,
+              pendingInvoices: unpaidInvoices.length
+            }
+          };
+        }
         break;
 
       default:

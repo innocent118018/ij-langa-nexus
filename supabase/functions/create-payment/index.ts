@@ -57,6 +57,13 @@ serve(async (req) => {
   }
 
   try {
+    // Create Supabase client with anon key for auth verification
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    )
+
+    // Create Supabase client with service role for database operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -64,14 +71,14 @@ serve(async (req) => {
 
     // Get the authorization header
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      throw new Error('Missing authorization header')
-    }
-
-    // Verify the user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
-    if (authError || !user) {
-      throw new Error('Unauthorized')
+    let user = null
+    
+    if (authHeader) {
+      // Try to verify the user with anon key client
+      const { data: authData, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace('Bearer ', ''))
+      if (!authError && authData?.user) {
+        user = authData.user
+      }
     }
 
     const { orderId, amount, description, customerEmail, externalTransactionID }: PaymentRequest = await req.json()
@@ -80,17 +87,23 @@ serve(async (req) => {
     const appId = Deno.env.get('IKHOKHA_APP_ID')
     const appSecret = Deno.env.get('IKHOKHA_APP_SECRET')
 
+    console.log('iKhokha credentials check:', {
+      appId: appId ? `${appId.substring(0, 4)}...` : 'missing',
+      appSecret: appSecret ? `${appSecret.substring(0, 4)}...` : 'missing'
+    })
+
     if (!appId || !appSecret) {
       throw new Error('iKhokha credentials not configured')
     }
 
     // Create the payment request
     const apiEndPoint = "https://api.ikhokha.com/public-api/v1/api/payment"
-    const baseUrl = req.headers.get('origin') || 'https://preview--ij-langa-nexus.lovable.app'
+    // Always use production domain for iKhokha payments (sandbox domains won't work)
+    const baseUrl = 'https://www.ijlanga.co.za'
     
     const paymentRequest = {
       entityID: appId,
-      externalEntityID: user.id,
+      externalEntityID: user?.id || 'guest',
       amount: Math.round(amount * 100), // Convert to cents
       currency: "ZAR",
       requesterUrl: baseUrl,
@@ -99,9 +112,9 @@ serve(async (req) => {
       externalTransactionID: externalTransactionID,
       urls: {
         callbackUrl: `${baseUrl}/api/payment-callback`,
-        successPageUrl: `${baseUrl}/dashboard?payment=success&order=${orderId}`,
-        failurePageUrl: `${baseUrl}/checkout?payment=failed&order=${orderId}`,
-        cancelUrl: `${baseUrl}/checkout?payment=cancelled&order=${orderId}`
+        successPageUrl: `${baseUrl}/payment-success?order=${orderId}`,
+        failurePageUrl: `${baseUrl}/payment-cancel?payment=failed&order=${orderId}`,
+        cancelUrl: `${baseUrl}/payment-cancel?payment=cancelled&order=${orderId}`
       }
     }
 
@@ -131,22 +144,45 @@ serve(async (req) => {
     console.log('iKhokha response:', responseData)
 
     if (!response.ok) {
-      console.error('iKhokha API error:', responseData)
+      console.error('iKhokha API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseData
+      })
       throw new Error(`iKhokha API error: ${responseData.message || 'Unknown error'}`)
     }
 
-    // Log the payment creation
-    await supabase
-      .from('payment_logs')
-      .insert({
-        order_id: orderId,
-        user_id: user.id,
-        status: 'payment_link_created',
-        request_data: paymentRequest,
-        response_data: responseData
-      })
+    // Check if we got a valid response with payment URL
+    if (!responseData.paylinkUrl && !responseData.paylink_url && !responseData.url) {
+      console.error('No payment URL in response:', responseData)
+      throw new Error(`iKhokha API didn't return a payment URL. Response: ${JSON.stringify(responseData)}`)
+    }
 
-    return new Response(JSON.stringify(responseData), {
+    // Log the payment creation (only if user is authenticated)
+    if (user) {
+      try {
+        await supabase
+          .from('payment_logs')
+          .insert({
+            order_id: orderId,
+            user_id: user.id,
+            status: 'payment_link_created',
+            request_data: paymentRequest,
+            response_data: responseData
+          })
+      } catch (logError) {
+        console.error('Error logging payment:', logError)
+        // Don't fail the payment creation if logging fails
+      }
+    }
+
+    // Return the payment link URL for checkout redirection
+    return new Response(JSON.stringify({
+      success: true,
+      paylinkUrl: responseData.paylinkUrl || responseData.paylink_url || responseData.url,
+      transactionId: responseData.transactionId || responseData.transaction_id,
+      ...responseData
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 

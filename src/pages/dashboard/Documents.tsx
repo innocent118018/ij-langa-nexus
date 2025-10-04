@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -172,8 +172,8 @@ const Documents = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <DashboardWrapper>
+      <div className="space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen -m-8 p-8">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">My Documents</h1>
@@ -235,36 +235,36 @@ const Documents = () => {
         </div>
 
         {/* Document Categories */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {documentCategories.map((category) => {
             const categoryDocs = documentsByCategory[category.id] || [];
             const Icon = category.icon;
             
             return (
               <Link key={category.id} to={`/dashboard/documents/${category.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-50 rounded-lg">
-                        <Icon className="h-6 w-6 text-blue-600" />
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                        <Icon className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{category.label}</CardTitle>
-                        <CardDescription className="text-sm">
+                        <CardTitle className="text-lg bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">{category.label}</CardTitle>
+                        <CardDescription className="text-sm font-medium text-blue-600">
                           {categoryDocs.length} documents
                         </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                       {category.description}
                     </p>
                     {categoryDocs.length > 0 && (
                       <div className="space-y-2">
                         {categoryDocs.slice(0, 2).map((doc) => (
-                          <div key={doc.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
-                            <span className="truncate flex-1">{doc.file_name}</span>
+                          <div key={doc.id} className="flex items-center justify-between p-2 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-100 text-sm shadow-sm">
+                            <span className="truncate flex-1 font-medium text-gray-700">{doc.file_name}</span>
                             <Button 
                               variant="ghost" 
                               size="sm"
@@ -272,13 +272,14 @@ const Documents = () => {
                                 e.preventDefault();
                                 downloadDocument(doc);
                               }}
+                              className="hover:bg-blue-100 transition-colors"
                             >
-                              <Download className="h-3 w-3" />
+                              <Download className="h-3 w-3 text-blue-600" />
                             </Button>
                           </div>
                         ))}
                         {categoryDocs.length > 2 && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-blue-600 font-medium bg-blue-50 p-2 rounded text-center">
                             +{categoryDocs.length - 2} more documents
                           </p>
                         )}
@@ -297,21 +298,25 @@ const Documents = () => {
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : documents && documents.length > 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>All Documents</CardTitle>
-              <CardDescription>Complete list of all your uploaded documents</CardDescription>
+          <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+              <CardTitle className="text-xl">All Documents</CardTitle>
+              <CardDescription className="text-blue-100">Complete list of all your uploaded documents</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="p-6">
+              <div className="space-y-3">
                 {documents.map((document) => (
-                  <div key={document.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
+                  <div key={document.id} className="flex items-center justify-between p-4 border rounded-xl hover:shadow-md transition-all duration-200 bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <FileText className="h-5 w-5 text-blue-600" />
+                      </div>
                       <div>
-                        <p className="font-medium">{document.file_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {documentCategories.find(cat => cat.id === document.category)?.label} • 
+                        <p className="font-semibold text-gray-900">{document.file_name}</p>
+                        <p className="text-sm text-gray-600">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium mr-2">
+                            {documentCategories.find(cat => cat.id === document.category)?.label}
+                          </span>
                           Uploaded {formatDistanceToNow(new Date(document.created_at), { addSuffix: true })}
                         </p>
                       </div>
@@ -320,6 +325,7 @@ const Documents = () => {
                       variant="outline" 
                       size="sm"
                       onClick={() => downloadDocument(document)}
+                      className="hover:bg-blue-50 border-blue-200 text-blue-700 hover:text-blue-800"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Download
@@ -330,18 +336,20 @@ const Documents = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No documents yet</h3>
-              <p className="text-muted-foreground text-center mb-4">
-                Upload your first document to get started
+          <Card className="shadow-xl border-0 bg-white/90">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6">
+                <FileText className="h-12 w-12 text-white" />
+              </div>
+              <h3 className="text-xl font-bold mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">No documents yet</h3>
+              <p className="text-gray-600 text-center mb-6 max-w-md leading-relaxed">
+                Upload your first document to get started with our secure document management system
               </p>
             </CardContent>
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    </DashboardWrapper>
   );
 };
 

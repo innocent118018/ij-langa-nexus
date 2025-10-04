@@ -1,136 +1,131 @@
-
-import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Mail, Phone, User, Building, CreditCard, Lock, Eye, EyeOff } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { WhatsAppOTPLogin } from '@/components/auth/WhatsAppOTPLogin';
+import { CustomerLogin } from '@/components/auth/CustomerLogin';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import { useAuth } from '@/hooks/useAuth';
+import { Users, Shield, Fingerprint } from 'lucide-react';
 
-const Auth = () => {
-  const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
-  const [showPassword, setShowPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    surname: '',
-    email: '',
-    cellNumber: '',
-    whatsappNumber: '',
-    businessName: '',
-    idNumber: '',
-    password: '',
-    confirmPassword: ''
-  });
+type AuthType = 'admin' | 'customer';
 
-  const { signUp, signIn, signInWithGoogle, resetPassword, loading } = useAuth();
+export default function Auth() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [authType, setAuthType] = useState<AuthType>('admin');
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  
+  const { user } = useAuth();
+  const { currentAccount } = useCustomerAuth();
+  const { signIn, signUp } = useAuth();
+  const { 
+    isSupported: isBiometricSupported, 
+    savePassword, 
+    authenticateWithBiometric, 
+    hasSavedCredential 
+  } = useBiometricAuth();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    // Check if admin user is already authenticated
+    if (user) {
+      navigate('/dashboard');
+      return;
+    }
     
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+    // Check if customer is already authenticated
+    if (currentAccount) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate, currentAccount]);
+
+  const handleBiometricAuth = async () => {
+    if (!email) {
+      toast.error('Please enter your email first');
       return;
     }
 
-    if (!acceptTerms) {
-      alert('Please accept the Terms and Conditions');
-      return;
-    }
-
-    const userData = {
-      first_name: formData.firstName,
-      surname: formData.surname,
-      cell_number: formData.cellNumber,
-      whatsapp_number: formData.whatsappNumber,
-      business_name: formData.businessName,
-      id_number: formData.idNumber
-    };
-
-    const { error } = await signUp(formData.email, formData.password, userData);
-    
-    if (!error) {
-      navigate('/dashboard');
+    setIsLoading(true);
+    try {
+      const savedPassword = await authenticateWithBiometric(email);
+      if (savedPassword) {
+        const { error } = await signIn(email, savedPassword);
+        
+        if (error) throw error;
+        navigate('/dashboard');
+        toast.success('Signed in successfully with biometrics!');
+      } else {
+        toast.error('No saved credentials found for this email');
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await signIn(formData.email, formData.password);
-    
-    if (!error) {
-      navigate('/dashboard');
+    setIsLoading(true);
+
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(email, password, {});
+        
+        if (error) throw error;
+        toast.success('Check your email for the confirmation link');
+        
+        // Offer to save password with biometrics
+        if (isBiometricSupported && rememberMe) {
+          try {
+            await savePassword(email, password);
+            toast.success('Credentials saved for biometric login!');
+          } catch (error) {
+            console.error('Failed to save biometric credential:', error);
+          }
+        }
+      } else {
+        const { error } = await signIn(email, password);
+        
+        if (error) throw error;
+        
+        // Save password with biometrics if requested
+        if (isBiometricSupported && rememberMe && !hasSavedCredential(email)) {
+          try {
+            await savePassword(email, password);
+            toast.success('Credentials saved for biometric login!');
+          } catch (error) {
+            console.error('Failed to save biometric credential:', error);
+          }
+        }
+        
+        navigate('/dashboard');
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await resetPassword(formData.email);
-    setMode('login');
-  };
-
-  const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
-  };
-
-  if (mode === 'forgot') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Reset Password</CardTitle>
-            <CardDescription>
-              Enter your email address and we'll send you a reset link
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                Send Reset Link
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setMode('login')}
-              >
-                Back to Login
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  // If customer login is selected, show customer login component
+  if (authType === 'customer') {
+    return <CustomerLogin />;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+      <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center justify-center space-x-2 mb-4">
             <img 
@@ -144,228 +139,121 @@ const Auth = () => {
               className="h-8 w-auto"
             />
           </div>
-          <CardTitle className="text-center">
-            {mode === 'signup' ? 'Create Account' : 'Welcome Back'}
+          <CardTitle className="text-center text-2xl">
+            {isSignUp ? 'Create Account' : 'Sign In'}
           </CardTitle>
-          <CardDescription className="text-center">
-            {mode === 'signup' 
-              ? 'Join IJ Langa Consulting today'
-              : 'Sign in to your account'
+          
+          {/* Auth Type Selector */}
+          <div className="flex gap-2 mt-4">
+            <Button
+              variant={authType === 'admin' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setAuthType('admin')}
+              className="flex-1 gap-2"
+            >
+              <Shield className="h-4 w-4" />
+              Admin Portal
+            </Button>
+            <Button
+              variant={(authType as string) === 'customer' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setAuthType('customer')}
+              className="flex-1 gap-2"
+            >
+              <Users className="h-4 w-4" />
+              Customer Portal
+            </Button>
+          </div>
+          
+          <p className="text-center text-muted-foreground text-sm mt-2">
+            {authType === 'admin' 
+              ? 'Admin access with full system control'
+              : 'Customer access with multi-account support'
             }
-          </CardDescription>
+          </p>
         </CardHeader>
         <CardContent>
-          {/* Google Sign In */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full mb-4"
-            onClick={handleGoogleSignIn}
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              className="w-4 h-4 mr-2"
-            />
-            Continue with Google
-          </Button>
-
-          <Separator className="my-4" />
-
-          <form onSubmit={mode === 'signup' ? handleSignUp : handleSignIn} className="space-y-4">
-            {mode === 'signup' && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      required
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      placeholder="John"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="surname">Surname</Label>
-                    <Input
-                      id="surname"
-                      name="surname"
-                      required
-                      value={formData.surname}
-                      onChange={handleInputChange}
-                      placeholder="Doe"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="cellNumber">Cell Number</Label>
+          <Tabs defaultValue="email" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="email">Email Login</TabsTrigger>
+              <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="email">
+              <form onSubmit={handleAuth} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="cellNumber"
-                    name="cellNumber"
-                    type="tel"
+                    id="email"
+                    type="email"
+                    placeholder="Enter your admin email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    value={formData.cellNumber}
-                    onChange={handleInputChange}
-                    placeholder="+27 123 456 789"
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
                   <Input
-                    id="whatsappNumber"
-                    name="whatsappNumber"
-                    type="tel"
-                    value={formData.whatsappNumber}
-                    onChange={handleInputChange}
-                    placeholder="+27 123 456 789"
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                 </div>
+                
+                {/* Biometric Authentication */}
+                {isBiometricSupported && hasSavedCredential(email) && !isSignUp && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mb-4"
+                    onClick={handleBiometricAuth}
+                    disabled={isLoading}
+                  >
+                    <Fingerprint className="h-4 w-4 mr-2" />
+                    Sign in with Biometrics
+                  </Button>
+                )}
 
-                <div>
-                  <Label htmlFor="businessName">Business Name</Label>
-                  <Input
-                    id="businessName"
-                    name="businessName"
-                    value={formData.businessName}
-                    onChange={handleInputChange}
-                    placeholder="Your Business Name"
-                  />
-                </div>
+                {/* Remember Me / Save Password */}
+                {isBiometricSupported && (
+                  <div className="flex items-center space-x-2 mb-4">
+                    <input
+                      type="checkbox"
+                      id="rememberMe"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="rounded"
+                    />
+                    <Label htmlFor="rememberMe" className="text-sm">
+                      {isSignUp ? 'Save for biometric login' : 'Remember me with biometrics'}
+                    </Label>
+                  </div>
+                )}
 
-                <div>
-                  <Label htmlFor="idNumber">ID Number</Label>
-                  <Input
-                    id="idNumber"
-                    name="idNumber"
-                    value={formData.idNumber}
-                    onChange={handleInputChange}
-                    placeholder="Your ID Number"
-                  />
-                </div>
-              </>
-            )}
-
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="john@example.com"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter your password"
-                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
+                  className="w-full"
+                  onClick={() => setIsSignUp(!isSignUp)}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
                 </Button>
-              </div>
-            </div>
-
-            {mode === 'signup' && (
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="Confirm your password"
-                />
-              </div>
-            )}
-
-            {mode === 'signup' && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                />
-                <label htmlFor="terms" className="text-sm">
-                  I accept the{' '}
-                  <a href="/policies/terms" target="_blank" className="text-primary hover:underline">
-                    Terms and Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="/policies/privacy" target="_blank" className="text-primary hover:underline">
-                    Privacy Policy
-                  </a>
-                </label>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {mode === 'signup' ? 'Create Account' : 'Sign In'}
-            </Button>
-
-            {mode === 'login' && (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => setMode('forgot')}
-              >
-                Forgot Password?
-              </Button>
-            )}
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              {mode === 'signup' ? (
-                <>
-                  Already have an account?{' '}
-                  <button
-                    onClick={() => setMode('login')}
-                    className="text-primary hover:underline"
-                  >
-                    Sign in
-                  </button>
-                </>
-              ) : (
-                <>
-                  Don't have an account?{' '}
-                  <button
-                    onClick={() => setMode('signup')}
-                    className="text-primary hover:underline"
-                  >
-                    Sign up
-                  </button>
-                </>
-              )}
-            </p>
-          </div>
+              </form>
+            </TabsContent>
+            
+            <TabsContent value="whatsapp">
+              <WhatsAppOTPLogin />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default Auth;
+}

@@ -85,8 +85,43 @@ serve(async (req) => {
 
     console.log(`Order created successfully: ${order.id} for user ${user.id}`);
 
-    // For now, return order details without payment integration
-    // Payment integration can be added later
+    // Send order notification email
+    try {
+      await supabaseClient.functions.invoke('send-notification-email', {
+        body: {
+          type: 'order',
+          data: {
+            id: order.id,
+            customer_name: user.user_metadata?.full_name || user.email,
+            customer_email: user.email,
+            service_name: service.name,
+            total_amount: totalWithVat,
+            vat_amount: vatAmount,
+            status: order.status,
+            notes: notes,
+            created_at: order.created_at
+          },
+          customerEmail: user.email
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send order notification:', emailError);
+    }
+
+    // Create in-app notification for the user
+    try {
+      await supabaseClient.functions.invoke('create-notification', {
+        body: {
+          user_id: user.id,
+          title: 'Order Created Successfully',
+          message: `Your order for ${service.name} has been created and is being processed. Order total: R${totalWithVat.toFixed(2)}`,
+          type: 'order'
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to create in-app notification:', notificationError);
+    }
+
     return new Response(JSON.stringify({
       success: true,
       order: {

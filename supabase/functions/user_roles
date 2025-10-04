@@ -1,0 +1,8 @@
+CREATE FUNCTION is_admin(uid UUID) RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM user_roles
+    WHERE user_id = uid AND role IN ('admin1', 'admin2')
+  );
+END;
+$$ LANGUAGE plpgsql;

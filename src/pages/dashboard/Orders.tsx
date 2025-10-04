@@ -1,31 +1,30 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Briefcase, 
-  Search, 
-  Calendar,
-  DollarSign,
-  User,
-  FileText,
-  Filter,
-  Loader2
-} from 'lucide-react';
-import { format } from 'date-fns';
+import { Loader2, Package, Eye, Download, Mail } from 'lucide-react';
+import { PaymentButton } from '@/components/payments/PaymentButton';
+import { DashboardWrapper } from '@/components/dashboard/DashboardWrapper';
+import { OrderDetailsModal } from '@/components/orders/OrderDetailsModal';
+import { ContactSupportModal } from '@/components/orders/ContactSupportModal';
+import { CancelOrderModal } from '@/components/orders/CancelOrderModal';
+import { useCoupons } from '@/hooks/useCoupons';
 
 const Orders = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const { user, loading } = useAuth();
+  const { availableCoupon, createCouponForNextOrder } = useCoupons();
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showContactSupport, setShowContactSupport] = useState(false);
+  const [supportOrder, setSupportOrder] = useState<any>(null);
 
-  // Fetch user's orders from Supabase
-  const { data: ordersData = [], isLoading } = useQuery({
-    queryKey: ['orders', user?.id],
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['user-orders', user?.id],
     queryFn: async () => {
       if (!user) return [];
       
@@ -33,7 +32,8 @@ const Orders = () => {
         .from('orders')
         .select(`
           *,
-          services(name, description)
+          services(name, description, price),
+          order_items(quantity, price, total)
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -56,197 +56,205 @@ const Orders = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  const filteredOrders = ordersData.filter(order =>
-    order.services?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.id.toString().includes(searchTerm) ||
-    order.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
+  const getStatusColor = (status: string) => {
+    switch (status) {
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+        return 'default';
+      case 'in_progress':
+        return 'secondary';
+      case 'completed':
+        return 'default'; // Changed from 'success' to fix TypeScript error
       case 'cancelled':
-        return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
+        return 'destructive';
       default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>;
+        return 'default';
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-ZA', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Generate coupon for completed orders
+  React.useEffect(() => {
+    if (orders.length > 0) {
+      const hasCompletedOrder = orders.some(order => order.status === 'completed');
+      if (hasCompletedOrder && !availableCoupon) {
+        // Only create if user doesn't already have a coupon
+        createCouponForNextOrder();
+      }
+    }
+  }, [orders, availableCoupon, createCouponForNextOrder]);
+
+  const handleViewOrder = (order: any) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
+  const handleContactSupport = (order: any) => {
+    setSupportOrder(order);
+    setShowContactSupport(true);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">My Orders & Projects</h1>
-          <p className="text-slate-600">Track and manage your orders and projects</p>
+    <DashboardWrapper>
+      {availableCoupon && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <h3 className="font-semibold text-green-800">You have a 5% discount coupon!</h3>
+              <p className="text-sm text-green-600">
+                Code: <strong>{availableCoupon.code}</strong> - Will be automatically applied to your next order
+              </p>
+            </div>
+          </div>
         </div>
+      )}
+      <div className="space-y-8 max-w-7xl mx-auto px-6 py-8">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">My Orders</h1>
+        <p className="text-muted-foreground">
+          View and manage your service orders
+        </p>
       </div>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center space-x-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input 
-                placeholder="Search orders by reference, customer, or description..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : orders.length > 0 ? (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <Card key={order.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">
+                      Order #{order.id.slice(-8).toUpperCase()}
+                    </CardTitle>
+                    <CardDescription>
+                      Placed on {formatDate(order.created_at)}
+                    </CardDescription>
+                  </div>
+                  <Badge variant={getStatusColor(order.status)}>
+                    {order.status.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <h4 className="font-medium">{order.services?.name || 'Service'}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {order.services?.description || order.notes}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold">R{order.total_amount?.toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground">
+                        (incl. VAT R{order.vat_amount?.toLocaleString()})
+                      </p>
+                    </div>
+                  </div>
+
+                  {order.admin_notes && (
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-sm">
+                        <strong>Admin Notes:</strong> {order.admin_notes}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="button-group pt-4">
+                    {order.status === 'pending' && (
+                      <PaymentButton
+                        invoiceId={order.id}
+                        amount={order.total_amount || 0}
+                        description={`Payment for ${order.services?.name || 'Service'}`}
+                      />
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleViewOrder(order)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleContactSupport(order)}
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Contact Support
+                    </Button>
+                    {order.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setIsCancelModalOpen(true);
+                        }}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
+            <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+            <Button>
+              Browse Services
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                <p className="text-2xl font-bold text-slate-900">{ordersData.length}</p>
-              </div>
-              <Briefcase className="h-8 w-8 text-blue-600" />
-            </div>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Value</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {formatCurrency(ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0))}
-                </p>
-              </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {ordersData.filter(o => o.status === 'completed').length}
-                </p>
-              </div>
-              <Calendar className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">In Progress</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  {ordersData.filter(o => o.status === 'in_progress' || o.status === 'pending').length}
-                </p>
-              </div>
-              <User className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+      )}
       </div>
 
-      {/* Orders Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <FileText className="h-5 w-5" />
-            <span>All Orders</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="text-left p-4 font-medium text-gray-900">Date</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Reference</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Customer</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Description</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Amount</th>
-                  <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-                      <p className="text-gray-500 mt-2">Loading orders...</p>
-                    </td>
-                  </tr>
-                ) : filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center">
-                      <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">No orders found</p>
-                      <p className="text-gray-400 text-sm">Start by ordering a service from our catalog</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order) => (
-                    <tr key={order.id} className="border-b hover:bg-gray-50">
-                      <td className="p-4">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm">{format(new Date(order.created_at), 'MMM dd, yyyy')}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="font-medium text-blue-600">#{order.id.slice(0, 8)}</span>
-                      </td>
-                      <td className="p-4">
-                        <span className="font-medium text-slate-900">{order.services?.name || 'Service'}</span>
-                      </td>
-                      <td className="p-4">
-                        <div className="max-w-md">
-                          <p className="text-sm text-slate-600 truncate">{order.notes || order.services?.description || 'No description'}</p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="font-medium text-green-600">
-                          {formatCurrency(order.total_amount || 0)}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        {getStatusBadge(order.status)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      {/* Order Details Modal */}
+      <OrderDetailsModal
+        order={selectedOrder}
+        isOpen={showOrderDetails}
+        onClose={() => setShowOrderDetails(false)}
+      />
+
+      {/* Contact Support Modal */}
+      <ContactSupportModal
+        order={supportOrder}
+        isOpen={showContactSupport}
+        onClose={() => setShowContactSupport(false)}
+      />
+
+      {/* Cancel Order Modal */}
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => {
+          setIsCancelModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        orderId={selectedOrder?.id || ''}
+        orderNumber={selectedOrder?.id}
+        onOrderCancelled={() => {
+          window.location.reload();
+        }}
+      />
+    </DashboardWrapper>
   );
 };
 

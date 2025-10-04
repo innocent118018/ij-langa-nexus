@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, 
@@ -18,6 +19,9 @@ import {
 export const ClientDashboard = () => {
   const { invoices, orders, metrics, notifications, isLoading } = useDashboardData();
   const navigate = useNavigate();
+  
+  // Monitor performance in development
+  usePerformanceMonitor();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-ZA', {
@@ -26,8 +30,8 @@ export const ClientDashboard = () => {
     }).format(amount);
   };
 
-  // Calculate client metrics
-  const clientMetrics = useMemo(() => {
+  // Calculate client metrics - memoized for performance
+  const clientMetrics = React.useMemo(() => {
     const unpaidInvoices = invoices.filter(inv => inv.status !== 'paid');
     const outstandingBalance = unpaidInvoices.reduce((sum, inv) => sum + (inv.balance_due || 0), 0);
     const overdueInvoices = invoices.filter(inv => inv.status !== 'paid' && inv.days_overdue > 0);
@@ -42,7 +46,7 @@ export const ClientDashboard = () => {
     };
   }, [invoices, orders]);
 
-  const recentInvoices = useMemo(() => {
+  const recentInvoices = React.useMemo(() => {
     return invoices
       .slice(0, 5)
       .map(invoice => ({
@@ -56,7 +60,7 @@ export const ClientDashboard = () => {
       }));
   }, [invoices]);
 
-  const complianceStatus = useMemo(() => {
+  const complianceStatus = React.useMemo(() => {
     const criticalNotifications = notifications.filter(n => n.type === 'compliance' || n.type === 'deadline');
     if (criticalNotifications.length > 0) return 'Action Required';
     if (clientMetrics.overdueCount > 0) return 'Overdue Payments';

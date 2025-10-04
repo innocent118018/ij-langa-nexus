@@ -15,11 +15,15 @@ import {
   Filter,
   Edit,
   Eye,
-  FileText
+  FileText,
+  Settings,
+  Key,
+  Upload
 } from 'lucide-react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import EditClientModal from '@/components/clients/EditClientModal';
 import CreateClientModal from '@/components/admin/CreateClientModal';
+import { ClientManagementModal } from '@/components/admin/ClientManagementModal';
 import { useNavigate } from 'react-router-dom';
 
 interface Customer {
@@ -38,6 +42,8 @@ const Clients = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isManagementModalOpen, setIsManagementModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('accounts');
   const navigate = useNavigate();
 
   const formatCurrency = (amount: number) => {
@@ -85,6 +91,13 @@ const Clients = () => {
             <Plus className="h-4 w-4 mr-2" />
             Add New Client
           </Button>
+          <Button 
+            variant="outline"
+            onClick={() => setIsManagementModalOpen(true)}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Client Management
+          </Button>
           <Button className="bg-slate-900 hover:bg-slate-800">
             <FileText className="h-4 w-4 mr-2" />
             Export Report
@@ -113,6 +126,44 @@ const Clients = () => {
         </CardContent>
       </Card>
 
+      {/* Navigation Tabs */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex space-x-4 border-b">
+            <button
+              onClick={() => setActiveTab('accounts')}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'accounts' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Account Management
+            </button>
+            <button
+              onClick={() => setActiveTab('monitoring')}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'monitoring' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Client Monitoring
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'analytics' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Analytics & Reports
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -121,6 +172,7 @@ const Clients = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Clients</p>
                 <p className="text-2xl font-bold text-slate-900">{customers.length}</p>
+                <p className="text-xs text-gray-500 mt-1">Active accounts</p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
             </div>
@@ -138,6 +190,7 @@ const Clients = () => {
                     return sum + (balance > 0 ? balance : 0);
                   }, 0))}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">Overdue amounts</p>
               </div>
               <DollarSign className="h-8 w-8 text-red-600" />
             </div>
@@ -152,6 +205,7 @@ const Clients = () => {
                 <p className="text-2xl font-bold text-green-900">
                   {customers.filter(c => c.status === 'Active').length}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">Current engagement</p>
               </div>
               <Building className="h-8 w-8 text-green-600" />
             </div>
@@ -169,6 +223,7 @@ const Clients = () => {
                     return sum + (balance < 0 ? balance : 0);
                   }, 0)))}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">Client prepayments</p>
               </div>
               <DollarSign className="h-8 w-8 text-blue-600" />
             </div>
@@ -237,10 +292,11 @@ const Clients = () => {
                     </td>
                     <td className="p-4">
                       <div className="flex space-x-2">
-                        <Button 
+                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleEditClient(customer)}
+                          title="Edit Client"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -248,8 +304,28 @@ const Clients = () => {
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleViewDocuments(customer)}
+                          title="View Documents"
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedCustomer(customer);
+                            setIsManagementModalOpen(true);
+                          }}
+                          title="Manage Client"
+                        >
+                          <Key className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/dashboard/documents?upload=true&client=${customer.id}`)}
+                          title="Upload Documents"
+                        >
+                          <Upload className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -271,6 +347,13 @@ const Clients = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => window.location.reload()}
+      />
+
+      <ClientManagementModal
+        isOpen={isManagementModalOpen}
+        onClose={() => setIsManagementModalOpen(false)}
+        clientId={selectedCustomer?.id}
+        clientData={selectedCustomer}
       />
     </div>
   );
