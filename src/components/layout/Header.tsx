@@ -135,6 +135,9 @@ export const Header = () => {
             <Link to="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
               Contact
             </Link>
+            <Link to="/mentorship" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Mentorship
+            </Link>
             <CartButton />
             <TaxCalculator />
             
@@ -256,6 +259,13 @@ export const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
+              </Link>
+              <Link
+                to="/mentorship"
+                className="text-gray-600 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Mentorship
               </Link>
               
               {/* Mobile Authentication Section */}

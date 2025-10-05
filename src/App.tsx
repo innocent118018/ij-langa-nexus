@@ -21,6 +21,7 @@ import Dashboard from "./pages/Dashboard";
 import Contact from "./pages/Contact";
 import TestCheckout from "./pages/TestCheckout";
 import TaxCalculator from "./pages/TaxCalculator";
+import Mentorship from "./pages/Mentorship";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -230,6 +231,9 @@ function App() {
                 
                 {/* Contact route */}
                 <Route path="/contact" element={<Layout><Contact /></Layout>} />
+                
+                {/* Mentorship route */}
+                <Route path="/mentorship" element={<Layout><Mentorship /></Layout>} />
 
                 {/* Service routes with Layout */}
                 <Route path="/services/:category/:service" element={<Layout><ServicePage /></Layout>} />

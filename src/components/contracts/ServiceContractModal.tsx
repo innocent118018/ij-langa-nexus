@@ -5,8 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentUploadStep } from "./DocumentUploadStep";
-import { ServiceApplicationForm } from "./ServiceApplicationForm";
+import { BillingInformationForm } from "./BillingInformationForm";
 import { ContractTemplate } from "./ContractTemplate";
 import { CheckCircle, FileText, AlertCircle } from "lucide-react";
 import { addMonths } from "date-fns";
@@ -24,11 +23,12 @@ interface ServiceContractModalProps {
 }
 
 export const ServiceContractModal = ({ open, onOpenChange, packageData }: ServiceContractModalProps) => {
-  const [step, setStep] = useState<"contract" | "documents" | "form" | "complete">("contract");
-  const [agreed, setAgreed] = useState(false);
+  const [step, setStep] = useState<"contract" | "billing" | "complete">("contract");
   const [contractId, setContractId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
   const [contractNumber, setContractNumber] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const { toast } = useToast();
 
   const startDate = new Date();
@@ -36,12 +36,18 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
   
   const packageDescription = packageData.description || packageData.features.join('\n• ');
 
-  const handleAgree = async () => {
-    if (!agreed) {
-      toast({ 
-        title: "Agreement Required", 
-        description: "Please check the box to agree to the 24-month commitment",
-        variant: "destructive" 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    const bottom = Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) < 5;
+    setScrolledToBottom(bottom);
+  };
+
+  const handleAccept = async () => {
+    if (!scrolledToBottom) {
+      toast({
+        title: "Please Read Contract",
+        description: "Scroll to the bottom of the contract to continue",
+        variant: "destructive"
       });
       return;
     }
@@ -50,10 +56,10 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({ 
-          title: "Authentication Required", 
+        toast({
+          title: "Authentication Required",
           description: "Please log in to continue",
-          variant: "destructive" 
+          variant: "destructive"
         });
         return;
       }
@@ -65,36 +71,33 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
         throw new Error('Failed to generate contract number');
       }
 
-      // Get user email for client record
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      const userEmail = authUser?.email || user.email;
+      const userEmail = user.email;
 
       // Create or get client record
-      let clientId: string;
+      let newClientId: string;
       const { data: existingClient } = await supabase
         .from('contract_clients')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingClient) {
-        clientId = existingClient.id;
+        newClientId = existingClient.id;
       } else {
-        // Create new client
         const { data: newClient, error: clientError } = await supabase
           .from('contract_clients')
           .insert({
             user_id: user.id,
-            name: authUser?.user_metadata?.full_name?.split(' ')[0] || 'Client',
-            surname: authUser?.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
+            name: user.user_metadata?.full_name?.split(' ')[0] || 'Client',
+            surname: user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
             email: userEmail!,
-            phone: authUser?.phone || '',
+            phone: user.phone || '',
           })
           .select('id')
           .single();
 
         if (clientError) throw clientError;
-        clientId = newClient.id;
+        newClientId = newClient.id;
       }
 
       // Generate contract text
@@ -118,7 +121,7 @@ This is a digitally binding 24-month service agreement.
         .from('service_contracts')
         .insert({
           user_id: user.id,
-          client_id: clientId,
+          client_id: newClientId,
           product_id: packageData.id,
           contract_number: newContractNumber,
           contract_text: contractText,
@@ -136,22 +139,31 @@ This is a digitally binding 24-month service agreement.
       }
 
       setContractId(contract.id);
+      setClientId(newClientId);
       setContractNumber(newContractNumber);
-      setStep("documents");
-      toast({ 
-        title: "Contract Created", 
-        description: "Please upload required documents to continue",
+      setStep("billing");
+      toast({
+        title: "Contract Accepted",
+        description: "Please provide billing information to complete setup",
       });
     } catch (error: any) {
       console.error('Error creating contract:', error);
-      toast({ 
-        title: "Error Creating Contract", 
+      toast({
+        title: "Error Creating Contract",
         description: error.message || "Please try again or contact support",
-        variant: "destructive" 
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDecline = () => {
+    onOpenChange(false);
+    toast({
+      title: "Contract Declined",
+      description: "You have declined the service agreement"
+    });
   };
 
   return (
@@ -163,8 +175,7 @@ This is a digitally binding 24-month service agreement.
             <div>
               <DialogTitle className="text-xl">
                 {step === "contract" && "Digital Service Agreement"}
-                {step === "documents" && "Upload Required Documents"}
-                {step === "form" && "Service Application Form"}
+                {step === "billing" && "Billing Information"}
                 {step === "complete" && "Contract Submitted"}
               </DialogTitle>
               {step === "contract" && (
@@ -176,13 +187,16 @@ This is a digitally binding 24-month service agreement.
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden flex flex-col">
           {step === "contract" && (
-            <div className="h-full flex flex-col gap-4">
+            <div className="h-full flex flex-col">
               {/* Scrollable Contract */}
-              <ScrollArea className="flex-1 border rounded-lg p-6 bg-background">
+              <ScrollArea 
+                className="flex-1 border rounded-lg p-6 bg-background mb-4"
+                onScroll={handleScroll}
+              >
                 <ContractTemplate
-                  clientName="Client Name" // Will be filled from user data
+                  clientName="Client Name"
                   businessName=""
                   industry=""
                   email=""
@@ -200,7 +214,7 @@ This is a digitally binding 24-month service agreement.
               </ScrollArea>
 
               {/* Commitment Warning */}
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded mb-4">
                 <div className="flex gap-3">
                   <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                   <div>
@@ -214,59 +228,40 @@ This is a digitally binding 24-month service agreement.
                 </div>
               </div>
 
-              {/* Agreement Checkbox */}
-              <div className="flex items-start space-x-3 p-4 border rounded-lg bg-muted/50">
-                <Checkbox
-                  id="agree-terms"
-                  checked={agreed}
-                  onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                  className="mt-1"
-                />
-                <label
-                  htmlFor="agree-terms"
-                  className="text-sm leading-relaxed cursor-pointer"
-                >
-                  I have read and understood the full contract above. I agree to the{' '}
-                  <strong>24-month commitment</strong> and accept all terms, conditions, and policies 
-                  including payment obligations, refund policy, and governing law.
-                </label>
-              </div>
+              {!scrolledToBottom && (
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  ↓ Please scroll down to read the full contract ↓
+                </p>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <Button
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
+                  variant="destructive"
+                  onClick={handleDecline}
                   className="flex-1"
+                  disabled={loading}
                 >
-                  Cancel
+                  Decline Contract
                 </Button>
                 <Button
-                  onClick={handleAgree}
-                  disabled={!agreed || loading}
+                  onClick={handleAccept}
+                  disabled={!scrolledToBottom || loading}
                   className="flex-1"
                   size="lg"
                 >
-                  {loading ? "Creating Contract..." : "I Accept & Sign - Continue"}
+                  {loading ? "Creating Contract..." : "Accept Contract"}
                 </Button>
               </div>
             </div>
           )}
 
-          {step === "documents" && contractId && (
-            <DocumentUploadStep 
-              contractId={contractId} 
-              onComplete={() => setStep("form")} 
-              onBack={() => setStep("contract")} 
-            />
-          )}
-
-          {step === "form" && contractId && (
-            <ServiceApplicationForm 
-              contractId={contractId} 
-              packageName={packageData.name} 
-              onComplete={() => setStep("complete")} 
-              onBack={() => setStep("documents")} 
+          {step === "billing" && contractId && clientId && (
+            <BillingInformationForm
+              contractId={contractId}
+              clientId={clientId}
+              onComplete={() => setStep("complete")}
+              onBack={() => setStep("contract")}
             />
           )}
 
