@@ -18,23 +18,23 @@ export const useServiceContract = () => {
 
       // Create or get client
       let clientId: string;
-      const { data: existingClient } = await supabase
-        .from('contract_clients')
+      const { data: existingClient } = await (supabase
+        .from('contract_clients' as any)
         .select('id')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .maybeSingle() as unknown as Promise<{ data: { id: string } | null; error: any }>);
 
       if (existingClient) {
         clientId = existingClient.id;
       } else {
-        const { data: newClient, error: clientError } = await supabase
-          .from('contract_clients')
+        const { data: newClient, error: clientError } = await (supabase
+          .from('contract_clients' as any)
           .insert({
             user_id: user.id,
             ...userData
           })
           .select('id')
-          .single();
+          .single() as unknown as Promise<{ data: { id: string }; error: any }>);
 
         if (clientError) throw clientError;
         clientId = newClient.id;

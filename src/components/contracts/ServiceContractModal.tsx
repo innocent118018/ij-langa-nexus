@@ -75,17 +75,17 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
 
       // Create or get client record
       let newClientId: string;
-      const { data: existingClient } = await supabase
-        .from('contract_clients')
+      const { data: existingClient } = await (supabase
+        .from('contract_clients' as any)
         .select('id')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .maybeSingle() as unknown as Promise<{ data: { id: string } | null; error: any }>);
 
       if (existingClient) {
         newClientId = existingClient.id;
       } else {
-        const { data: newClient, error: clientError } = await supabase
-          .from('contract_clients')
+        const { data: newClient, error: clientError } = await (supabase
+          .from('contract_clients' as any)
           .insert({
             user_id: user.id,
             name: user.user_metadata?.full_name?.split(' ')[0] || 'Client',
@@ -94,7 +94,7 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
             phone: user.phone || '',
           })
           .select('id')
-          .single();
+          .single() as unknown as Promise<{ data: { id: string }; error: any }>);
 
         if (clientError) throw clientError;
         newClientId = newClient.id;

@@ -161,7 +161,7 @@ export const BillingInformationForm = ({
 
       // Update client billing info
       const { error: clientError } = await supabase
-        .from('contract_clients')
+        .from('contract_clients' as any)
         .update({
           company_name: formData.companyName,
           company_registration_number: formData.companyRegistrationNumber,
@@ -184,7 +184,7 @@ export const BillingInformationForm = ({
         const idCopyPath = await uploadFile(dir.idCopyFile!, 'director_ids');
 
         const { error: dirError } = await supabase
-          .from('company_directors_contract')
+          .from('company_directors_contract' as any)
           .insert({
             contract_id: contractId,
             client_id: clientId,
@@ -201,7 +201,7 @@ export const BillingInformationForm = ({
         if (dirError) throw dirError;
 
         // Track document upload
-        await supabase.from('contract_document_uploads').insert({
+        await supabase.from('contract_document_uploads' as any).insert({
           contract_id: contractId,
           client_id: clientId,
           document_type: 'director_id_copy',
@@ -218,7 +218,7 @@ export const BillingInformationForm = ({
       if (formData.hasIncomeInvoice === 'yes') {
         for (const file of incomeInvoices) {
           const path = await uploadFile(file, 'income_invoices');
-          await supabase.from('contract_document_uploads').insert({
+          await supabase.from('contract_document_uploads' as any).insert({
             contract_id: contractId,
             client_id: clientId,
             document_type: 'income_invoice',
@@ -234,7 +234,7 @@ export const BillingInformationForm = ({
       // Upload bank statements
       for (const file of bankStatements) {
         const path = await uploadFile(file, 'bank_statements');
-        await supabase.from('contract_document_uploads').insert({
+        await supabase.from('contract_document_uploads' as any).insert({
           contract_id: contractId,
           client_id: clientId,
           document_type: 'bank_statement',
