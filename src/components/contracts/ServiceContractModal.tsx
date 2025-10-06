@@ -29,6 +29,10 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
   const [contractNumber, setContractNumber] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [address, setAddress] = useState("");
+  const scrollAreaRef = useState<HTMLDivElement | null>(null);
   const { toast } = useToast();
 
   const startDate = new Date();
@@ -40,6 +44,20 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
     const target = e.target as HTMLDivElement;
     const bottom = Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) < 5;
     setScrolledToBottom(bottom);
+  };
+
+  const scrollToTop = () => {
+    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollArea) {
+      scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const scrollToBottom = () => {
+    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollArea) {
+      scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+    }
   };
 
   const handleAccept = async () => {
@@ -189,32 +207,146 @@ This is a digitally binding 24-month service agreement.
 
         <div className="flex-1 overflow-hidden flex flex-col">
           {step === "contract" && (
-            <div className="h-full flex flex-col">
+            <div className="h-full flex flex-col gap-4">
+              {/* Client Details Form */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <div>
+                  <label className="text-sm font-medium">Client Name</label>
+                  <input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 border rounded-md"
+                    placeholder="Enter client name"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Company Name</label>
+                  <input
+                    type="text"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 border rounded-md"
+                    placeholder="Enter company name"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Address</label>
+                  <textarea
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 border rounded-md"
+                    rows={2}
+                    placeholder="Enter full address"
+                  />
+                </div>
+              </div>
+
               {/* Scrollable Contract */}
-              <ScrollArea 
-                className="flex-1 border rounded-lg p-6 bg-background mb-4"
-                onScroll={handleScroll}
-              >
-                <ContractTemplate
-                  clientName="Client Name"
-                  businessName=""
-                  industry=""
-                  email=""
-                  phone=""
-                  city=""
-                  country="South Africa"
-                  packageName={packageData.name}
-                  price={packageData.price}
-                  packageDescription={packageDescription}
-                  startDate={startDate}
-                  endDate={endDate}
-                  contractDate={new Date()}
-                  contractNumber={contractNumber || "Will be generated"}
-                />
-              </ScrollArea>
+              <div className="relative flex-1 border rounded-lg overflow-hidden">
+                <ScrollArea 
+                  className="h-[400px] p-6 bg-background"
+                  onScroll={handleScroll}
+                >
+                  <div className="prose prose-sm max-w-none">
+                    <h2 className="text-center font-bold text-xl mb-6">SERVICE CONTRACT AGREEMENT</h2>
+                    
+                    <div className="mb-6">
+                      <p className="font-semibold">Between</p>
+                      <p className="font-bold">IJ Langa Consulting (Pty) Ltd</p>
+                      <p>(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)</p>
+                      <p>of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa</p>
+                      <p>Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
+                      
+                      <p className="font-semibold mt-4">And</p>
+                      <p className="font-semibold">{clientName || "[Client Name]"}</p>
+                      <p>{companyName || "[Company Name]"}</p>
+                      <p>{address || "[Address]"}</p>
+                    </div>
+
+                    <hr className="my-4" />
+
+                    <h3 className="font-bold">1. Purpose</h3>
+                    <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
+
+                    <h3 className="font-bold mt-4">2. Term</h3>
+                    <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on {startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
+
+                    <h3 className="font-bold mt-4">3. Services</h3>
+                    <p>The Service Provider shall render the following professional services to the Client:</p>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md my-3">
+                      <p className="font-bold">{packageData.name}</p>
+                      <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
+                      <div className="mt-2 space-y-1">
+                        {packageData.features.map((feature, idx) => (
+                          <p key={idx} className="text-sm">• {feature}</p>
+                        ))}
+                      </div>
+                    </div>
+
+                    <h3 className="font-bold mt-4">4. Payment Terms</h3>
+                    <ol className="list-decimal ml-5 space-y-1">
+                      <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
+                      <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
+                      <li>Invoices shall be issued monthly on a recurring basis.</li>
+                      <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: {contractNumber || "[To be generated]"}</li>
+                    </ol>
+
+                    <h3 className="font-bold mt-4">5. Confidentiality</h3>
+                    <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
+
+                    <h3 className="font-bold mt-4">6. Termination</h3>
+                    <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
+
+                    <h3 className="font-bold mt-4">7. Governing Law</h3>
+                    <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
+
+                    <h3 className="font-bold mt-4">8. Dispute Resolution</h3>
+                    <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
+
+                    <h3 className="font-bold mt-4">9. Signatures</h3>
+                    <div className="grid grid-cols-2 gap-6 mt-4">
+                      <div>
+                        <p className="font-semibold">For IJ Langa Consulting (Pty) Ltd</p>
+                        <p className="mt-2">Name: _________________________</p>
+                        <p>Designation: ___________________</p>
+                        <p>Signature: _____________________</p>
+                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">For the Client</p>
+                        <p className="mt-2">Name: _________________________</p>
+                        <p>Designation: ___________________</p>
+                        <p>Signature: _____________________</p>
+                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+
+                {/* Scroll Buttons */}
+                <div className="absolute right-2 top-2 flex flex-col gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={scrollToTop}
+                    className="h-8 w-8 p-0"
+                  >
+                    ↑
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={scrollToBottom}
+                    className="h-8 w-8 p-0"
+                  >
+                    ↓
+                  </Button>
+                </div>
+              </div>
 
               {/* Commitment Warning */}
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded mb-4">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
                 <div className="flex gap-3">
                   <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
                   <div>
@@ -229,7 +361,7 @@ This is a digitally binding 24-month service agreement.
               </div>
 
               {!scrolledToBottom && (
-                <p className="text-sm text-muted-foreground text-center mb-4">
+                <p className="text-sm text-muted-foreground text-center">
                   ↓ Please scroll down to read the full contract ↓
                 </p>
               )}
@@ -246,7 +378,7 @@ This is a digitally binding 24-month service agreement.
                 </Button>
                 <Button
                   onClick={handleAccept}
-                  disabled={!scrolledToBottom || loading}
+                  disabled={!scrolledToBottom || !clientName || !companyName || !address || loading}
                   className="flex-1"
                   size="lg"
                 >
