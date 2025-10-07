@@ -178,9 +178,10 @@ This is a digitally binding 24-month service agreement.
 
   const handleDecline = () => {
     onOpenChange(false);
+    
     toast({
       title: "Contract Declined",
-      description: "You have declined the service agreement"
+      description: "Would you like to explore one-time services instead? Visit our Services page to see available options.",
     });
   };
 
@@ -366,25 +367,36 @@ This is a digitally binding 24-month service agreement.
                 </p>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Button
-                  variant="destructive"
-                  onClick={handleDecline}
-                  className="flex-1"
-                  disabled={loading}
-                >
-                  Decline Contract
-                </Button>
-                <Button
-                  onClick={handleAccept}
-                  disabled={!scrolledToBottom || !clientName || !companyName || !address || loading}
-                  className="flex-1"
-                  size="lg"
-                >
-                  {loading ? "Creating Contract..." : "Accept Contract"}
-                </Button>
-              </div>
+              {/* Scroll indicator */}
+              {!scrolledToBottom && (
+                <div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ↓ Please scroll to the bottom of the contract to view Accept/Decline options ↓
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons - shown after scrolling */}
+              {scrolledToBottom && (
+                <div className="flex gap-3 animate-in fade-in duration-500">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDecline}
+                    className="flex-1"
+                    disabled={loading}
+                  >
+                    Decline Contract
+                  </Button>
+                  <Button
+                    onClick={handleAccept}
+                    disabled={!clientName || !companyName || !address || loading}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {loading ? "Creating Contract..." : "Accept & Start Billing"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 

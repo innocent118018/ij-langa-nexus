@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, BookOpen, Users, Award, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { MentorshipModules } from './MentorshipModules';
 
 const Mentorship = () => {
   const [formData, setFormData] = useState({
@@ -189,6 +190,9 @@ const Mentorship = () => {
           </div>
         </div>
       </section>
+
+      {/* Detailed Module Curriculum */}
+      <MentorshipModules />
 
       {/* Testimonials */}
       <section className="container mx-auto px-4 py-16">
