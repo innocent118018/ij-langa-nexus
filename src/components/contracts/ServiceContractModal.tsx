@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { BillingInformationForm } from "./BillingInformationForm";
 import { ContractTemplate } from "./ContractTemplate";
-import { CheckCircle, FileText, AlertCircle } from "lucide-react";
+import { CheckCircle, FileText, AlertCircle, Download } from "lucide-react";
 import { addMonths } from "date-fns";
 
 interface ServiceContractModalProps {
@@ -213,11 +213,32 @@ This is a digitally binding 24-month service agreement for professional accounti
       setContractId(contract.id);
       setClientId(newClientId);
       setContractNumber(newContractNumber);
+
+      // Send contract email
+      try {
+        const contractHTML = generateContractHTML(newContractNumber);
+        await supabase.functions.invoke('send-contract-email', {
+          body: {
+            email: user.email,
+            clientName,
+            companyName,
+            contractNumber: newContractNumber,
+            packageName: packageData.name,
+            packagePrice: packageData.price,
+            startDate: startDate.toLocaleDateString('en-ZA'),
+            endDate: endDate.toLocaleDateString('en-ZA'),
+            contractHTML,
+          },
+        });
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+      }
+
       setStep("complete");
       
       toast({
         title: "Contract Accepted & Activated",
-        description: "Your service has started. Check your Orders for payment details.",
+        description: "Your service has started. Check your email for contract details.",
       });
     } catch (error: any) {
       console.error('Error creating contract:', error);
@@ -231,6 +252,126 @@ This is a digitally binding 24-month service agreement for professional accounti
     }
   };
 
+  const generateContractHTML = (contractNum: string) => {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Service Contract - ${contractNum}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 30px; }
+          h1 { color: #0D1B2A; font-size: 24px; margin-bottom: 10px; }
+          h2 { color: #0D1B2A; font-size: 18px; margin-top: 20px; }
+          .section { margin-bottom: 20px; }
+          .highlight { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+          .signatures { display: flex; justify-content: space-between; margin-top: 40px; padding: 20px; background: #f0fdf4; border-radius: 5px; }
+          .signature-block { flex: 1; }
+          hr { margin: 20px 0; border: 1px solid #e5e7eb; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>SERVICE CONTRACT AGREEMENT</h1>
+          <p>Contract Number: ${contractNum}</p>
+        </div>
+
+        <div class="section">
+          <h2>Between</h2>
+          <p><strong>IJ Langa Consulting (Pty) Ltd</strong><br>
+          Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528<br>
+          78 Tekatakho, Nelspruit, Mpumalanga, South Africa<br>
+          Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
+          
+          <p style="margin-top: 15px;"><strong>And</strong><br>
+          ${clientName}<br>
+          ${companyName}<br>
+          ${address}</p>
+        </div>
+
+        <hr>
+
+        <div class="section">
+          <h2>1. Purpose</h2>
+          <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
+        </div>
+
+        <div class="section">
+          <h2>2. Term</h2>
+          <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on ${startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
+        </div>
+
+        <div class="section">
+          <h2>3. Services</h2>
+          <p>The Service Provider shall render the following professional services to the Client:</p>
+          <div class="highlight">
+            <p><strong>${packageData.name}</strong><br>
+            <strong style="color: #0D1B2A;">R${packageData.price} + VAT/Month</strong></p>
+            <ul>
+              ${packageData.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>4. Payment Terms</h2>
+          <ol>
+            <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
+            <li>All payments shall be made digitally via the Service Provider's chosen digital platforms.</li>
+            <li>Invoices shall be issued monthly on a recurring basis.</li>
+            <li>Sales Invoice Reference: ${contractNum}</li>
+          </ol>
+        </div>
+
+        <div class="section">
+          <h2>5. Confidentiality</h2>
+          <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records.</p>
+        </div>
+
+        <div class="section">
+          <h2>6. Termination</h2>
+          <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. All outstanding payments remain due and payable.</p>
+        </div>
+
+        <div class="section">
+          <h2>7. Governing Law</h2>
+          <p>This Agreement shall be governed by the laws of the Republic of South Africa.</p>
+        </div>
+
+        <div class="section">
+          <h2>8. Dispute Resolution</h2>
+          <p>Disputes shall be referred to mediation or arbitration under South African law.</p>
+        </div>
+
+        <div class="section">
+          <h2>9. Signatures</h2>
+          <div class="signatures">
+            <div class="signature-block">
+              <p><strong>For IJ Langa Consulting (Pty) Ltd</strong></p>
+              <p>Name: IJ Langa</p>
+              <p>Designation: Director</p>
+              <p style="font-style: italic; font-size: 18px;">Signed Digitally</p>
+              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
+            </div>
+            <div class="signature-block">
+              <p><strong>For the Client</strong></p>
+              <p>Name: ${clientName}</p>
+              <p>Designation: Authorized Representative</p>
+              <p style="font-style: italic; font-size: 18px;">Signed Digitally</p>
+              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 20px; padding: 15px; background: #dbeafe; border-radius: 5px;">
+            <strong>This contract was digitally signed on ${new Date().toLocaleString('en-ZA')}</strong><br>
+            <small>Digital signatures are legally binding under the ECT Act, 2002</small>
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
   const handleDecline = () => {
     onOpenChange(false);
     
@@ -240,24 +381,178 @@ This is a digitally binding 24-month service agreement for professional accounti
     });
   };
 
+  const downloadContract = () => {
+    const contractHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Service Contract - ${contractNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .logo { width: 80px; margin-bottom: 10px; }
+          h1 { color: #0D1B2A; font-size: 24px; margin-bottom: 10px; }
+          h2 { color: #0D1B2A; font-size: 18px; margin-top: 20px; }
+          .section { margin-bottom: 20px; }
+          .highlight { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+          .signatures { display: flex; justify-content: space-between; margin-top: 40px; }
+          .signature-block { flex: 1; }
+          hr { margin: 20px 0; border: 1px solid #e5e7eb; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <img src="/favicon.ico" class="logo" alt="IJ Langa Consulting">
+          <h1>SERVICE CONTRACT AGREEMENT</h1>
+          <p>Contract Number: ${contractNumber}</p>
+        </div>
+
+        <div class="section">
+          <h2>Between</h2>
+          <p><strong>IJ Langa Consulting (Pty) Ltd</strong><br>
+          Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528<br>
+          78 Tekatakho, Nelspruit, Mpumalanga, South Africa<br>
+          Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
+          
+          <p style="margin-top: 15px;"><strong>And</strong><br>
+          ${clientName}<br>
+          ${companyName}<br>
+          ${address}</p>
+        </div>
+
+        <hr>
+
+        <div class="section">
+          <h2>1. Purpose</h2>
+          <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
+        </div>
+
+        <div class="section">
+          <h2>2. Term</h2>
+          <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on ${startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
+        </div>
+
+        <div class="section">
+          <h2>3. Services</h2>
+          <p>The Service Provider shall render the following professional services to the Client:</p>
+          <div class="highlight">
+            <p><strong>${packageData.name}</strong><br>
+            <strong style="color: #0D1B2A;">R${packageData.price} + VAT/Month</strong></p>
+            <ul>
+              ${packageData.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>4. Payment Terms</h2>
+          <ol>
+            <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
+            <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
+            <li>Invoices shall be issued monthly on a recurring basis.</li>
+            <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: ${contractNumber}</li>
+          </ol>
+        </div>
+
+        <div class="section">
+          <h2>5. Confidentiality</h2>
+          <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
+        </div>
+
+        <div class="section">
+          <h2>6. Termination</h2>
+          <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
+        </div>
+
+        <div class="section">
+          <h2>7. Governing Law</h2>
+          <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
+        </div>
+
+        <div class="section">
+          <h2>8. Dispute Resolution</h2>
+          <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
+        </div>
+
+        <div class="section">
+          <h2>9. Signatures</h2>
+          <div class="signatures">
+            <div class="signature-block">
+              <p><strong>For IJ Langa Consulting (Pty) Ltd</strong></p>
+              <p>Name: _________________________</p>
+              <p>Designation: ___________________</p>
+              <p>Signature: _____________________</p>
+              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
+            </div>
+            <div class="signature-block">
+              <p><strong>For the Client</strong></p>
+              <p>Name: _________________________</p>
+              <p>Designation: ___________________</p>
+              <p>Signature: _____________________</p>
+              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([contractHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Contract_${contractNumber}_${packageData.name.replace(/\s+/g, '_')}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Contract Downloaded",
+      description: "Your contract has been downloaded successfully. You can print it from your browser.",
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <FileText className="h-6 w-6 text-primary" />
-            <div>
-              <DialogTitle className="text-xl">
-                {step === "contract" && "Digital Service Agreement"}
-                {step === "billing" && "Billing Information"}
-                {step === "complete" && "Contract Submitted"}
-              </DialogTitle>
-              {step === "contract" && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Please review the full contract before accepting
-                </p>
-              )}
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3">
+              <img src="/favicon.ico" alt="IJ Langa" className="h-8 w-8" />
+              <div>
+                <DialogTitle className="text-xl">
+                  {step === "contract" && "Digital Service Agreement"}
+                  {step === "billing" && "Billing Information"}
+                  {step === "complete" && "Contract Submitted"}
+                </DialogTitle>
+                {step === "contract" && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Please review the full contract before accepting
+                  </p>
+                )}
+              </div>
             </div>
+            {step === "contract" && scrolledToBottom && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleDecline}
+                  disabled={loading}
+                  size="sm"
+                >
+                  Decline
+                </Button>
+                <Button
+                  onClick={handleAccept}
+                  disabled={!clientName || !companyName || !address || loading}
+                  size="sm"
+                >
+                  {loading ? "Processing..." : "Accept"}
+                </Button>
+              </div>
+            )}
           </div>
         </DialogHeader>
 
@@ -465,19 +760,126 @@ This is a digitally binding 24-month service agreement for professional accounti
           )}
 
           {step === "complete" && (
-            <div className="text-center py-12">
-              <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
-              <h3 className="text-2xl font-semibold mb-3">Contract Submitted Successfully!</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Your contract has been created and is pending activation. You will receive an email with your 
-                contract details and first invoice shortly.
-              </p>
+            <div className="space-y-6">
+              <div className="text-center py-8">
+                <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
+                <h3 className="text-2xl font-semibold mb-3">Contract Accepted & Activated!</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Your contract #{contractNumber} has been activated. A copy has been sent to your email.
+                </p>
+              </div>
+
+              {/* Full Contract Display with Signatures */}
+              <div className="border rounded-lg p-6 bg-background">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <img src="/favicon.ico" alt="IJ Langa" className="h-10 w-10" />
+                    <div>
+                      <h3 className="font-bold text-xl">SERVICE CONTRACT AGREEMENT</h3>
+                      <p className="text-sm text-muted-foreground">Contract Number: {contractNumber}</p>
+                    </div>
+                  </div>
+                  <Button onClick={downloadContract} variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+
+                <ScrollArea className="h-[400px]">
+                  <div className="prose prose-sm max-w-none">
+                    <div className="mb-6">
+                      <p className="font-semibold">Between</p>
+                      <p className="font-bold">IJ Langa Consulting (Pty) Ltd</p>
+                      <p>(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)</p>
+                      <p>of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa</p>
+                      <p>Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
+                      
+                      <p className="font-semibold mt-4">And</p>
+                      <p className="font-semibold">{clientName}</p>
+                      <p>{companyName}</p>
+                      <p>{address}</p>
+                    </div>
+
+                    <hr className="my-4" />
+
+                    <h3 className="font-bold">1. Purpose</h3>
+                    <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
+
+                    <h3 className="font-bold mt-4">2. Term</h3>
+                    <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on {startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
+
+                    <h3 className="font-bold mt-4">3. Services</h3>
+                    <p>The Service Provider shall render the following professional services to the Client:</p>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md my-3">
+                      <p className="font-bold">{packageData.name}</p>
+                      <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
+                      <div className="mt-2 space-y-1">
+                        {packageData.features.map((feature, idx) => (
+                          <p key={idx} className="text-sm">• {feature}</p>
+                        ))}
+                      </div>
+                    </div>
+
+                    <h3 className="font-bold mt-4">4. Payment Terms</h3>
+                    <ol className="list-decimal ml-5 space-y-1">
+                      <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
+                      <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
+                      <li>Invoices shall be issued monthly on a recurring basis.</li>
+                      <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: {contractNumber}</li>
+                    </ol>
+
+                    <h3 className="font-bold mt-4">5. Confidentiality</h3>
+                    <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
+
+                    <h3 className="font-bold mt-4">6. Termination</h3>
+                    <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
+
+                    <h3 className="font-bold mt-4">7. Governing Law</h3>
+                    <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
+
+                    <h3 className="font-bold mt-4">8. Dispute Resolution</h3>
+                    <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
+
+                    <h3 className="font-bold mt-4">9. Signatures</h3>
+                    <div className="grid grid-cols-2 gap-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div>
+                        <p className="font-semibold">For IJ Langa Consulting (Pty) Ltd</p>
+                        <p className="mt-2">Name: IJ Langa</p>
+                        <p>Designation: Director</p>
+                        <p className="font-script text-lg italic">Signed Digitally</p>
+                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold">For the Client</p>
+                        <p className="mt-2">Name: {clientName}</p>
+                        <p>Designation: Authorized Representative</p>
+                        <p className="font-script text-lg italic">Signed Digitally</p>
+                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-sm text-center">
+                        <strong>This contract was digitally signed and accepted on {new Date().toLocaleString('en-ZA')}</strong>
+                      </p>
+                      <p className="text-xs text-center text-muted-foreground mt-1">
+                        Digital signatures are legally binding under the Electronic Communications and Transactions Act, 2002
+                      </p>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </div>
+
               <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
-                  Close
+                <Button onClick={downloadContract} variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Contract
                 </Button>
-                <Button onClick={() => window.location.href = '/dashboard/orders'}>
+                <Button onClick={() => window.location.href = '/dashboard/contracts'}>
                   View My Contracts
+                </Button>
+                <Button variant="secondary" onClick={() => onOpenChange(false)}>
+                  Close
                 </Button>
               </div>
             </div>
