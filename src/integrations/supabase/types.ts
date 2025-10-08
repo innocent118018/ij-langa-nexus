@@ -1501,6 +1501,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_clients: {
+        Row: {
+          address: string | null
+          company_name: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          surname: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          surname?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          surname?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contract_documents: {
         Row: {
           contract_id: string | null
@@ -2777,6 +2816,39 @@ export type Database = {
           package_tier?: string
           price?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -4666,6 +4738,10 @@ export type Database = {
         Returns: {
           cleaned_count: number
         }[]
+      }
+      cleanup_expired_otp_codes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       create_customer_session: {
         Args: {

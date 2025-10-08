@@ -70,6 +70,15 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
       return;
     }
 
+    if (!clientName || !companyName || !address) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all client details",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -89,49 +98,67 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
         throw new Error('Failed to generate contract number');
       }
 
-      const userEmail = user.email;
-
-      // Create or get client record
+      // Create or update client record
       let newClientId: string;
-      const { data: existingClient } = await (supabase
-        .from('contract_clients' as any)
+      const { data: existingClient } = await supabase
+        .from('contract_clients')
         .select('id')
         .eq('user_id', user.id)
-        .maybeSingle() as unknown as Promise<{ data: { id: string } | null; error: any }>);
+        .maybeSingle();
 
       if (existingClient) {
+        // Update existing client
+        await supabase
+          .from('contract_clients')
+          .update({
+            name: clientName,
+            company_name: companyName,
+            address: address,
+            email: user.email!,
+            phone: user.phone || ''
+          })
+          .eq('id', existingClient.id);
         newClientId = existingClient.id;
       } else {
-        const { data: newClient, error: clientError } = await (supabase
-          .from('contract_clients' as any)
+        // Create new client
+        const { data: newClient, error: clientError } = await supabase
+          .from('contract_clients')
           .insert({
             user_id: user.id,
-            name: user.user_metadata?.full_name?.split(' ')[0] || 'Client',
-            surname: user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
-            email: userEmail!,
-            phone: user.phone || '',
+            name: clientName,
+            company_name: companyName,
+            address: address,
+            email: user.email!,
+            phone: user.phone || ''
           })
           .select('id')
-          .single() as unknown as Promise<{ data: { id: string }; error: any }>);
+          .single();
 
         if (clientError) throw clientError;
         newClientId = newClient.id;
       }
 
-      // Generate contract text
+      // Generate full contract text
       const contractText = `
-SERVICE AGREEMENT - ${packageData.name}
+SERVICE CONTRACT AGREEMENT
+
+Between
+IJ Langa Consulting (Pty) Ltd
+(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)
+of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa
+Tel: 013 004 0620 | Email: order@ijlanga.co.za
+
+And
+${clientName}
+${companyName}
+${address}
 
 Contract Number: ${newContractNumber}
-Client: ${userEmail}
 Package: ${packageData.name}
-Monthly Fee: R${packageData.price} + VAT
-Total (24 months): R${(packageData.price * 1.15 * 24).toFixed(2)}
+Monthly Fee: R${(packageData.price * 1.15).toFixed(2)} (incl. VAT)
+Contract Period: ${startDate.toLocaleDateString('en-ZA')} - ${endDate.toLocaleDateString('en-ZA')}
 
-Start Date: ${startDate.toLocaleDateString()}
-End Date: ${endDate.toLocaleDateString()}
-
-This is a digitally binding 24-month service agreement.
+This is a digitally binding 24-month service agreement for professional accounting and compliance services.
       `.trim();
 
       // Create contract
@@ -145,7 +172,7 @@ This is a digitally binding 24-month service agreement.
           contract_text: contractText,
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
-          contract_status: 'pending',
+          contract_status: 'active',
           policy_version: '2025.1',
         })
         .select('id')
@@ -156,13 +183,41 @@ This is a digitally binding 24-month service agreement.
         throw contractError;
       }
 
+      // Create initial order/invoice
+      const monthlyAmount = Math.round(packageData.price * 1.15);
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          customer_name: clientName,
+          customer_email: user.email!,
+          customer_phone: user.phone || '',
+          customer_address: address,
+          subtotal: packageData.price,
+          vat_amount: Math.round(packageData.price * 0.15),
+          total_amount: monthlyAmount,
+          status: 'pending',
+          service_id: packageData.id
+        });
+
+      if (orderError) console.error('Order error:', orderError);
+
+      // Create notification
+      await supabase.from('notifications').insert({
+        user_id: user.id,
+        title: 'Contract Activated',
+        message: `Your ${packageData.name} contract (#${newContractNumber}) has been activated. First payment of R${monthlyAmount} is due now.`,
+        type: 'contract'
+      });
+
       setContractId(contract.id);
       setClientId(newClientId);
       setContractNumber(newContractNumber);
-      setStep("billing");
+      setStep("complete");
+      
       toast({
-        title: "Contract Accepted",
-        description: "Please provide billing information to complete setup",
+        title: "Contract Accepted & Activated",
+        description: "Your service has started. Check your Orders for payment details.",
       });
     } catch (error: any) {
       console.error('Error creating contract:', error);

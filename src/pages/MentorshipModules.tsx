@@ -108,15 +108,14 @@ export const MentorshipModules = () => {
                 <Card className="p-4 bg-green-50 dark:bg-green-900/20 border-green-200">
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Award className="h-5 w-5" />
-                    Module 1 Quiz (Sample Questions)
+                    Module 1 Assessment
                   </h4>
-                  <ol className="text-sm space-y-2 list-decimal list-inside">
-                    <li>True or False: Conducting market research is optional when starting a business</li>
-                    <li>Which factor is most important when choosing a business idea?</li>
-                    <li>What does SWOT stand for?</li>
-                    <li>Define a SMART goal</li>
-                    <li>Draft a 1-paragraph business description for your chosen idea</li>
-                  </ol>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    This module includes a comprehensive quiz covering business planning, market research, and goal setting.
+                  </p>
+                  <p className="text-sm font-medium">
+                    🔒 Quiz available to enrolled students only
+                  </p>
                 </Card>
               </div>
             </Card>
@@ -214,15 +213,14 @@ export const MentorshipModules = () => {
                 <Card className="p-4 bg-green-50 dark:bg-green-900/20 border-green-200">
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Award className="h-5 w-5" />
-                    Module 2 Quiz (Sample Questions)
+                    Module 2 Assessment
                   </h4>
-                  <ol className="text-sm space-y-2 list-decimal list-inside">
-                    <li>True or False: A sole proprietor has limited liability</li>
-                    <li>Which business structure provides limited liability?</li>
-                    <li>Name one document required to register a Pty Ltd</li>
-                    <li>When should a business register for VAT with SARS?</li>
-                    <li>True or False: Every business must register for COIDA, even with no employees</li>
-                  </ol>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    This module includes a quiz on business structures, CIPC registration, and SARS compliance.
+                  </p>
+                  <p className="text-sm font-medium">
+                    🔒 Quiz available to enrolled students only
+                  </p>
                 </Card>
               </div>
             </Card>
@@ -322,19 +320,14 @@ export const MentorshipModules = () => {
                 <Card className="p-4 bg-green-50 dark:bg-green-900/20 border-green-200">
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Award className="h-5 w-5" />
-                    Module 3 Quiz (8 Questions, 16 Marks)
+                    Module 3 Assessment
                   </h4>
-                  <ol className="text-sm space-y-2 list-decimal list-inside">
-                    <li>Which body issues CIDB registration? (2 marks)</li>
-                    <li>True/False: COIDA registration required only for 10+ employees (1 mark)</li>
-                    <li>Which is NOT required when registering as employer? (2 marks)</li>
-                    <li>List three licenses for food catering business (3 marks)</li>
-                    <li>What is primary purpose of NHBRC registration? (2 marks)</li>
-                    <li>True/False: Failing to renew trading license can lead to penalties (1 mark)</li>
-                    <li>Name two steps if business failed to register for COIDA before employee injury (3 marks)</li>
-                    <li>Why is compliance calendar important? Give two reasons (2 marks)</li>
-                  </ol>
-                  <p className="text-sm mt-3 text-muted-foreground">Pass mark: 60% (10/16 marks)</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Comprehensive assessment covering regulatory compliance, licensing requirements, and risk management (8 questions, 16 marks).
+                  </p>
+                  <p className="text-sm font-medium">
+                    🔒 Quiz available to enrolled students only
+                  </p>
                 </Card>
               </div>
             </Card>
