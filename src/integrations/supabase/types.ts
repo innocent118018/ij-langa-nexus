@@ -3904,10 +3904,12 @@ export type Database = {
           contract_status: string | null
           contract_text: string
           created_at: string | null
+          end_date: string | null
           id: string
           package_id: string | null
           signature_ip_address: unknown | null
           signed_at: string | null
+          start_date: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -3917,10 +3919,12 @@ export type Database = {
           contract_status?: string | null
           contract_text: string
           created_at?: string | null
+          end_date?: string | null
           id?: string
           package_id?: string | null
           signature_ip_address?: unknown | null
           signed_at?: string | null
+          start_date?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -3930,10 +3934,12 @@ export type Database = {
           contract_status?: string | null
           contract_text?: string
           created_at?: string | null
+          end_date?: string | null
           id?: string
           package_id?: string | null
           signature_ip_address?: unknown | null
           signed_at?: string | null
+          start_date?: string | null
           updated_at?: string | null
           user_id?: string | null
         }

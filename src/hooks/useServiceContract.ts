@@ -40,11 +40,7 @@ export const useServiceContract = () => {
         clientId = newClient.id;
       }
 
-      // Create contract
-      const startDate = new Date();
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + 24);
-
+      // Create contract with automatic end_date calculation (handled by database trigger)
       const { data: contract, error: contractError } = await supabase
         .from('service_contracts')
         .insert({
@@ -53,8 +49,8 @@ export const useServiceContract = () => {
           product_id: packageData.id,
           contract_number: contractNumber,
           contract_text: '', // Will be generated
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
+          start_date: new Date().toISOString().split('T')[0],
+          // end_date will be automatically set to start_date + 24 months by database trigger
           contract_status: 'pending',
         })
         .select()
