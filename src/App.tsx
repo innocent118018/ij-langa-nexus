@@ -55,6 +55,10 @@ import MyServices from "./pages/dashboard/MyServices";
 import MyInvoices from "./pages/dashboard/MyInvoices";
 import Messages from "./pages/dashboard/Messages";
 import SecretarialSoftware from "./pages/dashboard/SecretarialSoftware";
+import Contracts from "./pages/dashboard/Contracts";
+import ContractDetails from "./pages/dashboard/ContractDetails";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
+import OTPVerification from "./pages/auth/OTPVerification";
 
 // New ERP/Accounting pages
 import Summary from "./pages/dashboard/Summary";
@@ -476,6 +480,26 @@ function App() {
                     <SecretarialSoftware />
                   </DashboardLayout>
                 } />
+
+                <Route path="/dashboard/contracts" element={
+                  <DashboardLayout>
+                    <Contracts />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/contracts/:id" element={
+                  <DashboardLayout>
+                    <ContractDetails />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/dashboard/notifications" element={
+                  <DashboardLayout>
+                    <NotificationsPage />
+                  </DashboardLayout>
+                } />
+
+                <Route path="/auth/otp-verification" element={<Layout><OTPVerification /></Layout>} />
 
                 <Route path="/tax-calculator" element={<TaxCalculator />} />
 
