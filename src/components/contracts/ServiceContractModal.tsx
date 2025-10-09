@@ -2,11 +2,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { BillingInformationForm } from "./BillingInformationForm";
-import { ContractTemplate } from "./ContractTemplate";
 import { CheckCircle, FileText, AlertCircle, Download } from "lucide-react";
 import { addMonths } from "date-fns";
 
@@ -23,53 +20,20 @@ interface ServiceContractModalProps {
 }
 
 export const ServiceContractModal = ({ open, onOpenChange, packageData }: ServiceContractModalProps) => {
-  const [step, setStep] = useState<"contract" | "billing" | "complete">("contract");
+  const [step, setStep] = useState<"contract" | "complete">("contract");
   const [contractId, setContractId] = useState<string | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
   const [contractNumber, setContractNumber] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [scrolledToBottom, setScrolledToBottom] = useState(false);
   const [clientName, setClientName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [address, setAddress] = useState("");
-  const scrollAreaRef = useState<HTMLDivElement | null>(null);
   const { toast } = useToast();
 
   const startDate = new Date();
-  const endDate = addMonths(startDate, 24); // 24 months (2 years)
-  
-  const packageDescription = packageData.description || packageData.features.join('\n• ');
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLDivElement;
-    const bottom = Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) < 5;
-    setScrolledToBottom(bottom);
-  };
-
-  const scrollToTop = () => {
-    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
-    if (scrollArea) {
-      scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const scrollToBottom = () => {
-    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
-    if (scrollArea) {
-      scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
-    }
-  };
+  const endDate = addMonths(startDate, 24);
 
   const handleAccept = async () => {
-    if (!scrolledToBottom) {
-      toast({
-        title: "Please Read Contract",
-        description: "Scroll to the bottom of the contract to continue",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!clientName || !companyName || !address) {
       toast({
         title: "Missing Information",
@@ -91,14 +55,12 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
         return;
       }
 
-      // Generate contract number
       const { data: newContractNumber, error: rpcError } = await supabase.rpc('generate_contract_number');
       if (rpcError) {
         console.error('RPC Error:', rpcError);
         throw new Error('Failed to generate contract number');
       }
 
-      // Create or update client record
       let newClientId: string;
       const { data: existingClient } = await supabase
         .from('contract_clients')
@@ -107,7 +69,6 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
         .maybeSingle();
 
       if (existingClient) {
-        // Update existing client
         await supabase
           .from('contract_clients')
           .update({
@@ -120,7 +81,6 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
           .eq('id', existingClient.id);
         newClientId = existingClient.id;
       } else {
-        // Create new client
         const { data: newClient, error: clientError } = await supabase
           .from('contract_clients')
           .insert({
@@ -138,7 +98,6 @@ export const ServiceContractModal = ({ open, onOpenChange, packageData }: Servic
         newClientId = newClient.id;
       }
 
-      // Generate full contract text
       const contractText = `
 SERVICE CONTRACT AGREEMENT
 
@@ -161,7 +120,6 @@ Contract Period: ${startDate.toLocaleDateString('en-ZA')} - ${endDate.toLocaleDa
 This is a digitally binding 24-month service agreement for professional accounting and compliance services.
       `.trim();
 
-      // Create contract
       const { data: contract, error: contractError } = await supabase
         .from('service_contracts')
         .insert({
@@ -183,7 +141,6 @@ This is a digitally binding 24-month service agreement for professional accounti
         throw contractError;
       }
 
-      // Create initial order/invoice
       const monthlyAmount = Math.round(packageData.price * 1.15);
       const { error: orderError } = await supabase
         .from('orders')
@@ -202,7 +159,6 @@ This is a digitally binding 24-month service agreement for professional accounti
 
       if (orderError) console.error('Order error:', orderError);
 
-      // Create notification
       await supabase.from('notifications').insert({
         user_id: user.id,
         title: 'Contract Activated',
@@ -214,7 +170,6 @@ This is a digitally binding 24-month service agreement for professional accounti
       setClientId(newClientId);
       setContractNumber(newContractNumber);
 
-      // Send contract email
       try {
         const contractHTML = generateContractHTML(newContractNumber);
         await supabase.functions.invoke('send-contract-email', {
@@ -374,517 +329,227 @@ This is a digitally binding 24-month service agreement for professional accounti
 
   const handleDecline = () => {
     onOpenChange(false);
-    
     toast({
       title: "Contract Declined",
-      description: "Would you like to explore one-time services instead? Visit our Services page to see available options.",
+      description: "Would you like to explore one-time services instead? Visit our Services page.",
     });
   };
 
   const downloadContract = () => {
-    const contractHTML = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Service Contract - ${contractNumber}</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-          .header { text-align: center; margin-bottom: 30px; }
-          .logo { width: 80px; margin-bottom: 10px; }
-          h1 { color: #0D1B2A; font-size: 24px; margin-bottom: 10px; }
-          h2 { color: #0D1B2A; font-size: 18px; margin-top: 20px; }
-          .section { margin-bottom: 20px; }
-          .highlight { background: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
-          .signatures { display: flex; justify-content: space-between; margin-top: 40px; }
-          .signature-block { flex: 1; }
-          hr { margin: 20px 0; border: 1px solid #e5e7eb; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <img src="/favicon.ico" class="logo" alt="IJ Langa Consulting">
-          <h1>SERVICE CONTRACT AGREEMENT</h1>
-          <p>Contract Number: ${contractNumber}</p>
-        </div>
-
-        <div class="section">
-          <h2>Between</h2>
-          <p><strong>IJ Langa Consulting (Pty) Ltd</strong><br>
-          Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528<br>
-          78 Tekatakho, Nelspruit, Mpumalanga, South Africa<br>
-          Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
-          
-          <p style="margin-top: 15px;"><strong>And</strong><br>
-          ${clientName}<br>
-          ${companyName}<br>
-          ${address}</p>
-        </div>
-
-        <hr>
-
-        <div class="section">
-          <h2>1. Purpose</h2>
-          <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
-        </div>
-
-        <div class="section">
-          <h2>2. Term</h2>
-          <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on ${startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
-        </div>
-
-        <div class="section">
-          <h2>3. Services</h2>
-          <p>The Service Provider shall render the following professional services to the Client:</p>
-          <div class="highlight">
-            <p><strong>${packageData.name}</strong><br>
-            <strong style="color: #0D1B2A;">R${packageData.price} + VAT/Month</strong></p>
-            <ul>
-              ${packageData.features.map(f => `<li>${f}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2>4. Payment Terms</h2>
-          <ol>
-            <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
-            <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
-            <li>Invoices shall be issued monthly on a recurring basis.</li>
-            <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: ${contractNumber}</li>
-          </ol>
-        </div>
-
-        <div class="section">
-          <h2>5. Confidentiality</h2>
-          <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
-        </div>
-
-        <div class="section">
-          <h2>6. Termination</h2>
-          <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
-        </div>
-
-        <div class="section">
-          <h2>7. Governing Law</h2>
-          <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
-        </div>
-
-        <div class="section">
-          <h2>8. Dispute Resolution</h2>
-          <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
-        </div>
-
-        <div class="section">
-          <h2>9. Signatures</h2>
-          <div class="signatures">
-            <div class="signature-block">
-              <p><strong>For IJ Langa Consulting (Pty) Ltd</strong></p>
-              <p>Name: _________________________</p>
-              <p>Designation: ___________________</p>
-              <p>Signature: _____________________</p>
-              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
-            </div>
-            <div class="signature-block">
-              <p><strong>For the Client</strong></p>
-              <p>Name: _________________________</p>
-              <p>Designation: ___________________</p>
-              <p>Signature: _____________________</p>
-              <p>Date: ${new Date().toLocaleDateString('en-ZA')}</p>
-            </div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-
+    const contractHTML = generateContractHTML(contractNumber);
     const blob = new Blob([contractHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Contract_${contractNumber}_${packageData.name.replace(/\s+/g, '_')}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Contract Downloaded",
-      description: "Your contract has been downloaded successfully. You can print it from your browser.",
-    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Contract-${contractNumber}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <img src="/favicon.ico" alt="IJ Langa" className="h-8 w-8" />
-              <div>
-                <DialogTitle className="text-xl">
-                  {step === "contract" && "Digital Service Agreement"}
-                  {step === "billing" && "Billing Information"}
-                  {step === "complete" && "Contract Submitted"}
-                </DialogTitle>
-                {step === "contract" && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Please review the full contract before accepting
-                  </p>
-                )}
-              </div>
-            </div>
-            {step === "contract" && scrolledToBottom && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleDecline}
-                  disabled={loading}
-                  size="sm"
-                >
-                  Decline
-                </Button>
-                <Button
-                  onClick={handleAccept}
-                  disabled={!clientName || !companyName || !address || loading}
-                  size="sm"
-                >
-                  {loading ? "Processing..." : "Accept"}
-                </Button>
-              </div>
-            )}
-          </div>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle className="text-xl">
+            {step === "contract" && "Digital Service Agreement"}
+            {step === "complete" && "Contract Complete"}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
-          {step === "contract" && (
-            <div className="h-full flex flex-col gap-4">
+        {step === "contract" && (
+          <>
+            <div className="flex-1 overflow-hidden px-6 py-4">
               {/* Client Details Form */}
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+              <div className="space-y-3 mb-4">
                 <div>
-                  <label className="text-sm font-medium">Client Name</label>
+                  <label className="text-sm font-medium">Client Name *</label>
                   <input
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
                     className="w-full mt-1 px-3 py-2 border rounded-md"
-                    placeholder="Enter client name"
+                    placeholder="Enter full name"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Company Name</label>
+                  <label className="text-sm font-medium">Company Name *</label>
                   <input
                     type="text"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     className="w-full mt-1 px-3 py-2 border rounded-md"
                     placeholder="Enter company name"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Address</label>
+                  <label className="text-sm font-medium">Address *</label>
                   <textarea
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full mt-1 px-3 py-2 border rounded-md"
                     rows={2}
                     placeholder="Enter full address"
+                    required
                   />
                 </div>
               </div>
 
-              {/* Scrollable Contract */}
-              <div className="relative flex-1 border rounded-lg overflow-hidden">
-                <ScrollArea 
-                  className="h-[400px] p-6 bg-background"
-                  onScroll={handleScroll}
-                >
-                  <div className="prose prose-sm max-w-none">
-                    <h2 className="text-center font-bold text-xl mb-6">SERVICE CONTRACT AGREEMENT</h2>
+              {/* Contract Content */}
+              <ScrollArea className="h-[400px] border rounded-lg p-6 bg-background">
+                <div className="prose prose-sm max-w-none">
+                  <h2 className="text-center font-bold text-xl mb-6">SERVICE CONTRACT AGREEMENT</h2>
+                  
+                  <div className="mb-6">
+                    <p className="font-semibold">Between</p>
+                    <p className="font-bold">IJ Langa Consulting (Pty) Ltd</p>
+                    <p>(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)</p>
+                    <p>of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa</p>
+                    <p>Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
                     
-                    <div className="mb-6">
-                      <p className="font-semibold">Between</p>
-                      <p className="font-bold">IJ Langa Consulting (Pty) Ltd</p>
-                      <p>(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)</p>
-                      <p>of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa</p>
-                      <p>Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
-                      
-                      <p className="font-semibold mt-4">And</p>
-                      <p className="font-semibold">{clientName || "[Client Name]"}</p>
-                      <p>{companyName || "[Company Name]"}</p>
-                      <p>{address || "[Address]"}</p>
-                    </div>
+                    <p className="font-semibold mt-4">And</p>
+                    <p className="font-semibold">{clientName || "[Client Name]"}</p>
+                    <p>{companyName || "[Company Name]"}</p>
+                    <p>{address || "[Address]"}</p>
+                  </div>
 
-                    <hr className="my-4" />
+                  <hr className="my-4" />
 
-                    <h3 className="font-bold">1. Purpose</h3>
-                    <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
+                  <h3 className="font-bold">1. Purpose</h3>
+                  <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
 
-                    <h3 className="font-bold mt-4">2. Term</h3>
-                    <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on {startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
+                  <h3 className="font-bold mt-4">2. Term</h3>
+                  <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on {startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
 
-                    <h3 className="font-bold mt-4">3. Services</h3>
-                    <p>The Service Provider shall render the following professional services to the Client:</p>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md my-3">
-                      <p className="font-bold">{packageData.name}</p>
-                      <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
-                      <div className="mt-2 space-y-1">
-                        {packageData.features.map((feature, idx) => (
-                          <p key={idx} className="text-sm">• {feature}</p>
-                        ))}
-                      </div>
-                    </div>
-
-                    <h3 className="font-bold mt-4">4. Payment Terms</h3>
-                    <ol className="list-decimal ml-5 space-y-1">
-                      <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
-                      <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
-                      <li>Invoices shall be issued monthly on a recurring basis.</li>
-                      <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: {contractNumber || "[To be generated]"}</li>
-                    </ol>
-
-                    <h3 className="font-bold mt-4">5. Confidentiality</h3>
-                    <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
-
-                    <h3 className="font-bold mt-4">6. Termination</h3>
-                    <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
-
-                    <h3 className="font-bold mt-4">7. Governing Law</h3>
-                    <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
-
-                    <h3 className="font-bold mt-4">8. Dispute Resolution</h3>
-                    <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
-
-                    <h3 className="font-bold mt-4">9. Signatures</h3>
-                    <div className="grid grid-cols-2 gap-6 mt-4">
-                      <div>
-                        <p className="font-semibold">For IJ Langa Consulting (Pty) Ltd</p>
-                        <p className="mt-2">Name: _________________________</p>
-                        <p>Designation: ___________________</p>
-                        <p>Signature: _____________________</p>
-                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">For the Client</p>
-                        <p className="mt-2">Name: _________________________</p>
-                        <p>Designation: ___________________</p>
-                        <p>Signature: _____________________</p>
-                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
-                      </div>
+                  <h3 className="font-bold mt-4">3. Services</h3>
+                  <p>The Service Provider shall render the following professional services to the Client:</p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md my-3">
+                    <p className="font-bold">{packageData.name}</p>
+                    <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
+                    <div className="mt-2 space-y-1">
+                      {packageData.features.map((feature, idx) => (
+                        <p key={idx} className="text-sm">• {feature}</p>
+                      ))}
                     </div>
                   </div>
-                </ScrollArea>
 
-                {/* Scroll Buttons */}
-                <div className="absolute right-2 top-2 flex flex-col gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={scrollToTop}
-                    className="h-8 w-8 p-0"
-                  >
-                    ↑
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={scrollToBottom}
-                    className="h-8 w-8 p-0"
-                  >
-                    ↓
-                  </Button>
+                  <h3 className="font-bold mt-4">4. Payment Terms</h3>
+                  <ol className="list-decimal ml-5 space-y-1">
+                    <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
+                    <li>All payments shall be made digitally via the Service Provider's chosen digital platforms.</li>
+                    <li>Invoices shall be issued monthly on a recurring basis.</li>
+                    <li>Sales Invoice Reference: {contractNumber || "[To be generated]"}</li>
+                  </ol>
+
+                  <h3 className="font-bold mt-4">5. Confidentiality</h3>
+                  <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records.</p>
+
+                  <h3 className="font-bold mt-4">6. Termination</h3>
+                  <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. All outstanding payments remain due and payable.</p>
+
+                  <h3 className="font-bold mt-4">7. Governing Law</h3>
+                  <p>This Agreement shall be governed by the laws of the Republic of South Africa.</p>
+
+                  <h3 className="font-bold mt-4">8. Dispute Resolution</h3>
+                  <p>Disputes shall be referred to mediation or arbitration under South African law.</p>
+
+                  <h3 className="font-bold mt-4">9. Signatures</h3>
+                  <div className="grid grid-cols-2 gap-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded">
+                    <div>
+                      <p className="font-semibold">For IJ Langa Consulting (Pty) Ltd</p>
+                      <p className="mt-2">Name: IJ Langa</p>
+                      <p>Designation: Director</p>
+                      <p className="italic text-lg mt-2">Signed Digitally</p>
+                      <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">For the Client</p>
+                      <p className="mt-2">Name: {clientName || "_________"}</p>
+                      <p>Designation: Authorized Representative</p>
+                      <p className="italic text-lg mt-2">Signed Digitally</p>
+                      <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                    <p className="font-semibold">This contract will be digitally signed upon acceptance</p>
+                    <p className="text-sm mt-1">Digital signatures are legally binding under the ECT Act, 2002</p>
+                  </div>
                 </div>
-              </div>
+              </ScrollArea>
 
-              {/* Commitment Warning */}
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
+              {/* Warning */}
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded mt-4">
                 <div className="flex gap-3">
-                  <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
-                      ⚠️ 24-Month Commitment Required
+                      24-Month Commitment Required
                     </p>
                     <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                      Monthly: R{(packageData.price * 1.15).toFixed(2)} • Total Contract Value: R{(packageData.price * 1.15 * 24).toFixed(2)} (incl. VAT)
+                      Monthly: R{(packageData.price * 1.15).toFixed(2)} • Total: R{(packageData.price * 1.15 * 24).toFixed(2)} (incl. VAT)
                     </p>
                   </div>
                 </div>
               </div>
-
-              {!scrolledToBottom && (
-                <p className="text-sm text-muted-foreground text-center">
-                  ↓ Please scroll down to read the full contract ↓
-                </p>
-              )}
-
-              {/* Scroll indicator */}
-              {!scrolledToBottom && (
-                <div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    ↓ Please scroll to the bottom of the contract to view Accept/Decline options ↓
-                  </p>
-                </div>
-              )}
-
-              {/* Action Buttons - shown after scrolling */}
-              {scrolledToBottom && (
-                <div className="flex gap-3 animate-in fade-in duration-500">
-                  <Button
-                    variant="destructive"
-                    onClick={handleDecline}
-                    className="flex-1"
-                    disabled={loading}
-                  >
-                    Decline Contract
-                  </Button>
-                  <Button
-                    onClick={handleAccept}
-                    disabled={!clientName || !companyName || !address || loading}
-                    className="flex-1"
-                    size="lg"
-                  >
-                    {loading ? "Creating Contract..." : "Accept & Start Billing"}
-                  </Button>
-                </div>
-              )}
             </div>
-          )}
 
-          {step === "billing" && contractId && clientId && (
-            <BillingInformationForm
-              contractId={contractId}
-              clientId={clientId}
-              onComplete={() => setStep("complete")}
-              onBack={() => setStep("contract")}
-            />
-          )}
+            {/* Action Buttons */}
+            <div className="px-6 py-4 border-t bg-muted/30 flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                By accepting, you agree to the terms and conditions above
+              </p>
+              <div className="flex gap-3">
+                <Button onClick={handleDecline} variant="outline">
+                  Decline
+                </Button>
+                <Button 
+                  onClick={handleAccept} 
+                  disabled={loading || !clientName || !companyName || !address}
+                >
+                  {loading ? "Processing..." : "Accept"}
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
 
-          {step === "complete" && (
-            <div className="space-y-6">
-              <div className="text-center py-8">
-                <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
-                <h3 className="text-2xl font-semibold mb-3">Contract Accepted & Activated!</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Your contract #{contractNumber} has been activated. A copy has been sent to your email.
+        {step === "complete" && (
+          <div className="flex-1 px-6 py-8">
+            <div className="max-w-2xl mx-auto text-center space-y-6">
+              <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
+              <div>
+                <h3 className="text-2xl font-bold text-green-600 mb-2">Contract Activated!</h3>
+                <p className="text-muted-foreground">
+                  Contract #{contractNumber} is now active
                 </p>
               </div>
 
-              {/* Full Contract Display with Signatures */}
-              <div className="border rounded-lg p-6 bg-background">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <img src="/favicon.ico" alt="IJ Langa" className="h-10 w-10" />
-                    <div>
-                      <h3 className="font-bold text-xl">SERVICE CONTRACT AGREEMENT</h3>
-                      <p className="text-sm text-muted-foreground">Contract Number: {contractNumber}</p>
-                    </div>
-                  </div>
-                  <Button onClick={downloadContract} variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-
-                <ScrollArea className="h-[400px]">
-                  <div className="prose prose-sm max-w-none">
-                    <div className="mb-6">
-                      <p className="font-semibold">Between</p>
-                      <p className="font-bold">IJ Langa Consulting (Pty) Ltd</p>
-                      <p>(Registration No: 2020/754266/07, Tax No: 4540304286, CSD No: MAAA0988528)</p>
-                      <p>of 78 Tekatakho, Nelspruit, Mpumalanga, South Africa</p>
-                      <p>Tel: 013 004 0620 | Email: order@ijlanga.co.za</p>
-                      
-                      <p className="font-semibold mt-4">And</p>
-                      <p className="font-semibold">{clientName}</p>
-                      <p>{companyName}</p>
-                      <p>{address}</p>
-                    </div>
-
-                    <hr className="my-4" />
-
-                    <h3 className="font-bold">1. Purpose</h3>
-                    <p>This Service Contract ("Agreement") is entered into for the provision of professional services by IJ Langa Consulting (hereafter "the Service Provider") to the Client as per the terms and conditions set out herein.</p>
-
-                    <h3 className="font-bold mt-4">2. Term</h3>
-                    <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on {startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
-
-                    <h3 className="font-bold mt-4">3. Services</h3>
-                    <p>The Service Provider shall render the following professional services to the Client:</p>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md my-3">
-                      <p className="font-bold">{packageData.name}</p>
-                      <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
-                      <div className="mt-2 space-y-1">
-                        {packageData.features.map((feature, idx) => (
-                          <p key={idx} className="text-sm">• {feature}</p>
-                        ))}
-                      </div>
-                    </div>
-
-                    <h3 className="font-bold mt-4">4. Payment Terms</h3>
-                    <ol className="list-decimal ml-5 space-y-1">
-                      <li>The Client agrees to pay for services rendered strictly as invoiced by the Service Provider.</li>
-                      <li>All payments shall be made digitally via the Service Provider's chosen digital platforms (including iKhokha, EFT, or other secure payment gateways).</li>
-                      <li>Invoices shall be issued monthly on a recurring basis.</li>
-                      <li>The agreed reference for this contract's invoices shall be: Sales Invoice Reference: {contractNumber}</li>
-                    </ol>
-
-                    <h3 className="font-bold mt-4">5. Confidentiality</h3>
-                    <p>Both parties undertake to maintain the confidentiality of all client data, financial information, and business records accessed during the course of this Agreement.</p>
-
-                    <h3 className="font-bold mt-4">6. Termination</h3>
-                    <p>Either party may terminate this Agreement with 30 (thirty) days' written notice. However, all outstanding payments for services already rendered shall remain due and payable.</p>
-
-                    <h3 className="font-bold mt-4">7. Governing Law</h3>
-                    <p>This Agreement shall be governed by and interpreted in accordance with the laws of the Republic of South Africa.</p>
-
-                    <h3 className="font-bold mt-4">8. Dispute Resolution</h3>
-                    <p>In the event of a dispute, both parties agree to first seek amicable resolution. Should the matter remain unresolved, it shall be referred to mediation or arbitration under South African law.</p>
-
-                    <h3 className="font-bold mt-4">9. Signatures</h3>
-                    <div className="grid grid-cols-2 gap-6 mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div>
-                        <p className="font-semibold">For IJ Langa Consulting (Pty) Ltd</p>
-                        <p className="mt-2">Name: IJ Langa</p>
-                        <p>Designation: Director</p>
-                        <p className="font-script text-lg italic">Signed Digitally</p>
-                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">For the Client</p>
-                        <p className="mt-2">Name: {clientName}</p>
-                        <p>Designation: Authorized Representative</p>
-                        <p className="font-script text-lg italic">Signed Digitally</p>
-                        <p>Date: {new Date().toLocaleDateString('en-ZA')}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="text-sm text-center">
-                        <strong>This contract was digitally signed and accepted on {new Date().toLocaleString('en-ZA')}</strong>
-                      </p>
-                      <p className="text-xs text-center text-muted-foreground mt-1">
-                        Digital signatures are legally binding under the Electronic Communications and Transactions Act, 2002
-                      </p>
-                    </div>
-                  </div>
-                </ScrollArea>
+              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg space-y-3">
+                <p className="font-semibold">What's Next?</p>
+                <ul className="text-sm text-left space-y-2">
+                  <li>✓ Contract copy sent to your email</li>
+                  <li>✓ First invoice is now due</li>
+                  <li>✓ Your dedicated account manager will contact you shortly</li>
+                  <li>✓ Access your contract anytime from the Dashboard</li>
+                </ul>
               </div>
 
               <div className="flex gap-3 justify-center">
                 <Button onClick={downloadContract} variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
+                  <Download className="w-4 h-4 mr-2" />
                   Download Contract
                 </Button>
-                <Button onClick={() => window.location.href = '/dashboard/contracts'}>
-                  View My Contracts
-                </Button>
-                <Button variant="secondary" onClick={() => onOpenChange(false)}>
-                  Close
+                <Button onClick={() => onOpenChange(false)}>
+                  Go to Dashboard
                 </Button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
