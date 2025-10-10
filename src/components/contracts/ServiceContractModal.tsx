@@ -257,17 +257,17 @@ This is a digitally binding 24-month service agreement for professional accounti
           <p>This Agreement shall be valid and enforceable for a period of 2 (two) years commencing on ${startDate.toLocaleDateString('en-ZA')}, unless terminated earlier in accordance with the provisions herein.</p>
         </div>
 
-        <div class="section">
-          <h2>3. Services</h2>
-          <p>The Service Provider shall render the following professional services to the Client:</p>
-          <div class="highlight">
-            <p><strong>${packageData.name}</strong><br>
-            <strong style="color: #0D1B2A;">R${packageData.price} + VAT/Month</strong></p>
-            <ul>
-              ${packageData.features.map(f => `<li>${f}</li>`).join('')}
-            </ul>
+          <div class="section">
+            <h2>3. Services</h2>
+            <p>The Service Provider shall render the following professional services to the Client:</p>
+            <div class="highlight">
+              <p><strong>${packageData.name}</strong><br>
+              <strong style="color: #0D1B2A;">R${packageData.price} + VAT/Month</strong></p>
+              <ul>
+                ${(packageData.features ?? []).map(f => `<li>${f}</li>`).join('')}
+              </ul>
+            </div>
           </div>
-        </div>
 
         <div class="section">
           <h2>4. Payment Terms</h2>
@@ -432,7 +432,7 @@ This is a digitally binding 24-month service agreement for professional accounti
                     <p className="font-bold">{packageData.name}</p>
                     <p className="font-semibold text-blue-600 dark:text-blue-400">R{packageData.price} + VAT/Month</p>
                     <div className="mt-2 space-y-1">
-                      {packageData.features.map((feature, idx) => (
+                      {(packageData.features ?? []).map((feature, idx) => (
                         <p key={idx} className="text-sm">• {feature}</p>
                       ))}
                     </div>
