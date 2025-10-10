@@ -61,6 +61,37 @@ const Pricing = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
 
+  // Helper function to extract features from service
+  const extractFeaturesFromService = (service: ServiceData): string[] => {
+    if (service.name.includes('Starter')) {
+      return [
+        'Bookkeeping - Once a Month',
+        'Up to 100 Transactions P/M',
+        'Supplier Invoice Capturing',
+        'VAT Returns',
+        '1 Performance Meeting Per Year'
+      ];
+    } else if (service.name.includes('Ultimate')) {
+      return [
+        'Bookkeeping - Once a Week',
+        'Dedicated Account Manager',
+        'Full Payroll Service (up to 30 employees)',
+        'Sage Accounting Online Subscription',
+        'Up to 300 Transactions P/M',
+        'Supplier Invoice Capturing',
+        '2 Performance Meetings Per Year'
+      ];
+    } else {
+      // Default features based on description or generic features
+      return [
+        service.name,
+        service.description || 'Professional service delivery',
+        'Expert consultation included',
+        'Monthly recurring service'
+      ];
+    }
+  };
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -516,7 +547,15 @@ const Pricing = () => {
                     </div>
                     <Button
                       onClick={() => {
-                        setSelectedPackage(service as any);
+                        // Map service to package format with features
+                        const packageData = {
+                          id: service.id,
+                          name: service.name,
+                          price: service.price,
+                          description: service.description,
+                          features: extractFeaturesFromService(service)
+                        };
+                        setSelectedPackage(packageData as any);
                         setContractModalOpen(true);
                       }}
                       className="w-full"
@@ -547,7 +586,15 @@ const Pricing = () => {
                     <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
                     <Button
                       onClick={() => {
-                        setSelectedPackage(service as any);
+                        // Map service to package format with features
+                        const packageData = {
+                          id: service.id,
+                          name: service.name,
+                          price: service.price,
+                          description: service.description,
+                          features: extractFeaturesFromService(service)
+                        };
+                        setSelectedPackage(packageData as any);
                         setContractModalOpen(true);
                       }}
                       className="w-full"
