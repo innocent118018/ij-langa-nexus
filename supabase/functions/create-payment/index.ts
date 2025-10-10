@@ -101,6 +101,10 @@ serve(async (req) => {
     // Always use production domain for iKhokha payments (sandbox domains won't work)
     const baseUrl = 'https://www.ijlanga.co.za'
     
+    // iKhokha webhook URL (uses Supabase function endpoint)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+    const webhookUrl = `${supabaseUrl}/functions/v1/payment-webhook`
+    
     const paymentRequest = {
       entityID: appId,
       externalEntityID: user?.id || 'guest',
@@ -111,8 +115,8 @@ serve(async (req) => {
       description: description,
       externalTransactionID: externalTransactionID,
       urls: {
-        callbackUrl: `${baseUrl}/api/payment-callback`,
-        successPageUrl: `${baseUrl}/payment-success?order=${orderId}`,
+        callbackUrl: webhookUrl, // Proper webhook endpoint
+        successPageUrl: `${baseUrl}/payment-success?order=${orderId}&transaction=${externalTransactionID}`,
         failurePageUrl: `${baseUrl}/payment-cancel?payment=failed&order=${orderId}`,
         cancelUrl: `${baseUrl}/payment-cancel?payment=cancelled&order=${orderId}`
       }
@@ -152,7 +156,12 @@ serve(async (req) => {
       throw new Error(`iKhokha API error: ${responseData.message || 'Unknown error'}`)
     }
 
-    // Check if we got a valid response with payment URL
+    // Check response code and payment URL
+    if (responseData.responseCode && responseData.responseCode !== "00") {
+      console.error('iKhokha rejected payment:', responseData)
+      throw new Error(responseData.responseDescription || `Payment rejected (code: ${responseData.responseCode})`)
+    }
+    
     if (!responseData.paylinkUrl && !responseData.paylink_url && !responseData.url) {
       console.error('No payment URL in response:', responseData)
       throw new Error(`iKhokha API didn't return a payment URL. Response: ${JSON.stringify(responseData)}`)
