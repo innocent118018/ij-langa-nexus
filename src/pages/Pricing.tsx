@@ -515,7 +515,10 @@ const Pricing = () => {
                       )}
                     </div>
                     <Button
-                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
+                      onClick={() => {
+                        setSelectedPackage(service as any);
+                        setContractModalOpen(true);
+                      }}
                       className="w-full"
                       size="lg"
                     >
@@ -543,7 +546,10 @@ const Pricing = () => {
                   <CardContent>
                     <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
                     <Button
-                      onClick={() => handleAddToCart({...service, subscription_type: 'monthly'})}
+                      onClick={() => {
+                        setSelectedPackage(service as any);
+                        setContractModalOpen(true);
+                      }}
                       className="w-full"
                       size="lg"
                     >

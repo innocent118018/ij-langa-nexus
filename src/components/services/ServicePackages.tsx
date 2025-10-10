@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Check, Calculator, Clock, DollarSign, ShoppingCart } from 'lucide-react';
 import { PaymentButton } from '@/components/payments/PaymentButton';
+import { ServiceContractModal } from '@/components/contracts/ServiceContractModal';
 
 interface ServicePackagesProps {
   onOrderService: (service: any) => void;
@@ -13,6 +14,8 @@ interface ServicePackagesProps {
 
 export const ServicePackages = ({ onOrderService }: ServicePackagesProps) => {
   const [hourlyQuantities, setHourlyQuantities] = useState<{[key: string]: number}>({});
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
 
   const taxReturns = [
     {
@@ -352,7 +355,10 @@ export const ServicePackages = ({ onOrderService }: ServicePackagesProps) => {
                 </div>
                 <Button 
                   className="w-full" 
-                  onClick={() => handleOrderService(pkg)}
+                  onClick={() => {
+                    setSelectedPackage(pkg);
+                    setContractModalOpen(true);
+                  }}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Subscribe Now
@@ -433,6 +439,13 @@ export const ServicePackages = ({ onOrderService }: ServicePackagesProps) => {
           </div>
         ))}
       </div>
+
+      {/* Service Contract Modal */}
+      <ServiceContractModal
+        open={contractModalOpen}
+        onOpenChange={setContractModalOpen}
+        packageData={selectedPackage}
+      />
     </div>
   );
 };
