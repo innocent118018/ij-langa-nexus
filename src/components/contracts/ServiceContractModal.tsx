@@ -16,7 +16,7 @@ interface ServiceContractModalProps {
     price: number;
     features: string[];
     description?: string;
-  };
+  } | null;
 }
 
 export const ServiceContractModal = ({ open, onOpenChange, packageData }: ServiceContractModalProps) => {
@@ -347,6 +347,8 @@ This is a digitally binding 24-month service agreement for professional accounti
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
+
+  if (!packageData) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
