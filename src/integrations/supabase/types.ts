@@ -20,7 +20,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           record_id: string | null
@@ -33,7 +33,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           record_id?: string | null
@@ -46,7 +46,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           record_id?: string | null
@@ -1094,7 +1094,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string | null
           session_id: string | null
@@ -1107,7 +1107,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           session_id?: string | null
@@ -1120,7 +1120,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string | null
           session_id?: string | null
@@ -1808,7 +1808,7 @@ export type Database = {
           ended_at: string | null
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           is_active: boolean | null
           session_token: string
           user_agent: string | null
@@ -1820,7 +1820,7 @@ export type Database = {
           ended_at?: string | null
           expires_at: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_active?: boolean | null
           session_token: string
           user_agent?: string | null
@@ -1832,7 +1832,7 @@ export type Database = {
           ended_at?: string | null
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_active?: boolean | null
           session_token?: string
           user_agent?: string | null
@@ -3147,6 +3147,45 @@ export type Database = {
         }
         Relationships: []
       }
+      products_archive: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          image_url: string | null
+          is_active: boolean | null
+          name: string | null
+          price: number | null
+          stock_quantity: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          price?: number | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          price?: number | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -3907,7 +3946,7 @@ export type Database = {
           end_date: string | null
           id: string
           package_id: string | null
-          signature_ip_address: unknown | null
+          signature_ip_address: unknown
           signed_at: string | null
           start_date: string | null
           updated_at: string | null
@@ -3922,7 +3961,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           package_id?: string | null
-          signature_ip_address?: unknown | null
+          signature_ip_address?: unknown
           signed_at?: string | null
           start_date?: string | null
           updated_at?: string | null
@@ -3937,7 +3976,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           package_id?: string | null
-          signature_ip_address?: unknown | null
+          signature_ip_address?: unknown
           signed_at?: string | null
           start_date?: string | null
           updated_at?: string | null
@@ -3963,45 +4002,105 @@ export type Database = {
       services: {
         Row: {
           category: string
+          code: string | null
           created_at: string
           description: string | null
+          features: Json | null
           id: string
+          included_items: Json | null
           is_active: boolean
+          is_monthly_subscription: boolean | null
           is_popular: boolean
           name: string
           price: number
           processing_time: string | null
           requirements: string | null
+          subcategory: string | null
           updated_at: string
           vat_rate: number
         }
         Insert: {
           category: string
+          code?: string | null
           created_at?: string
           description?: string | null
+          features?: Json | null
           id?: string
+          included_items?: Json | null
           is_active?: boolean
+          is_monthly_subscription?: boolean | null
           is_popular?: boolean
           name: string
           price: number
           processing_time?: string | null
           requirements?: string | null
+          subcategory?: string | null
           updated_at?: string
           vat_rate?: number
         }
         Update: {
           category?: string
+          code?: string | null
           created_at?: string
           description?: string | null
+          features?: Json | null
           id?: string
+          included_items?: Json | null
           is_active?: boolean
+          is_monthly_subscription?: boolean | null
           is_popular?: boolean
           name?: string
           price?: number
           processing_time?: string | null
           requirements?: string | null
+          subcategory?: string | null
           updated_at?: string
           vat_rate?: number
+        }
+        Relationships: []
+      }
+      services_archive: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_active: boolean | null
+          is_popular: boolean | null
+          name: string | null
+          price: number | null
+          processing_time: string | null
+          requirements: string | null
+          updated_at: string | null
+          vat_rate: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string | null
+          price?: number | null
+          processing_time?: string | null
+          requirements?: string | null
+          updated_at?: string | null
+          vat_rate?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string | null
+          price?: number | null
+          processing_time?: string | null
+          requirements?: string | null
+          updated_at?: string | null
+          vat_rate?: number | null
         }
         Relationships: []
       }
@@ -4120,7 +4219,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           operation: string
@@ -4133,7 +4232,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation: string
@@ -4146,7 +4245,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           operation?: string
@@ -4725,10 +4824,7 @@ export type Database = {
       }
     }
     Functions: {
-      auto_cancel_expired_orders: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      auto_cancel_expired_orders: { Args: never; Returns: undefined }
       check_customer_duplicate: {
         Args: { customer_email: string }
         Returns: boolean
@@ -4755,10 +4851,7 @@ export type Database = {
           cleaned_count: number
         }[]
       }
-      cleanup_expired_otp_codes: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_otp_codes: { Args: never; Returns: undefined }
       create_customer_session: {
         Args: {
           account_id: string
@@ -4794,14 +4887,8 @@ export type Database = {
           table_name: string
         }[]
       }
-      generate_contract_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_contract_number: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
       get_customer_accounts_by_email: {
         Args: { customer_email: string }
         Returns: {
@@ -4820,10 +4907,7 @@ export type Database = {
           phone: string
         }[]
       }
-      get_dashboard_metrics: {
-        Args: { user_uuid: string }
-        Returns: Json
-      }
+      get_dashboard_metrics: { Args: { user_uuid: string }; Returns: Json }
       get_user_companies: {
         Args: { user_uuid: string }
         Returns: {
@@ -4834,7 +4918,7 @@ export type Database = {
         }[]
       }
       get_user_profile: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avatar_url: string
           created_at: string
@@ -4868,10 +4952,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_team_member: {
         Args: { _team_id: string; _user_id: string }
         Returns: boolean
