@@ -61,7 +61,7 @@ const Pricing = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  // Helper function to extract features from service
+  // Extract features from service for contract display
   const extractFeaturesFromService = (service: ServiceData): string[] => {
     if (service.name.includes('Starter')) {
       return [

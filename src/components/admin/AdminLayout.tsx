@@ -3,7 +3,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Layout } from '@/components/Layout'; 
+import { Layout } from '@/components/layout/Layout'; 
 import { Input } from '@/components/ui/input';
 
 interface AdminLayoutProps {
