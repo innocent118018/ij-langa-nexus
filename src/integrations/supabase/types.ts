@@ -3147,45 +3147,6 @@ export type Database = {
         }
         Relationships: []
       }
-      products_archive: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          image_url: string | null
-          is_active: boolean | null
-          name: string | null
-          price: number | null
-          stock_quantity: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          price?: number | null
-          stock_quantity?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          price?: number | null
-          stock_quantity?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4056,51 +4017,6 @@ export type Database = {
           subcategory?: string | null
           updated_at?: string
           vat_rate?: number
-        }
-        Relationships: []
-      }
-      services_archive: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          is_active: boolean | null
-          is_popular: boolean | null
-          name: string | null
-          price: number | null
-          processing_time: string | null
-          requirements: string | null
-          updated_at: string | null
-          vat_rate: number | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name?: string | null
-          price?: number | null
-          processing_time?: string | null
-          requirements?: string | null
-          updated_at?: string | null
-          vat_rate?: number | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name?: string | null
-          price?: number | null
-          processing_time?: string | null
-          requirements?: string | null
-          updated_at?: string | null
-          vat_rate?: number | null
         }
         Relationships: []
       }
