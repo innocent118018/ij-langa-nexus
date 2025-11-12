@@ -3962,6 +3962,7 @@ export type Database = {
       }
       services: {
         Row: {
+          billing: string | null
           category: string
           code: string | null
           created_at: string
@@ -3977,10 +3978,13 @@ export type Database = {
           processing_time: string | null
           requirements: string | null
           subcategory: string | null
+          unit: string | null
           updated_at: string
+          vat_inclusive: boolean | null
           vat_rate: number
         }
         Insert: {
+          billing?: string | null
           category: string
           code?: string | null
           created_at?: string
@@ -3996,10 +4000,13 @@ export type Database = {
           processing_time?: string | null
           requirements?: string | null
           subcategory?: string | null
+          unit?: string | null
           updated_at?: string
+          vat_inclusive?: boolean | null
           vat_rate?: number
         }
         Update: {
+          billing?: string | null
           category?: string
           code?: string | null
           created_at?: string
@@ -4015,7 +4022,9 @@ export type Database = {
           processing_time?: string | null
           requirements?: string | null
           subcategory?: string | null
+          unit?: string | null
           updated_at?: string
+          vat_inclusive?: boolean | null
           vat_rate?: number
         }
         Relationships: []
