@@ -29,6 +29,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminServices from "./pages/admin/AdminServices";
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -758,6 +759,7 @@ function App() {
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/services" element={<AdminServices />} />
                 <Route path="/admin/system-settings" element={<AdminSettings />} />
                 <Route path="/admin/sales-quotes" element={<DashboardLayout><SalesQuotes /></DashboardLayout>} />
 

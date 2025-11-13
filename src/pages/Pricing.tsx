@@ -120,7 +120,20 @@ const Pricing = () => {
     if (page > totalPages) setPage(1);
   }, [totalPages, page]);
 
-  const handleAddToCart = (service: Service) => {
+  const handleAddToCart = async (service: Service) => {
+    // Check if user is logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to add items to your cart.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     const isMonthly = service.billing === 'monthly' || (service.unit || '').includes('/month');
     
     if (isMonthly) {
@@ -143,8 +156,21 @@ const Pricing = () => {
     });
   };
 
-  const proceedAfterContract = () => {
+  const proceedAfterContract = async () => {
     if (!agreeToContract || !selectedService) return;
+
+    // Double-check authentication before proceeding
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      toast({
+        title: "Session Expired",
+        description: "Please log in again to continue.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
 
     addToCart({
       id: selectedService.id,
