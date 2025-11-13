@@ -172,24 +172,64 @@ const Pricing = () => {
       return;
     }
 
-    addToCart({
-      id: selectedService.id,
-      name: selectedService.name,
-      price: selectedService.price,
-      category: selectedService.category,
-      service_id: selectedService.id
-    });
+    try {
+      toast({
+        title: "Generating Contract",
+        description: "Please wait while we create your service agreement...",
+      });
 
-    toast({
-      title: "Added to cart",
-      description: `${selectedService.name} has been added to your cart. You'll need to review and sign the service agreement at checkout.`,
-    });
+      // Generate contract via edge function
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: contractData, error: contractError } = await supabase.functions.invoke(
+        "generate-contract",
+        {
+          body: {
+            productId: selectedService.id,
+            productName: selectedService.name,
+            price: selectedService.price,
+            unit: selectedService.unit || "",
+            billing: selectedService.billing || "monthly",
+            category: selectedService.category || "",
+            features: selectedService.features || [],
+            customerEmail: user?.email || "",
+            customerName: user?.user_metadata?.full_name || "",
+            customerPhone: user?.user_metadata?.phone || "",
+          },
+        }
+      );
 
-    setShowContractModal(false);
-    setAgreeToContract(false);
-    setSelectedService(null);
-    
-    navigate('/checkout');
+      if (contractError) throw contractError;
+
+      // Add to cart with contract info
+      addToCart({
+        id: selectedService.id,
+        name: selectedService.name,
+        price: selectedService.price,
+        category: selectedService.category,
+        service_id: selectedService.id,
+        contractNo: contractData.contractNo,
+        contractUrl: contractData.contractUrl,
+        contractId: contractData.contractId,
+      });
+
+      toast({
+        title: "Contract Generated",
+        description: `Contract ${contractData.contractNo} created successfully. Added to cart.`,
+      });
+
+      setShowContractModal(false);
+      setAgreeToContract(false);
+      setSelectedService(null);
+      
+      navigate('/checkout');
+    } catch (error: any) {
+      console.error("Error generating contract:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate contract. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {

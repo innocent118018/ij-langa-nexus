@@ -3900,6 +3900,7 @@ export type Database = {
       service_contracts: {
         Row: {
           client_id: string | null
+          contract_document_path: string | null
           contract_number: string
           contract_status: string | null
           contract_text: string
@@ -3915,6 +3916,7 @@ export type Database = {
         }
         Insert: {
           client_id?: string | null
+          contract_document_path?: string | null
           contract_number: string
           contract_status?: string | null
           contract_text: string
@@ -3930,6 +3932,7 @@ export type Database = {
         }
         Update: {
           client_id?: string | null
+          contract_document_path?: string | null
           contract_number?: string
           contract_status?: string | null
           contract_text?: string
