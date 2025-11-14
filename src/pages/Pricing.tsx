@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, ChevronLeft, ChevronRight, ShoppingCart, Filter, Search } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ShoppingCart, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/hooks/useCart";
@@ -44,6 +44,9 @@ const currency = (n: number) =>
     maximumFractionDigits: 2 
   }).format(n);
 
+const nowISO = () => new Date().toISOString();
+const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+
 const Pricing = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +61,17 @@ const Pricing = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toast } = useToast();
+
+  // Update cart activity timestamp
+  useEffect(() => {
+    const cartData = localStorage.getItem("cart");
+    if (cartData) {
+      const cart = JSON.parse(cartData);
+      if (cart.length > 0) {
+        localStorage.setItem("cart_last_activity", nowISO());
+      }
+    }
+  }, []);
 
   useEffect(() => {
     fetchServices();
@@ -245,6 +259,8 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReminderBanner />
+      
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
@@ -283,12 +299,10 @@ const Pricing = () => {
           </div>
           
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Search services..." 
               value={query} 
               onChange={e => { setQuery(e.target.value); setPage(1); }}
-              className="pl-10"
             />
           </div>
         </div>
