@@ -47,6 +47,63 @@ const currency = (n: number) =>
 const nowISO = () => new Date().toISOString();
 const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
+// 6-hour cart reminder banner
+const ReminderBanner = () => {
+  const [show, setShow] = useState(false);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const last = localStorage.getItem("cart_last_activity");
+    const cartData = localStorage.getItem("cart");
+    const cart = cartData ? JSON.parse(cartData) : [];
+    
+    if (!cart.length) return;
+    
+    const check = () => {
+      if (!last) return;
+      const delta = Date.now() - new Date(last).getTime();
+      if (delta >= SIX_HOURS_MS) setShow(true);
+    };
+    
+    const id = setInterval(check, 60 * 1000);
+    check();
+    return () => clearInterval(id);
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed top-0 inset-x-0 z-50">
+      <div className="mx-auto max-w-3xl mt-3 px-3">
+        <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-3 flex items-center justify-between">
+          <div className="text-sm">
+            <strong>Don't forget:</strong> you still have items in your cart. Ready to finish checkout?
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/checkout')}
+              className="bg-primary text-primary-foreground"
+            >
+              Go to Checkout
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                localStorage.setItem("cart_last_activity", nowISO());
+                setShow(false);
+              }}
+            >
+              Remind me later
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Pricing = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +139,7 @@ const Pricing = () => {
       const { data, error } = await supabase
         .from('services')
         .select('*')
+        .eq('is_active', true)
         .order('category', { ascending: true });
 
       if (error) throw error;
@@ -164,6 +222,8 @@ const Pricing = () => {
       service_id: service.id
     });
 
+    localStorage.setItem("cart_last_activity", nowISO());
+
     toast({
       title: "Added to cart",
       description: `${service.name} has been added to your cart.`,
@@ -225,6 +285,8 @@ const Pricing = () => {
         contractUrl: contractData.contractUrl,
         contractId: contractData.contractId,
       });
+
+      localStorage.setItem("cart_last_activity", nowISO());
 
       toast({
         title: "Contract Generated",
