@@ -148,6 +148,9 @@ import InvoiceQuotePolicy from "./pages/policies/InvoiceQuotePolicy";
 import SalesOrderPolicy from "./pages/policies/SalesOrderPolicy";
 import ShelfCompaniesPolicy from "./pages/policies/ShelfCompaniesPolicy";
 import ExportCustomsPolicy from "./pages/policies/ExportCustomsPolicy";
+import ComplianceSummary from "./pages/policies/ComplianceSummary";
+import ClientRights from "./pages/policies/ClientRights";
+import LegalDisclaimer from "./pages/policies/LegalDisclaimer";
 
 // Service pages
 import ServicePage from "./pages/services/ServicePage";
@@ -235,6 +238,9 @@ function App() {
                 <Route path="/policies/sales-order-policy" element={<Layout><SalesOrderPolicy /></Layout>} />
                 <Route path="/policies/shelf-companies-policy" element={<Layout><ShelfCompaniesPolicy /></Layout>} />
                 <Route path="/policies/export-customs-policy" element={<Layout><ExportCustomsPolicy /></Layout>} />
+                <Route path="/policies/compliance-summary" element={<Layout><ComplianceSummary /></Layout>} />
+                <Route path="/policies/client-rights" element={<Layout><ClientRights /></Layout>} />
+                <Route path="/policies/legal-disclaimer" element={<Layout><LegalDisclaimer /></Layout>} />
                 
                 {/* Contact route */}
                 <Route path="/contact" element={<Layout><Contact /></Layout>} />
