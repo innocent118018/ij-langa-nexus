@@ -13,6 +13,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 // Import all pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import { Login } from "./pages/Login";
 import About from "./pages/About";
 import Products from "./pages/Products";
 import Pricing from "./pages/Pricing";
@@ -210,6 +211,7 @@ function App() {
                 {/* Public routes with Layout */}
                 <Route path="/" element={<Layout><Index /></Layout>} />
                 <Route path="/auth" element={<Layout><Auth /></Layout>} />
+                <Route path="/login" element={<Layout><Login /></Layout>} />
                 <Route path="/about" element={<Layout><About /></Layout>} />
                 <Route path="/services" element={<Layout><Services /></Layout>} />
                 <Route path="/services/:category/:service" element={<Layout><Services /></Layout>} />
