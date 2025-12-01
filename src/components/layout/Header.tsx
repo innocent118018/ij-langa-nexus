@@ -152,7 +152,7 @@ export const Header = () => {
               </>
             )}
             {!user && !loading && (
-              <Link to="/auth">
+              <Link to="/login">
                 <Button size="sm">Login</Button>
               </Link>
             )}
