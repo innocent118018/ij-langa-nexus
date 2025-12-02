@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_tokens: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string | null
+          token: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          token?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          token?: string | null
+        }
+        Relationships: []
+      }
       admin_activity_logs: {
         Row: {
           action_type: string
@@ -522,6 +549,44 @@ export type Database = {
         }
         Relationships: []
       }
+      billable_expenses: {
+        Row: {
+          amount: number | null
+          company_id: string | null
+          created_at: string | null
+          created_by: string | null
+          date: string | null
+          description: string | null
+          id: string
+        }
+        Insert: {
+          amount?: number | null
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          amount?: number | null
+          company_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billable_expenses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billable_time: {
         Row: {
           created_at: string | null
@@ -673,6 +738,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chart_of_accounts: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          id: string
+          name: string | null
+          type: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          type?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          type?: string | null
+        }
+        Relationships: []
       }
       cipc_api_logs: {
         Row: {
@@ -2403,6 +2492,30 @@ export type Database = {
           },
         ]
       }
+      folders: {
+        Row: {
+          created_at: string | null
+          id: string
+          label: string | null
+          owner_id: string | null
+          path: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          owner_id?: string | null
+          path: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          label?: string | null
+          owner_id?: string | null
+          path?: string
+        }
+        Relationships: []
+      }
       generated_documents: {
         Row: {
           company_id: string | null
@@ -3245,6 +3358,35 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_settings: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          settings: Json | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          settings?: Json | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          settings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -4356,6 +4498,30 @@ export type Database = {
         }
         Relationships: []
       }
+      tax_codes: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          rate: number | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          rate?: number | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          rate?: number | null
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           created_at: string
@@ -4419,6 +4585,27 @@ export type Database = {
           name?: string
           owner_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string | null
+          settings: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          settings?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string | null
+          settings?: Json | null
         }
         Relationships: []
       }

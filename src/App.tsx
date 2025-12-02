@@ -31,6 +31,21 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminServices from "./pages/admin/AdminServices";
+import AdminClients from "./pages/admin/AdminClients";
+import AdminInvoices from "./pages/admin/AdminInvoices";
+
+// User portal pages
+import UserOverview from "./pages/user/UserOverview";
+import UserDocuments from "./pages/user/UserDocuments";
+import UserInvoices from "./pages/user/UserInvoices";
+import UserServices from "./pages/user/UserServices";
+
+// Layouts
+import AdminLayout from "./layouts/AdminLayout";
+import UserLayout from "./layouts/UserLayout";
+
+// Components
+import ProtectedRoute from "./components/dashboard/ProtectedRoute";
 
 // Dashboard pages
 import Clients from "./pages/dashboard/Clients";
@@ -762,14 +777,25 @@ function App() {
                 <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
                 <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
 
-                {/* Admin Dashboard Routes */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                <Route path="/admin/services" element={<AdminServices />} />
-                <Route path="/admin/system-settings" element={<AdminSettings />} />
-                <Route path="/admin/sales-quotes" element={<DashboardLayout><SalesQuotes /></DashboardLayout>} />
+                {/* Admin Dashboard Routes with AdminLayout */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="clients" element={<AdminClients />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="invoices" element={<AdminInvoices />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="services" element={<AdminServices />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+
+                {/* User Portal Routes with UserLayout */}
+                <Route path="/portal" element={<UserLayout />}>
+                  <Route index element={<UserOverview />} />
+                  <Route path="invoices" element={<UserInvoices />} />
+                  <Route path="documents" element={<UserDocuments />} />
+                  <Route path="services" element={<UserServices />} />
+                </Route>
 
                 {/* Payment routes with Layout */}
                 <Route path="/payment-success" element={<PaymentSuccess />} />
