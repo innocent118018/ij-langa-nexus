@@ -50,3 +50,18 @@ verify_jwt = false
 
 [functions.notification-cron]
 verify_jwt = false
+
+[functions.create-user-profile]
+verify_jwt = false
+
+[functions.get-admin-signed-url]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.ikhokha-webhook]
+verify_jwt = false
+
+[functions.generate-contract]
+verify_jwt = false
