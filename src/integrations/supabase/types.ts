@@ -1888,8 +1888,10 @@ export type Database = {
           has_default_hourly_rate: boolean | null
           id: string
           is_primary_account: boolean | null
+          last_statement_sent: string | null
           parent_account_id: string | null
           phone: string | null
+          statement_enabled: boolean | null
           updated_at: string
         }
         Insert: {
@@ -1906,8 +1908,10 @@ export type Database = {
           has_default_hourly_rate?: boolean | null
           id?: string
           is_primary_account?: boolean | null
+          last_statement_sent?: string | null
           parent_account_id?: string | null
           phone?: string | null
+          statement_enabled?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -1924,8 +1928,10 @@ export type Database = {
           has_default_hourly_rate?: boolean | null
           id?: string
           is_primary_account?: boolean | null
+          last_statement_sent?: string | null
           parent_account_id?: string | null
           phone?: string | null
+          statement_enabled?: boolean | null
           updated_at?: string
         }
         Relationships: [
