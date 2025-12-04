@@ -549,6 +549,51 @@ export type Database = {
         }
         Relationships: []
       }
+      banking_details: {
+        Row: {
+          account_number: string | null
+          account_type: string | null
+          bank_name: string | null
+          branch_code: string | null
+          branch_name: string | null
+          created_at: string | null
+          id: string
+          last_verified_at: string | null
+          swift_code: string | null
+          updated_at: string | null
+          updated_by: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          account_number?: string | null
+          account_type?: string | null
+          bank_name?: string | null
+          branch_code?: string | null
+          branch_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          swift_code?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          account_number?: string | null
+          account_type?: string | null
+          bank_name?: string | null
+          branch_code?: string | null
+          branch_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_verified_at?: string | null
+          swift_code?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       billable_expenses: {
         Row: {
           amount: number | null
@@ -1510,6 +1555,45 @@ export type Database = {
         }
         Relationships: []
       }
+      company_settings: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          csd_number: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          registration_number: string | null
+          tax_number: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          csd_number?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          registration_number?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          csd_number?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          registration_number?: string | null
+          tax_number?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       company_shareholders: {
         Row: {
           acquisition_date: string | null
@@ -1728,6 +1812,45 @@ export type Database = {
           service_type?: string | null
           status?: string | null
           timeline?: string | null
+        }
+        Relationships: []
+      }
+      contact_settings: {
+        Row: {
+          billing_email: string | null
+          created_at: string | null
+          id: string
+          orders_email: string | null
+          phone: string | null
+          primary_email: string | null
+          support_email: string | null
+          updated_at: string | null
+          updated_by: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          billing_email?: string | null
+          created_at?: string | null
+          id?: string
+          orders_email?: string | null
+          phone?: string | null
+          primary_email?: string | null
+          support_email?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          billing_email?: string | null
+          created_at?: string | null
+          id?: string
+          orders_email?: string | null
+          phone?: string | null
+          primary_email?: string | null
+          support_email?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -4321,6 +4444,45 @@ export type Database = {
         }
         Relationships: []
       }
+      settings_audit: {
+        Row: {
+          action: string
+          created_at: string | null
+          entity: string
+          entity_id: string | null
+          id: string
+          ip_address: unknown
+          new_value: Json | null
+          old_value: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          entity: string
+          entity_id?: string | null
+          id?: string
+          ip_address?: unknown
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          ip_address?: unknown
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           accounts_payable: number | null
@@ -4842,6 +5004,45 @@ export type Database = {
           role?: string
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      website_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          maintenance_mode: boolean | null
+          social_facebook: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
+          support_email: string | null
+          updated_at: string | null
+          updated_by: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          maintenance_mode?: boolean | null
+          social_facebook?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          support_email?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          maintenance_mode?: boolean | null
+          social_facebook?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
+          support_email?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
