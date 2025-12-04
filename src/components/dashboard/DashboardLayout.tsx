@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { DashboardSidebar } from './DashboardSidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Bell, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,7 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
+  const { isAdmin } = useUserRole();
   const { customers, invoices } = useDashboardData();
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,20 +25,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   
   // Check if we're on a dashboard page that should use the layout
   const isDashboardPage = location.pathname.startsWith('/dashboard');
-  
-  // Dashboard pages should not use the regular Layout
-  // They have their own header and footer structure
-  
-  // Check if user is admin
-  const adminEmails = [
-    'info@ijlanga.co.za',
-    'orders@ijlanga.co.za', 
-    'billings@ijlanga.co.za',
-    'correspondence@ijlanga.co.za',
-    'ij.langa11@gmail.com'
-  ];
-  
-  const isAdmin = adminEmails.includes(user?.email?.toLowerCase() || '');
 
   // Search functionality
   const searchResults = React.useMemo(() => {
