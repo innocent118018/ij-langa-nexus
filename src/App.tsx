@@ -41,8 +41,12 @@ import UserInvoices from "./pages/user/UserInvoices";
 import UserServices from "./pages/user/UserServices";
 
 // Layouts
-import AdminLayout from "./layouts/AdminLayout";
+import { NewAdminLayout } from "./components/admin/NewAdminLayout";
 import UserLayout from "./layouts/UserLayout";
+
+// New Admin Pages
+import NewAdminSummary from "./pages/admin/NewAdminSummary";
+import NewAdminSettings from "./pages/admin/NewAdminSettings";
 
 // Components
 import ProtectedRoute from "./components/dashboard/ProtectedRoute";
@@ -777,16 +781,18 @@ function App() {
                 <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
                 <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
 
-                {/* Admin Dashboard Routes with AdminLayout */}
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="clients" element={<AdminClients />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="invoices" element={<AdminInvoices />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="services" element={<AdminServices />} />
-                  <Route path="settings" element={<AdminSettings />} />
+                {/* New Admin Dashboard Routes */}
+                <Route path="/admin" element={<NewAdminLayout />}>
+                  <Route index element={<Navigate to="/admin/summary" replace />} />
+                  <Route path="summary" element={<NewAdminSummary />} />
+                  <Route path="settings" element={<NewAdminSettings />} />
+                  {/* Placeholder routes for other admin pages - to be implemented */}
+                  <Route path="monitoring" element={<NewAdminSummary />} />
+                  <Route path="customers" element={<NewAdminSummary />} />
+                  <Route path="sales-invoices" element={<NewAdminSummary />} />
+                  <Route path="sales-orders" element={<NewAdminSummary />} />
+                  <Route path="sales-quotes" element={<NewAdminSummary />} />
+                  <Route path="*" element={<NewAdminSummary />} />
                 </Route>
 
                 {/* User Portal Routes with UserLayout */}
