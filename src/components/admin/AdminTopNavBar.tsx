@@ -35,7 +35,7 @@ export function AdminTopNav() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/auth/login');
   };
 
   const handleSearch = (e: React.FormEvent) => {

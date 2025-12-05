@@ -14,6 +14,14 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { Login } from "./pages/Login";
+
+// New Auth Pages
+import AuthLogin from "./pages/auth/Login";
+import AuthRegister from "./pages/auth/Register";
+import AuthForgotPassword from "./pages/auth/ForgotPassword";
+import AuthResetPassword from "./pages/auth/ResetPassword";
+import AuthVerifyEmail from "./pages/auth/VerifyEmail";
+import AuthGuard from "./components/auth/AuthGuard";
 import About from "./pages/About";
 import Products from "./pages/Products";
 import Pricing from "./pages/Pricing";
@@ -232,8 +240,17 @@ function App() {
               <Routes>
                 {/* Public routes with Layout */}
                 <Route path="/" element={<Layout><Index /></Layout>} />
-                <Route path="/auth" element={<Layout><Auth /></Layout>} />
-                <Route path="/login" element={<Layout><Login /></Layout>} />
+                
+                {/* New Auth Routes */}
+                <Route path="/auth/login" element={<AuthLogin />} />
+                <Route path="/auth/register" element={<AuthRegister />} />
+                <Route path="/auth/forgot-password" element={<AuthForgotPassword />} />
+                <Route path="/auth/reset-password" element={<AuthResetPassword />} />
+                <Route path="/auth/verify-email" element={<AuthVerifyEmail />} />
+                
+                {/* Legacy auth routes - redirect to new */}
+                <Route path="/auth" element={<AuthLogin />} />
+                <Route path="/login" element={<AuthLogin />} />
                 <Route path="/about" element={<Layout><About /></Layout>} />
                 <Route path="/services" element={<Layout><Services /></Layout>} />
                 <Route path="/services/:category/:service" element={<Layout><Services /></Layout>} />
@@ -781,8 +798,12 @@ function App() {
                 <Route path="/clerkiq/features/billing-credits" element={<Layout><BillingCredits /></Layout>} />
                 <Route path="/clerkiq/features/security-mfa" element={<Layout><SecurityMFA /></Layout>} />
 
-                {/* New Admin Dashboard Routes */}
-                <Route path="/admin" element={<NewAdminLayout />}>
+                {/* New Admin Dashboard Routes - Protected */}
+                <Route path="/admin" element={
+                  <AuthGuard requireAdmin>
+                    <NewAdminLayout />
+                  </AuthGuard>
+                }>
                   <Route index element={<Navigate to="/admin/summary" replace />} />
                   <Route path="summary" element={<NewAdminSummary />} />
                   <Route path="settings" element={<NewAdminSettings />} />
@@ -795,9 +816,14 @@ function App() {
                   <Route path="*" element={<NewAdminSummary />} />
                 </Route>
 
-                {/* User Portal Routes with UserLayout */}
-                <Route path="/portal" element={<UserLayout />}>
-                  <Route index element={<UserOverview />} />
+                {/* User Portal Routes - Protected */}
+                <Route path="/portal" element={
+                  <AuthGuard>
+                    <UserLayout />
+                  </AuthGuard>
+                }>
+                  <Route index element={<Navigate to="/portal/overview" replace />} />
+                  <Route path="overview" element={<UserOverview />} />
                   <Route path="invoices" element={<UserInvoices />} />
                   <Route path="documents" element={<UserDocuments />} />
                   <Route path="services" element={<UserServices />} />

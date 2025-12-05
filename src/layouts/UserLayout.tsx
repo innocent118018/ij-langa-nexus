@@ -17,12 +17,12 @@ import {
 import { cn } from '@/lib/utils';
 
 const userNavItems = [
-  { label: 'Overview', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'My Invoices', icon: FileText, href: '/dashboard/invoices' },
-  { label: 'Documents', icon: FolderOpen, href: '/dashboard/documents' },
-  { label: 'Services', icon: CreditCard, href: '/dashboard/services' },
-  { label: 'Support', icon: HelpCircle, href: '/dashboard/support' },
-  { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
+  { label: 'Overview', icon: LayoutDashboard, href: '/portal/overview' },
+  { label: 'My Invoices', icon: FileText, href: '/portal/invoices' },
+  { label: 'Documents', icon: FolderOpen, href: '/portal/documents' },
+  { label: 'Services', icon: CreditCard, href: '/portal/services' },
+  { label: 'Support', icon: HelpCircle, href: '/portal/support' },
+  { label: 'Settings', icon: Settings, href: '/portal/settings' },
 ];
 
 export default function UserLayout() {
@@ -32,7 +32,7 @@ export default function UserLayout() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/auth');
+    navigate('/auth/login');
   };
 
   return (
