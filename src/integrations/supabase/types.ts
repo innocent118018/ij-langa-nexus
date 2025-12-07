@@ -41,6 +41,53 @@ export type Database = {
         }
         Relationships: []
       }
+      accounts: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          normal_balance: string | null
+          parent_account_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          normal_balance?: string | null
+          parent_account_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          normal_balance?: string | null
+          parent_account_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_activity_logs: {
         Row: {
           action_type: string
@@ -3026,6 +3073,90 @@ export type Database = {
           },
         ]
       }
+      journal_entries: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          entry_date: string
+          id: string
+          narration: string | null
+          posted_at: string | null
+          posted_by: string | null
+          reference: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          entry_date?: string
+          id?: string
+          narration?: string | null
+          posted_at?: string | null
+          posted_by?: string | null
+          reference: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          entry_date?: string
+          id?: string
+          narration?: string | null
+          posted_at?: string | null
+          posted_by?: string | null
+          reference?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      journal_lines: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          credit: number | null
+          debit: number | null
+          description: string | null
+          id: string
+          journal_entry_id: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          credit?: number | null
+          debit?: number | null
+          description?: string | null
+          id?: string
+          journal_entry_id?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          credit?: number | null
+          debit?: number | null
+          description?: string | null
+          id?: string
+          journal_entry_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_lines_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_lines_journal_entry_id_fkey"
+            columns: ["journal_entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       late_payment_fees: {
         Row: {
           created_at: string | null
@@ -3530,8 +3661,10 @@ export type Database = {
           is_active: boolean
           name: string
           price: number | null
+          sku: string | null
           stock_quantity: number
           updated_at: string
+          vat_rate: number | null
         }
         Insert: {
           category: string
@@ -3542,8 +3675,10 @@ export type Database = {
           is_active?: boolean
           name: string
           price?: number | null
+          sku?: string | null
           stock_quantity?: number
           updated_at?: string
+          vat_rate?: number | null
         }
         Update: {
           category?: string
@@ -3554,8 +3689,10 @@ export type Database = {
           is_active?: boolean
           name?: string
           price?: number | null
+          sku?: string | null
           stock_quantity?: number
           updated_at?: string
+          vat_rate?: number | null
         }
         Relationships: []
       }

@@ -41,12 +41,20 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminServices from "./pages/admin/AdminServices";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminInvoices from "./pages/admin/AdminInvoices";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminEcommerce from "./pages/admin/AdminEcommerce";
+import AdminDocuments from "./pages/admin/AdminDocuments";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
+import AdminAccounting from "./pages/admin/AdminAccounting";
 
 // User portal pages
 import UserOverview from "./pages/user/UserOverview";
 import UserDocuments from "./pages/user/UserDocuments";
 import UserInvoices from "./pages/user/UserInvoices";
 import UserServices from "./pages/user/UserServices";
+import UserDashboard from "./pages/user/UserDashboard";
+import UserNotifications from "./pages/user/UserNotifications";
+import UserProfile from "./pages/user/UserProfile";
 
 // Layouts
 import { NewAdminLayout } from "./components/admin/NewAdminLayout";
@@ -807,11 +815,21 @@ function App() {
                   <Route index element={<Navigate to="/admin/summary" replace />} />
                   <Route path="summary" element={<NewAdminSummary />} />
                   <Route path="settings" element={<NewAdminSettings />} />
-                  {/* Placeholder routes for other admin pages - to be implemented */}
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="clients" element={<AdminClients />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="ecommerce" element={<AdminEcommerce />} />
+                  <Route path="documents" element={<AdminDocuments />} />
+                  <Route path="audit-logs" element={<AdminAuditLogs />} />
+                  <Route path="accounting" element={<AdminAccounting />} />
+                  <Route path="invoices" element={<AdminInvoices />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="services" element={<AdminServices />} />
                   <Route path="monitoring" element={<NewAdminSummary />} />
-                  <Route path="customers" element={<NewAdminSummary />} />
-                  <Route path="sales-invoices" element={<NewAdminSummary />} />
-                  <Route path="sales-orders" element={<NewAdminSummary />} />
+                  <Route path="customers" element={<AdminClients />} />
+                  <Route path="sales-invoices" element={<AdminInvoices />} />
+                  <Route path="sales-orders" element={<AdminOrders />} />
                   <Route path="sales-quotes" element={<NewAdminSummary />} />
                   <Route path="*" element={<NewAdminSummary />} />
                 </Route>
@@ -822,11 +840,14 @@ function App() {
                     <UserLayout />
                   </AuthGuard>
                 }>
-                  <Route index element={<Navigate to="/portal/overview" replace />} />
+                  <Route index element={<Navigate to="/portal/dashboard" replace />} />
+                  <Route path="dashboard" element={<UserDashboard />} />
                   <Route path="overview" element={<UserOverview />} />
                   <Route path="invoices" element={<UserInvoices />} />
                   <Route path="documents" element={<UserDocuments />} />
                   <Route path="services" element={<UserServices />} />
+                  <Route path="notifications" element={<UserNotifications />} />
+                  <Route path="profile" element={<UserProfile />} />
                 </Route>
 
                 {/* Payment routes with Layout */}
