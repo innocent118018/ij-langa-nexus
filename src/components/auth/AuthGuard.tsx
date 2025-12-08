@@ -27,7 +27,7 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
 
         setIsAuthenticated(true);
 
-        // Check admin role if required
+        // Check admin role if required - include all admin roles
         if (requireAdmin) {
           const { data: roleData } = await supabase
             .from('user_roles')
@@ -35,7 +35,8 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
             .eq('user_id', session.user.id)
             .maybeSingle();
 
-          setIsAdmin(roleData?.role === 'admin' || roleData?.role === 'super_admin');
+          const adminRoles = ['admin', 'super_admin', 'accountant', 'consultant'];
+          setIsAdmin(roleData?.role ? adminRoles.includes(roleData.role) : false);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -61,7 +62,8 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
               .select('role')
               .eq('user_id', session.user.id)
               .maybeSingle();
-            setIsAdmin(roleData?.role === 'admin' || roleData?.role === 'super_admin');
+            const adminRoles = ['admin', 'super_admin', 'accountant', 'consultant'];
+            setIsAdmin(roleData?.role ? adminRoles.includes(roleData.role) : false);
           }
         }
       }
