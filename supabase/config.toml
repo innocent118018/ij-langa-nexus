@@ -65,3 +65,9 @@ verify_jwt = false
 
 [functions.generate-contract]
 verify_jwt = false
+
+[functions.admin-upload-file]
+verify_jwt = true
+
+[functions.download-signed-url]
+verify_jwt = true
