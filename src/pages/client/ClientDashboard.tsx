@@ -16,71 +16,93 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+interface DashboardData {
+  productsCount: number;
+  ordersCount: number;
+  pendingOrders: number;
+  customersCount: number;
+  totalRevenue: number;
+  recentOrders: Array<{
+    id: string;
+    total_amount: number | null;
+    status: string | null;
+    created_at: string;
+  }>;
+}
+
+async function fetchDashboardData(userId: string): Promise<DashboardData | null> {
+  // Get user's company
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('company_id')
+    .eq('id', userId)
+    .single();
+
+  if (!profile?.company_id) return null;
+
+  const companyId = profile.company_id;
+
+  // Get products count
+  const { count: productsCount } = await supabase
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('company_id', companyId);
+
+  // Get orders with totals
+  const { data: ordersData } = await supabase
+    .from('orders')
+    .select('id, total_amount, status, created_at')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  // Get pending orders count
+  const { count: pendingCount } = await supabase
+    .from('orders')
+    .select('id', { count: 'exact', head: true })
+    .eq('company_id', companyId)
+    .eq('status', 'pending');
+
+  // Get customers count - use any to avoid type recursion
+  const { count: custCount } = await (supabase as any)
+    .from('customers')
+    .select('id', { count: 'exact', head: true })
+    .eq('company_id', companyId);
+
+  // Calculate revenue
+  const { data: revenueData } = await supabase
+    .from('orders')
+    .select('total_amount')
+    .eq('company_id', companyId)
+    .eq('status', 'completed');
+
+  const revenueOrders = (revenueData || []) as Array<{ total_amount: number | null }>;
+  const totalRevenue = revenueOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+
+  const orders = (ordersData || []) as Array<{
+    id: string;
+    total_amount: number | null;
+    status: string | null;
+    created_at: string;
+  }>;
+
+  return {
+    productsCount: productsCount || 0,
+    ordersCount: orders.length,
+    pendingOrders: pendingCount || 0,
+    customersCount: custCount || 0,
+    totalRevenue,
+    recentOrders: orders,
+  };
+}
+
 export default function ClientDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['client-dashboard', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-
-      // Get user's company
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
-
-      const companyId = profile.company_id;
-
-      // Get products count
-      const { count: productsCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId);
-
-      // Get orders with totals
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('id, total_amount, status, created_at')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      // Get pending orders count
-      const { count: pendingOrders } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId)
-        .eq('status', 'pending');
-
-      // Get customers count
-      const { count: customersCount } = await supabase
-        .from('customers')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId);
-
-      // Calculate revenue
-      const { data: completedOrders } = await supabase
-        .from('orders')
-        .select('total_amount')
-        .eq('company_id', companyId)
-        .eq('status', 'completed') as { data: { total_amount: number }[] | null };
-
-      const totalRevenue = completedOrders?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0;
-
-      return {
-        productsCount: productsCount || 0,
-        ordersCount: orders?.length || 0,
-        pendingOrders: pendingOrders || 0,
-        customersCount: customersCount || 0,
-        totalRevenue,
-        recentOrders: orders || [],
-      };
-    },
+    queryFn: () => fetchDashboardData(user!.id),
     enabled: !!user?.id,
   });
 

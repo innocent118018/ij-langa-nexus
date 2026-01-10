@@ -7249,6 +7249,7 @@ export type Database = {
         }
         Returns: string
       }
+      current_company: { Args: never; Returns: string }
       detect_duplicates: {
         Args: { target_table?: string }
         Returns: {
@@ -7335,6 +7336,9 @@ export type Database = {
         | { Args: { check_user_id: string }; Returns: boolean }
       is_admin_email: { Args: { user_email: string }; Returns: boolean }
       is_client: { Args: { check_user_id: string }; Returns: boolean }
+      is_current_user_admin: { Args: never; Returns: boolean }
+      is_current_user_client: { Args: never; Returns: boolean }
+      is_current_user_reseller: { Args: never; Returns: boolean }
       is_reseller: { Args: { check_user_id: string }; Returns: boolean }
       is_reseller_for_company: {
         Args: { company_uuid: string }
